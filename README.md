@@ -2,8 +2,7 @@
 
 [PICO-8](https://www.lexaloffle.com/pico-8.php) is a fantasy console for making, sharing and playing tiny games and other computer programs. When you turn it on, the machine greets you with a shell for typing in Lua commands and provides simple built-in tools for creating your own cartridges. 
 
-This tool was used during 2018 to teach young programmers with ages ranging from 11 to 14 years old at University of Porto's Junior University, and for dynamizing game construction at Game Jams. However, PICO-8 is a paid platform; and for that reason during the LDSO ([Software Development Laboratory
-](https://sigarra.up.pt/feup/en/ucurr_geral.ficha_uc_view?pv_ocorrencia_id=281226)) course we were tasked with presenting an open-source alternative, that also allows for better flexibility by being more suitable for education.
+This tool was used during 2018 to teach young programmers with ages ranging from 11 to 14 years old at University of Porto's Junior University, and for dynamizing game construction at Game Jams. However, PICO-8 is a paid platform; and for that reason during the LDSO ([Software Development Laboratory](https://sigarra.up.pt/feup/en/ucurr_geral.ficha_uc_view?pv_ocorrencia_id=281226)) course we were tasked with presenting an open-source alternative, that also allows for better flexibility by being more suitable for education.
 
 
 ## Feedback
@@ -23,4 +22,4 @@ This is being developed by the following team, feel free to contact any of us at
  
 ## License
 
-Licensed under the [MIT](LICENSE.txt) License.
+Licensed under the [MIT](LICENSE) License.
