@@ -10,7 +10,7 @@ This tool was used during 2018 to teach young programmers with ages ranging from
 * Request a new feature on GitLab
 * File a bug in [GitLab Issues](https://gitlab.com/ldso18-19/t5g2/issues).
 
-## Development
+## Development Team
 
 This is being developed by the following team, feel free to contact any of us at any time.
 
@@ -19,6 +19,62 @@ This is being developed by the following team, feel free to contact any of us at
 --|--|--|--|--|--|--|--|
 | <img src="https://secure.gravatar.com/avatar/f492e5707cbf0fca0f3225e0fcdbf52b?s=180&d=identicon" height="75px"/>  | [`@Lantaros`](https://gitlab.com/Lantaros)| <img src="https://secure.gravatar.com/avatar/8dacc894429b1c487a94acfbe447c078?s=180&d=identicon"      height="75px"/> | [`@TrocaTudo95`](https://gitlab.com/TrocaTudo95) | <img src="https://secure.gravatar.com/avatar/b9f320d003766e6ab9e859c6364d7744?s=180&d=identicon" height="75px"/>  | [`@up201504196`](https://gitlab.com/up201504196)| <img src="http://4sqday.com/wp-content/uploads/2012/07/Pointing_Finger.jpg"   height="75px"/> | YOU
 
+
+## Build instructions
+
+### Windows
+#### with Visual Studio 2017
+- install `Visual Studio 2017`
+- install `git`
+- run following commands in `cmd`
+```
+git clone --recursive https://github.com/nesbox/TIC-80
+cmake -G "Visual Studio 15 2017 Win64"
+```
+- open `TIC-80.sln` and build
+- enjoy :)
+
+#### with MinGW
+- install `mingw-w64` (http://mingw-w64.org) and add `.../mingw/bin` path to the *System Variables Path*
+- install `git`
+- install `cmake` (https://cmake.org)
+- run following commands in `terminal`
+```
+git clone --recursive https://github.com/nesbox/TIC-80
+cd TIC-80
+cmake -G "MinGW Makefiles"
+mingw32-make -j4
+```
+
+### Linux (Ubuntu 14.04)
+run the following commands in the Terminal
+```
+sudo apt-get install git cmake libgtk-3-dev libgles1-mesa-dev libglu-dev -y
+git clone --recursive https://github.com/nesbox/TIC-80 && cd TIC-80
+cmake . && make -j4
+```
+
+to install the latest CMake:
+```
+wget "https://cmake.org/files/v3.12/cmake-3.12.0-Linux-x86_64.sh"
+sudo sh cmake-3.12.0-Linux-x86_64.sh --skip-license --prefix=/usr
+```
+
+### Mac
+install `Command Line Tools for Xcode` and `brew` package manager
+
+run the following commands in the Terminal
+```
+brew install git cmake
+git clone --recursive https://github.com/nesbox/TIC-80
+cd TIC-80
+cmake . && make -j4
+```
+
+### iOS / tvOS
+You can find iOS/tvOS version here 
+- 0.60.3: https://github.com/brunophilipe/TIC-80
+- 0.45.0: https://github.com/CliffsDover/TIC-80
 
 ## Related Projects
 
