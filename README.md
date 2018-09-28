@@ -19,6 +19,11 @@ This is being developed by the following team, feel free to contact any of us at
 --|--|--|--|--|--|--|--|
 | <img src="https://secure.gravatar.com/avatar/f492e5707cbf0fca0f3225e0fcdbf52b?s=180&d=identicon" height="75px"/>  | [`@Lantaros`](https://gitlab.com/Lantaros)| <img src="https://secure.gravatar.com/avatar/8dacc894429b1c487a94acfbe447c078?s=180&d=identicon"      height="75px"/> | [`@TrocaTudo95`](https://gitlab.com/TrocaTudo95) | <img src="https://secure.gravatar.com/avatar/b9f320d003766e6ab9e859c6364d7744?s=180&d=identicon" height="75px"/>  | [`@up201504196`](https://gitlab.com/up201504196)| <img src="http://4sqday.com/wp-content/uploads/2012/07/Pointing_Finger.jpg"   height="75px"/> | YOU
 
+
+## Related Projects
+
+The project was based on existent project [TIC-80](https://github.com/nesbox/TIC-80). The use of it, allow us to have a solid base for FEUP-8 and focus on new features, in order to make the game more suitable for education purposes.
+
  
 ## License
 
