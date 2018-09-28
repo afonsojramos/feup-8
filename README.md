@@ -28,7 +28,7 @@ This is being developed by the following team, feel free to contact any of us at
 - install `git`
 - run following commands in `cmd`
 ```
-git clone --recursive https://github.com/nesbox/TIC-80
+git clone --recursive https://gitlab.com/ldso18-19/t5g2
 cmake -G "Visual Studio 15 2017 Win64"
 ```
 - open `TIC-80.sln` and build
@@ -40,7 +40,7 @@ cmake -G "Visual Studio 15 2017 Win64"
 - install `cmake` (https://cmake.org)
 - run following commands in `terminal`
 ```
-git clone --recursive https://github.com/nesbox/TIC-80
+git clone --recursive https://gitlab.com/ldso18-19/t5g2
 cd TIC-80
 cmake -G "MinGW Makefiles"
 mingw32-make -j4
@@ -50,7 +50,7 @@ mingw32-make -j4
 run the following commands in the Terminal
 ```
 sudo apt-get install git cmake libgtk-3-dev libgles1-mesa-dev libglu-dev -y
-git clone --recursive https://github.com/nesbox/TIC-80 && cd TIC-80
+git clone --recursive https://gitlab.com/ldso18-19/t5g2 && cd TIC-80
 cmake . && make -j4
 ```
 
@@ -66,7 +66,7 @@ install `Command Line Tools for Xcode` and `brew` package manager
 run the following commands in the Terminal
 ```
 brew install git cmake
-git clone --recursive https://github.com/nesbox/TIC-80
+git clone --recursive https://gitlab.com/ldso18-19/t5g2
 cd TIC-80
 cmake . && make -j4
 ```
