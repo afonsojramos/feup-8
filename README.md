@@ -71,10 +71,6 @@ cd TIC-80
 cmake . && make -j4
 ```
 
-### iOS / tvOS
-You can find iOS/tvOS version here 
-- 0.60.3: https://github.com/brunophilipe/TIC-80
-- 0.45.0: https://github.com/CliffsDover/TIC-80
 
 ## Related Projects
 
