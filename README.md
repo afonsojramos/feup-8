@@ -74,7 +74,7 @@ cmake . && make -j4
 
 ## Related Projects
 
-The project was based on existent project [TIC-80](https://github.com/nesbox/TIC-80). The use of it, allow us to have a solid base for FEUP-8 and focus on new features, in order to make the game more suitable for education purposes.
+The project was based on existent project [TIC-80](https://github.com/nesbox/TIC-80). Its use will allow us to have a solid foundation for FEUP-8 and to focus on new features, in order to make the platform more suitable for educational purposes.
 
  
 ## License
