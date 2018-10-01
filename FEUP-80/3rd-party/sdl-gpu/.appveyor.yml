@@ -1,0 +1,60 @@
+environment:
+  P: "c:/projects/libs"
+#  ACCOUNT:
+#      secure: 
+
+branches:
+  only:
+    - master
+
+os: Visual Studio 2015
+
+init:
+  - git config --global core.autocrlf input
+
+
+
+shallow_clone: true
+clone_folder: c:\projects\SDL_gpu
+
+install:
+  - mkdir c:\projects\libs
+  # Download SDL.
+  - ps: Start-FileDownload 'https://www.libsdl.org/release/SDL2-devel-2.0.5-VC.zip' 'c:/projects/libs/SDL.zip'
+  
+  # Extract it, put it in the right place, and rename it.
+  - cd c:\projects\libs && 7z x SDL.zip && ren SDL2-2.0.5 SDL2 && cd c:\projects\SDL_gpu
+
+
+platform:
+  - x86
+  - x64
+
+configuration:
+  - Debug
+  - Release
+
+build:
+  project: build\INSTALL.vcxproj
+
+# scripts to run before build
+before_build:
+  - echo Running cmake...
+  - cd c:\projects\SDL_gpu
+  - mkdir build
+  - cd build
+  - cmake -G "Visual Studio 14 2015" -DCMAKE_INSTALL_PREFIX=c:\projects\libs\SDL2 -DSDL_gpu_BUILD_DEMOS=ON -DSDL_gpu_BUILD_TESTS=ON -DSDL_gpu_BUILD_TOOLS=ON -DSDL_gpu_BUILD_SHARED=ON -DSDL_gpu_BUILD_STATIC=ON ..
+
+# scripts to run after build
+after_build:
+  - cd c:\projects\SDL_gpu\build
+  - 7z a c:\projects\SDL_gpu\SDL_gpu.zip * -tzip
+  - cd c:\projects\SDL_gpu
+
+artifacts:
+  - path: SDL_gpu.zip
+    name: SDL_gpu.zip
+
+deploy_script:
+  - cd c:\projects\SDL_gpu
+#  - curl -T SDL_gpu.zip --user %ACCOUNT% https://www.dinomage.com/SDL_gpu.zip
