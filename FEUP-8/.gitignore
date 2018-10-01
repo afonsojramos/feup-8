@@ -127,3 +127,11 @@ lib/
 *.cmake
 CMakeCache.txt
 Makefile
+*.log
+*.pdb
+*.vcxproj*
+*.sln
+*.filters
+*.tlog
+*.obj
+*.res
