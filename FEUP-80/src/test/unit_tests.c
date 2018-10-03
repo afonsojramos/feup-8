@@ -1,5 +1,5 @@
 #include "acutest.h"
-
+#include "some_functions.h"
 
 void test_tutorial(void)
 {
@@ -14,8 +14,7 @@ void test_tutorial(void)
     free(mem);
 }
 
-void
-test_fail(void)
+void test_fail(void)
 {
     int a, b;
 
@@ -34,8 +33,7 @@ test_fail(void)
     }
 }
 
-void
-test_crash(void)
+void test_crash(void)
 {
     int* invalid = ((int*)NULL) + 0xdeadbeef;
 
@@ -43,10 +41,43 @@ test_crash(void)
     TEST_CHECK_(1 == 1, "We likely never get here, due to the crash above.");
 }
 
+void test1(void)
+{
+    TEST_MSG("Running test1");
+    int x = sum(34, 34);
+    TEST_CHECK(x == 68);
+    x = sum(34, 35);
+    TEST_CHECK(x != 68);
+    TEST_CHECK(x > 68);
+}
 
+void test2(void)
+{
+
+}
+void test3(void)
+{
+
+}
+
+void test4(void)
+{
+
+}
+
+void test5(void)
+{
+
+}
+
+/**
+  * Add all tests to this list, otherwise they will not run
+**/
 TEST_LIST = {
-    { "tutorial", test_tutorial },
-    { "fail",     test_fail },
-    { "crash",    test_crash },
+    { "test1", test1 },
+    { "test2", test2 },
+    { "test3", test3 },
+    { "test4", test4 },
+    { "test5", test5 },
     { NULL, NULL }
 };
