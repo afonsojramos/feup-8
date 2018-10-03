@@ -53,10 +53,10 @@
 typedef enum
 {
 #if defined(TIC_BUILD_WITH_LUA)
-	LuaScript,	
+	LuaScript,
 
 #	if defined(TIC_BUILD_WITH_MOON)
-	MoonScript,	
+	MoonScript,
 #	endif
 
 #	if defined(TIC_BUILD_WITH_FENNEL)
@@ -66,11 +66,11 @@ typedef enum
 #endif /* defined(TIC_BUILD_WITH_LUA) */
 
 #if defined(TIC_BUILD_WITH_JS)
-	JavaScript,	
+	JavaScript,
 #endif
 
 #if defined(TIC_BUILD_WITH_WREN)
-	WrenScript,	
+	WrenScript,
 #endif
 
 } ScriptLang;
@@ -118,7 +118,7 @@ static const char DefaultJSTicPath[] = TIC_LOCAL "default_js.tic";
 #if defined(TIC_BUILD_WITH_WREN)
 static const char DefaultWrenTicPath[] = TIC_LOCAL "default_wren.tic";
 #endif
-	
+
 
 static const char* getName(const char* name, const char* ext)
 {
@@ -485,7 +485,7 @@ static void* getDemoCart(Console* console, ScriptLang script, s32* size)
 
 #if defined(TIC_BUILD_WITH_WREN)
 		case WrenScript: strcpy(path, DefaultWrenTicPath); break;
-#endif			
+#endif
 		}
 
 		void* data = fsLoadRootFile(console->fs, path, size);
@@ -508,7 +508,7 @@ static void* getDemoCart(Console* console, ScriptLang script, s32* size)
 			};
 
 			demo = LuaDemoRom;
-			romSize = sizeof LuaDemoRom;			
+			romSize = sizeof LuaDemoRom;
 		}
 		break;
 
@@ -521,7 +521,7 @@ static void* getDemoCart(Console* console, ScriptLang script, s32* size)
 			};
 
 			demo = MoonDemoRom;
-			romSize = sizeof MoonDemoRom;			
+			romSize = sizeof MoonDemoRom;
 		}
 		break;
 #	endif
@@ -566,10 +566,10 @@ static void* getDemoCart(Console* console, ScriptLang script, s32* size)
 			};
 
 			demo = WrenDemoRom;
-			romSize = sizeof WrenDemoRom;			
+			romSize = sizeof WrenDemoRom;
 		}
 		break;
-#endif		
+#endif
 	}
 
 	u8* data = NULL;
@@ -723,7 +723,7 @@ static char* saveTextSectionBank(char* ptr, const char* comment, const char* tag
 
 static char* saveBinaryBuffer(char* ptr, const char* comment, const void* data, s32 size, s32 row, bool flip)
 {
-	if(bufferEmpty(data, size)) 
+	if(bufferEmpty(data, size))
 		return ptr;
 
 	sprintf(ptr, "%s %03i:", comment, row);
@@ -740,7 +740,7 @@ static char* saveBinaryBuffer(char* ptr, const char* comment, const void* data, 
 
 static char* saveBinarySection(char* ptr, const char* comment, const char* tag, s32 count, const void* data, s32 size, bool flip)
 {
-	if(bufferEmpty(data, size * count)) 
+	if(bufferEmpty(data, size * count))
 		return ptr;
 
 	sprintf(ptr, "%s <%s>\n", comment, tag);
@@ -756,7 +756,7 @@ static char* saveBinarySection(char* ptr, const char* comment, const char* tag, 
 }
 
 typedef struct {char* tag; s32 count; s32 offset; s32 size; bool flip;} BinarySection;
-static const BinarySection BinarySections[] = 
+static const BinarySection BinarySections[] =
 {
 	{"TILES", 		TIC_BANK_SPRITES, 	offsetof(tic_bank, tiles), 			sizeof(tic_tile), 			true},
 	{"SPRITES", 	TIC_BANK_SPRITES, 	offsetof(tic_bank, sprites), 		sizeof(tic_tile), 			true},
@@ -790,10 +790,10 @@ static s32 saveProject(Console* console, void* buffer, const char* comment)
 		{
 			makeTag(section->tag, tag, b);
 
-			ptr = saveBinarySection(ptr, comment, tag, section->count, 
+			ptr = saveBinarySection(ptr, comment, tag, section->count,
 				(u8*)&tic->cart.banks[b] + section->offset, section->size, section->flip);
 		}
-	}		
+	}
 
 	ptr = saveBinarySection(ptr, comment, "COVER", 1, &tic->cart.cover, tic->cart.cover.size + sizeof(s32), true);
 
@@ -852,7 +852,7 @@ static bool loadTextSectionBank(const char* project, const char* comment, const 
 		if(end > start)
 		{
 			memcpy(dst, start, MIN(size, end - start));
-			
+
 			done = true;
 		}
 	}
@@ -888,7 +888,7 @@ static bool loadBinarySection(const char* project, const char* comment, const ch
 					memcpy(lineStr, ptr + sizeof("-- ") - 1, sizeof lineStr - 1);
 
 					s32 index = atoi(lineStr);
-					
+
 					if(index < count)
 					{
 						ptr += sizeof("-- 999:") - 1;
@@ -898,7 +898,7 @@ static bool loadBinarySection(const char* project, const char* comment, const ch
 						ptr = getLineEnd(ptr);
 					}
 					else break;
-				}				
+				}
 			}
 			else
 			{
@@ -958,7 +958,7 @@ static bool loadProject(Console* console, const char* name, const char* data, s3
 
 			if(loadBinarySection(project, comment, "COVER", 1, &cart->cover, -1, true))
 				done = true;
-			
+
 			memcpy(dst, cart, sizeof(tic_cartridge));
 
 			free(cart);
@@ -991,12 +991,12 @@ static void updateProject(Console* console)
 
 					studioRomLoaded();
 				}
-				
+
 				free(cart);
 			}
 			free(data);
 
-		}		
+		}
 	}
 }
 
@@ -1078,7 +1078,7 @@ static void load(Console* console, const char* path, const char* hash)
 			loadRom(console->tic, data, size, true);
 			onCartLoaded(console, name);
 
-			free(data);		
+			free(data);
 		}
 
 		commandDone(console);
@@ -1226,7 +1226,7 @@ static void onConsoleNewCommandConfirmed(Console* console, const char* param)
 			loadDemo(console, WrenScript);
 			done = true;
 		}
-#endif			
+#endif
 
 		if(!done)
 		{
@@ -1525,7 +1525,7 @@ static void onConsoleConfigCommand(Console* console, const char* param)
 		onConsoleLoadDemoCommand(console, DefaultWrenTicPath);
 	}
 #endif
-	
+
 	else
 	{
 		printError(console, "\nunknown parameter: ");
@@ -1871,7 +1871,7 @@ static void* embedCart(Console* console, s32* size)
 					compress2(zip, &zipSize, cart, cartSize, Z_BEST_COMPRESSION);
 
 					{
-						EmbedHeader header = 
+						EmbedHeader header =
 						{
 							.appSize = appSize,
 							.cartSize = zipSize,
@@ -1901,7 +1901,7 @@ static void* embedCart(Console* console, s32* size)
 
 		free(app);
 	}
-	
+
 	return data;
 }
 
@@ -2295,6 +2295,17 @@ static void onConsoleRamCommand(Console* console, const char* param)
 	commandDone(console);
 }
 
+static void onConsoleExercisesCommand(Console* console, const char* param)
+{
+	printBack(console, "\nList of all exercises:\n");
+	commandDone(console);
+}
+
+static void onConsoleSolveCommand(Console* console, const char* param)
+{
+	printBack(console, "\nNot implemented\n");
+	commandDone(console);
+}
 static const struct
 {
 	const char* command;
@@ -2304,35 +2315,36 @@ static const struct
 
 } AvailableConsoleCommands[] =
 {
-	{"help", 	NULL, "show this info", 			onConsoleHelpCommand},
+	{"help", 		NULL, "show this info", 			onConsoleHelpCommand},
 #if defined(CAN_OPEN_URL)
-	{"wiki", 	NULL, "open github wiki page", 		onConsoleWikiCommand},
+	{"wiki", 		NULL, "open github wiki page", 		onConsoleWikiCommand},
 #endif
-	{"ram", 	NULL, "show memory info", 			onConsoleRamCommand},
-	{"exit", 	"quit", "exit the application", 	onConsoleExitCommand},
-	{"new", 	NULL, "create new cart",			onConsoleNewCommand},
-	{"load", 	NULL, "load cart", 					onConsoleLoadCommand},
-	{"save", 	NULL, "save cart",	 				onConsoleSaveCommand},
-	{"run",		NULL, "run loaded cart",			onConsoleRunCommand},
-	{"resume",	NULL, "resume run cart",			onConsoleResumeCommand},
-	{"eval",	"=",  "run code",					onConsoleEvalCommand},
-	{"dir",		"ls", "show list of files", 		onConsoleDirCommand},
-	{"cd",		NULL, "change directory", 			onConsoleChangeDirectory},
-	{"mkdir",	NULL, "make directory", 			onConsoleMakeDirectory},
+	{"ram", 		NULL, "show memory info", 			onConsoleRamCommand},
+	{"exit", 		"quit", "exit the application", 	onConsoleExitCommand},
+	{"new", 		NULL, "create new cart",			onConsoleNewCommand},
+	{"load", 		NULL, "load cart", 					onConsoleLoadCommand},
+	{"save", 		NULL, "save cart",	 				onConsoleSaveCommand},
+	{"run",			NULL, "run loaded cart",			onConsoleRunCommand},
+	{"resume",		NULL, "resume run cart",			onConsoleResumeCommand},
+	{"eval",		"=",  "run code",					onConsoleEvalCommand},
+	{"dir",			"ls", "show list of files", 		onConsoleDirCommand},
+	{"cd",			NULL, "change directory", 			onConsoleChangeDirectory},
+	{"mkdir",		NULL, "make directory", 			onConsoleMakeDirectory},
 #if defined(CAN_EXPORT)
-	{"folder",	NULL, "open working folder in OS", 	onConsoleFolderCommand},
+	{"folder",		NULL, "open working folder in OS", 	onConsoleFolderCommand},
 #endif
-	{"add",		NULL, "add file", 					onConsoleAddCommand},
-	{"get",		NULL, "download file", 				onConsoleGetCommand},
-	{"export",	NULL, "export native game",			onConsoleExportCommand},
-	{"import",	NULL, "import sprites from .gif",	onConsoleImportCommand},
-	{"del",		NULL, "delete file or dir",			onConsoleDelCommand},
-	{"cls",		NULL, "clear screen",				onConsoleClsCommand},
-	{"demo",	NULL, "install demo carts",			onConsoleInstallDemosCommand},
-	{"config",	NULL, "edit TIC config",			onConsoleConfigCommand},
-	{"version",	NULL, "show the current version",	onConsoleVersionCommand},
-	{"edit",	NULL, "open cart editor",			onConsoleCodeCommand},
-	{"surf",	NULL, "open carts browser",			onConsoleSurfCommand},
+	{"add",			NULL, "add file", 					onConsoleAddCommand},
+	{"get",			NULL, "download file", 				onConsoleGetCommand},
+	{"export",		NULL, "export native game",			onConsoleExportCommand},
+	{"import",		NULL, "import sprites from .gif",	onConsoleImportCommand},
+	{"del",			NULL, "delete file or dir",			onConsoleDelCommand},
+	{"cls",			NULL, "clear screen",				onConsoleClsCommand},
+	{"demo",		NULL, "install demo carts",			onConsoleInstallDemosCommand},
+	{"config",		NULL, "edit TIC config",			onConsoleConfigCommand},
+	{"version",		NULL, "show the current version",	onConsoleVersionCommand},
+	{"edit",		NULL, "open cart editor",			onConsoleCodeCommand},
+	{"surf",		NULL, "open carts browser",			onConsoleSurfCommand},
+	{"exercises",	NULL, "see all exercises", 		onConsoleExercisesCommand},
 };
 
 static bool predictFilename(const char* name, const char* info, s32 id, void* data, bool dir)
@@ -2399,7 +2411,7 @@ static void onConsoleHelpCommand(Console* console, const char* param)
 		{
 			const char* alt = AvailableConsoleCommands[i].alt;
 			if(alt)
-				len += strlen(alt) + 1;			
+				len += strlen(alt) + 1;
 		}
 
 		if(len > maxName) maxName = len;
@@ -2614,7 +2626,7 @@ static lua_State* netLuaInit(u8* buffer, s32 size)
 
 static NetVersion netVersionRequest()
 {
-	NetVersion version = 
+	NetVersion version =
 	{
 		.major = TIC_VERSION_MAJOR,
 		.minor = TIC_VERSION_MINOR,
@@ -2738,7 +2750,7 @@ static void tick(Console* console)
 			loadDemo(console, JavaScript);
 #elif defined(TIC_BUILD_WITH_WREN)
 			loadDemo(console, WrenScript);
-#endif			
+#endif
 
 			printBack(console, "\n hello! type ");
 			printFront(console, "help");
@@ -2778,7 +2790,7 @@ static void tick(Console* console)
 		}
 	}
 	else
-	{	
+	{
 		if(console->cursor.delay)
 			console->cursor.delay--;
 
@@ -2821,17 +2833,17 @@ static bool cmdLoadCart(Console* console, const char* name)
 
 		if(hasExt(name, CART_EXT))
 		{
-			loadCart(console->tic, console->embed.file, data, size, true);	
+			loadCart(console->tic, console->embed.file, data, size, true);
 
 			char cartName[FILENAME_MAX];
 			fsFilename(name, cartName);
-		
+
 			setCartName(console, cartName);
 
 			console->embed.yes = true;
 			done = true;
 		}
-		
+
 		free(data);
 	}
 
@@ -3205,7 +3217,7 @@ void initConsole(Console* console, tic_mem* tic, FileSystem* fs, Config* config,
 						{
 							loadCart(tic, console->embed.file, data, dataSize, true);
 							console->embed.yes = true;
-							
+
 							free(data);
 						}
 
