@@ -1,0 +1,83 @@
+CC=gcc
+SDL_GPU_OPT=-O3 -DGLEW_STATIC -DSDL_GPU_DISABLE_GLES
+AR= ar rcu
+RANLIB= ranlib
+
+INCLUDES = \
+	-I../../include \
+	-I../../src/externals/glew \
+	-I../../src/externals/glew/GL \
+	-I../../src/externals/stb_image \
+	-I../../src/externals/stb_image_write \
+	-I../../../SDL2-2.0.7/include
+
+SDL2_GPU_A = libsdlgpu.a
+
+all: $(SDL2_GPU_A)
+
+renderer_GLES_1.o: ../../src/renderer_GLES_1.c
+	$(CC) $< $(SDL_GPU_OPT) $(INCLUDES) -c -o $@
+
+renderer_GLES_2.o: ../../src/renderer_GLES_2.c
+	$(CC) $< $(SDL_GPU_OPT) $(INCLUDES) -c -o $@
+
+renderer_GLES_3.o: ../../src/renderer_GLES_3.c
+	$(CC) $< $(SDL_GPU_OPT) $(INCLUDES) -c -o $@
+
+renderer_OpenGL_1.o: ../../src/renderer_OpenGL_1.c
+	$(CC) $< $(SDL_GPU_OPT) $(INCLUDES) -c -o $@
+
+renderer_OpenGL_1_BASE.o: ../../src/renderer_OpenGL_1_BASE.c
+	$(CC) $< $(SDL_GPU_OPT) $(INCLUDES) -c -o $@
+
+renderer_OpenGL_2.o: ../../src/renderer_OpenGL_2.c
+	$(CC) $< $(SDL_GPU_OPT) $(INCLUDES) -c -o $@
+
+renderer_OpenGL_3.o: ../../src/renderer_OpenGL_3.c
+	$(CC) $< $(SDL_GPU_OPT) $(INCLUDES) -c -o $@
+
+renderer_OpenGL_4.o: ../../src/renderer_OpenGL_4.c
+	$(CC) $< $(SDL_GPU_OPT) $(INCLUDES) -c -o $@
+
+SDL_gpu.o: ../../src/SDL_gpu.c
+	$(CC) $< $(SDL_GPU_OPT) $(INCLUDES) -c -o $@
+
+SDL_gpu_matrix.o: ../../src/SDL_gpu_matrix.c
+	$(CC) $< $(SDL_GPU_OPT) $(INCLUDES) -c -o $@
+
+SDL_gpu_renderer.o: ../../src/SDL_gpu_renderer.c
+	$(CC) $< $(SDL_GPU_OPT) $(INCLUDES) -c -o $@
+
+SDL_gpu_shapes.o: ../../src/SDL_gpu_shapes.c
+	$(CC) $< $(SDL_GPU_OPT) $(INCLUDES) -c -o $@
+
+glew.o: ../../src/externals/glew/glew.c
+	$(CC) $< $(SDL_GPU_OPT) $(INCLUDES) -c -o $@
+
+stb_image.o: ../../src/externals/stb_image/stb_image.c
+	$(CC) $< $(SDL_GPU_OPT) $(INCLUDES) -c -o $@
+
+stb_image_write.o: ../../src/externals/stb_image_write/stb_image_write.c
+	$(CC) $< $(SDL_GPU_OPT) $(INCLUDES) -c -o $@
+
+OBJS = \
+	renderer_GLES_1.o \
+	renderer_GLES_2.o \
+	renderer_GLES_3.o \
+	renderer_OpenGL_1.o \
+	renderer_OpenGL_1_BASE.o \
+	renderer_OpenGL_2.o \
+	renderer_OpenGL_3.o \
+	renderer_OpenGL_4.o \
+	SDL_gpu.o \
+	SDL_gpu_matrix.o \
+	SDL_gpu_renderer.o \
+	SDL_gpu_shapes.o \
+	glew.o \
+	stb_image.o \
+	stb_image_write.o
+
+$(SDL2_GPU_A): $(OBJS)
+	$(AR) $@ $(OBJS)
+	$(RANLIB) $@
+
