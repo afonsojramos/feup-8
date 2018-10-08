@@ -19,7 +19,7 @@ if(MSVC)
 	    set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/lib )
 	    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/bin )
 	endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
-	
+
 	SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /OPT:REF /INCREMENTAL:NO")
 	SET(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /OPT:REF /INCREMENTAL:NO")
 	SET(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} /OPT:REF /INCREMENTAL:NO")
@@ -55,7 +55,7 @@ endif()
 ################################
 
 set(LUA_DIR 3rd-party/lua-5.3.1/src)
-set(LUA_SRC 
+set(LUA_SRC
 	${LUA_DIR}/lapi.c
 	${LUA_DIR}/lcode.c
 	${LUA_DIR}/lctype.c
@@ -100,7 +100,7 @@ target_compile_definitions(lua PRIVATE LUA_COMPAT_5_2)
 ################################
 
 set(LPEG_DIR 3rd-party/lpeg-1.0.1)
-set(LPEG_SRC 
+set(LPEG_SRC
 	${LPEG_DIR}/lpcap.c
 	${LPEG_DIR}/lpcode.c
 	${LPEG_DIR}/lpprint.c
@@ -116,7 +116,7 @@ target_include_directories(lpeg PRIVATE 3rd-party/lua-5.3.1/src)
 ################################
 
 set(WREN_DIR 3rd-party/wren-0.1.0/src)
-set(WREN_SRC 
+set(WREN_SRC
 	${WREN_DIR}/optional/wren_opt_meta.c
 	${WREN_DIR}/optional/wren_opt_random.c
 	${WREN_DIR}/vm/wren_compiler.c
@@ -157,11 +157,11 @@ target_include_directories(giflib PRIVATE ${GIFLIB_DIR})
 set(TIC80CORE_DIR src)
 set(TIC80CORE_SRC
 	${TIC80CORE_DIR}/tic80.c
-	${TIC80CORE_DIR}/tic.c 
-	${TIC80CORE_DIR}/tools.c 
-	${TIC80CORE_DIR}/jsapi.c 
-	${TIC80CORE_DIR}/luaapi.c 
-	${TIC80CORE_DIR}/wrenapi.c 
+	${TIC80CORE_DIR}/tic.c
+	${TIC80CORE_DIR}/tools.c
+	${TIC80CORE_DIR}/jsapi.c
+	${TIC80CORE_DIR}/luaapi.c
+	${TIC80CORE_DIR}/wrenapi.c
 	${TIC80CORE_DIR}/ext/gif.c
 	3rd-party/blip-buf/blip_buf.c # TODO: link it as lib?
 	3rd-party/duktape-2.2.0/src/duktape.c # TODO: link it as lib?
@@ -202,7 +202,7 @@ endif()
 
 if(NOT EMSCRIPTEN)
 	set(EXAMPLE_DIR examples)
-	set(EXAMPLE_SRC 
+	set(EXAMPLE_SRC
 		${EXAMPLE_DIR}/sdl-renderer.c
 	)
 
@@ -280,7 +280,7 @@ endif()
 ################################
 
 set(SDLNET_DIR 3rd-party/SDL2_net-2.0.1)
-set(SDLNET_SRC 
+set(SDLNET_SRC
 	${SDLNET_DIR}/SDLnet.c
 	${SDLNET_DIR}/SDLnetTCP.c
 	${SDLNET_DIR}/SDLnetselect.c
@@ -298,7 +298,7 @@ endif()
 ################################
 
 set(ZLIB_DIR 3rd-party/zlib-1.2.11)
-set(ZLIB_SRC 
+set(ZLIB_SRC
 	${ZLIB_DIR}/adler32.c
 	${ZLIB_DIR}/compress.c
 	${ZLIB_DIR}/crc32.c
@@ -320,7 +320,7 @@ add_library(zlib STATIC ${ZLIB_SRC})
 
 if(NOT EMSCRIPTEN)
 	set(BIN2TXT_DIR tools/bin2txt)
-	set(BIN2TXT_SRC 
+	set(BIN2TXT_SRC
 		${BIN2TXT_DIR}/bin2txt.c
 	)
 
@@ -333,7 +333,7 @@ if(NOT EMSCRIPTEN)
 
 	file(GLOB DEMO_CARTS ${CMAKE_SOURCE_DIR}/demos/*.tic )
 
-	list(APPEND DEMO_CARTS 
+	list(APPEND DEMO_CARTS
 		${CMAKE_SOURCE_DIR}/config.tic
 	)
 
@@ -381,6 +381,8 @@ set(TIC80LIB_SRC
 	${TIC80LIB_DIR}/dialog.c
 	${TIC80LIB_DIR}/menu.c
 	${TIC80LIB_DIR}/surf.c
+	${TIC80LIB_DIR}/unit_tests.c
+	${TIC80LIB_DIR}/unity.c
 )
 
 set(TIC80_OUTPUTS tic80 tic80pro)
@@ -452,7 +454,7 @@ foreach(TIC80_OUTPUT ${TIC80_OUTPUTS})
 
 	if(LINUX)
 		include(FindPkgConfig)
-		if(NOT PKG_CONFIG_FOUND) 
+		if(NOT PKG_CONFIG_FOUND)
 			message(FATAL_ERROR "We need pkg-config to compile this project")
 		endif()
 
