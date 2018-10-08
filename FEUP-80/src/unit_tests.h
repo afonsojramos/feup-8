@@ -1,3 +1,3 @@
 #pragma once
 
-void run_test_suite();
+int run_test_suite();

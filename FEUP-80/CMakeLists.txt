@@ -382,7 +382,6 @@ set(TIC80LIB_SRC
 	${TIC80LIB_DIR}/menu.c
 	${TIC80LIB_DIR}/surf.c
 	${TIC80LIB_DIR}/unit_tests.c
-	${TIC80LIB_DIR}/unity.c
 )
 
 set(TIC80_OUTPUTS tic80 tic80pro)

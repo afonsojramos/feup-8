@@ -1,7 +1,6 @@
 #include "system.h"
 #include "net.h"
 #include "tools.h"
-
 #include "unit_tests.h"
 
 #include <stdlib.h>
@@ -1549,8 +1548,7 @@ s32 main(s32 argc, char **argv)
 
 	if (argc > 1 && strcmp(argv[1], "-test") == 0)
 	{
-		run_test_suite();
-		return 0;
+		return run_test_suite();
 	}
 
 #if defined(__EMSCRIPTEN__)

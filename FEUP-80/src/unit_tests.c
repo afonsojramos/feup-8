@@ -1,31 +1,39 @@
 #include "unit_tests.h"
-#include "unity.h"
+#include "tinytest.h"
 
-int Counter;
+/* All FEUP-8 headers below this line */
+#include "net.h"
 
-void setUp(void)
+/**
+  * Simple example showing all assertions
+  * The tests stop running immediately after the first error,
+  * so all failures are commented
+  */
+void testExample()
 {
-  //This is run before EACH TEST
-  Counter = 0x5a5a;
+    //equality assert for numbers and references
+    ASSERT_EQUALS(12, 12);  //PASS
+    //ASSERT_EQUALS(12, 13);  //FAIL
+
+    //equality assert for strings
+    ASSERT_STRING_EQUALS("Hello", "Hello");     //PASS
+    //ASSERT_STRING_EQUALS("Hello", "Goodbye");   //FAIL
 }
 
-void tearDown(void)
+/*All test functions below this line*/
+
+void testNet()
 {
+    Net* net = createNet();
+    ASSERT_EQUALS(TRUE, net != NULL);
 }
 
+/*End of test functions*/
 
-int bar()
+int run_test_suite()
 {
-    return 0;
-}
-
-int foo()
-{
-    TEST_ASSERT_EQUAL(13, bar());
-}
-
-void run_test_suite()
-{
-    suiteSetUp();
-    foo();
+    //All test functions should be added here with the RUN macro
+    RUN(testExample);
+    RUN(testNet);
+    return TEST_REPORT();
 }
