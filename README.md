@@ -80,3 +80,36 @@ The project was based on existent project [TIC-80](https://github.com/nesbox/TIC
 ## License
 
 Licensed under the [MIT](LICENSE) License.
+
+# FEUP-8 Website
+
+### To run the website locally:
+
+* 1st Time:
+
+```
+git clone --recursive https://gitlab.com/ldso18-19/t5g2.git
+cd Website
+composer install
+php artisan serve
+```
+
+* Next: 
+
+```
+php artisan serve
+```
+
+### To push to docker:
+
+```
+docker build nadiacarvalho/ldso-t5g2 .
+docker push nadiacarvalho/ldso-t5g2:latest
+```
+
+### To run the integrated website via docker:
+
+```
+docker pull nadiacarvalho/ldso-t5g2
+docker run --rm -d -p 8000:8000/tcp nadiacarvalho/ldso-t5g2:latest
+```
