@@ -170,7 +170,7 @@ typedef struct
 
 typedef struct
 {
-	
+
 	struct
 	{
 		u8 volume:4;
@@ -283,7 +283,7 @@ typedef struct
 		s8 frame;
 		s8 row;
 	} music;
-	
+
 	struct
 	{
 		u8 music_loop:1;
@@ -339,7 +339,7 @@ typedef struct
 	char data[TIC_CODE_SIZE];
 } tic_code;
 
-typedef struct 
+typedef struct
 {
 	s32 size;
 	u8 data [TIC80_WIDTH * TIC80_HEIGHT * sizeof(u32)];
@@ -382,7 +382,7 @@ typedef struct
 		tic_bank banks[TIC_BANKS];
 	};
 
-	tic_code 	code;	
+	tic_code 	code;
 	tic_cover_image cover;
 } tic_cartridge;
 
@@ -409,7 +409,7 @@ typedef union
 			union
 			{
 				u8 colors;
-							
+
 				struct
 				{
 					u8 border:TIC_PALETTE_BPP;
@@ -433,7 +433,7 @@ typedef union
 
 		u8 reserved[4];
 	};
-	
+
 	u8 data[TIC_VRAM_SIZE];
 } tic_vram;
 
@@ -515,7 +515,7 @@ typedef enum
 	tic_key_comma,
 	tic_key_period,
 	tic_key_slash,
-	
+
 	tic_key_space,
 	tic_key_tab,
 

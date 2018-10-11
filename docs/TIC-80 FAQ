@@ -1,0 +1,7 @@
+# Add a new console command
+
+1. open console.c
+2. write a function for the command with signature:
+    static void onConsoleCommandName(Console* console, const char* param)
+3. make sure function is declared before AvailableConsoleCommands lineStr
+4. register the command on the aforementioned list
