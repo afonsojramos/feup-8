@@ -29,6 +29,7 @@ This is being developed by the following team, feel free to contact any of us at
 - run following commands in `cmd`
 ```
 git clone --recursive https://gitlab.com/ldso18-19/t5g2
+cd t5g2/FEUP-8
 cmake -G "Visual Studio 15 2017 Win64"
 ```
 - open `TIC-80.sln` and build
@@ -41,7 +42,7 @@ cmake -G "Visual Studio 15 2017 Win64"
 - run following commands in `terminal`
 ```
 git clone --recursive https://gitlab.com/ldso18-19/t5g2
-cd TIC-80
+cd t5g2/FEUP-8
 cmake -G "MinGW Makefiles"
 mingw32-make -j4
 ```
@@ -50,7 +51,7 @@ mingw32-make -j4
 run the following commands in the Terminal
 ```
 sudo apt-get install git cmake libgtk-3-dev libgles1-mesa-dev libglu-dev -y
-git clone --recursive https://gitlab.com/ldso18-19/t5g2 && cd TIC-80
+git clone --recursive https://gitlab.com/ldso18-19/t5g2 && cd t5g2/FEUP-8
 cmake . && make -j4
 ```
 
@@ -67,7 +68,7 @@ run the following commands in the Terminal
 ```
 brew install git cmake
 git clone --recursive https://gitlab.com/ldso18-19/t5g2
-cd TIC-80
+cd t5g2/FEUP-8
 cmake . && make -j4
 ```
 
@@ -89,7 +90,7 @@ Licensed under the [MIT](LICENSE) License.
 
 ```
 git clone --recursive https://gitlab.com/ldso18-19/t5g2.git
-cd Website
+cd t5g2/Website
 composer install
 php artisan serve
 ```
