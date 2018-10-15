@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\User; 
 use Illuminate\Support\Facades\Auth; 
 use Validator;
+use Hash;
+use DB;
 
 class UserController extends Controller 
 {
@@ -18,42 +20,71 @@ class UserController extends Controller
      * 
      * @return \Illuminate\Http\Response 
      */ 
-    public function login()
+    public function login(Request $request)
     { 
-        if(Auth::attempt(['username' => request('username'), 'password' => request('password')]))
-        { 
+        $username = $request->input('username');
+        $password = $request->input('password');
+        if (empty($username) || empty($password))
+            return response()->json(['response_code'=> 1], 200);
+        try 
+        {
+            $user = \App\User::where('username', $username)->first();
+        } 
+        catch (\Illuminate\Database\QueryException $e) 
+        {
+            return $e;
+            return response()->json(['response_code'=> 1], 200);
+        }
+        if ($user == null)
+            return response()->json(['response_code'=> 1], 200);
+        else if ($user == "null")
+            return response()->json(['response_code'=> 1], 200);
+        
+            if (Auth::attempt(['username' => $username, 'password' => $password])) {
+                echo "The user is active, not suspended, and exists.";
+            }
+
+        $hashed_password = $user->password;
+        if (Hash::check($password, $hashed_password)) 
+        {
             $user = Auth::user(); 
-            $response['token'] =  $user->createToken('MyApp')-> accessToken; 
+            $response['auth_token'] =  $user->createToken('MyApp')->accessToken; 
             $response['response_code'] =  0; 
             return response()->json($response, $this->successStatus); 
         } 
         else
-        { 
-            return response()->json(['response_code'=> 1], 200);  //response code 1 means username password don't matvh
-        } 
+            return response()->json(['response_code'=> 1], 200);
     }
 /** 
-     * Register api 
-     * 
-     * @return \Illuminate\Http\Response 
+     * This methods allows to register a user in the database. 
+     * The username will be checked for non existing yet, and both username and password asre requeired 
+     * @param $request The post request with the username and password data.
+     * @return JSON response with response code (0-success, 1-username/password dont match, 2-server error). 
      */ 
     public function register(Request $request) 
     { 
+       
         $validator = Validator::make($request->all(), [ 
+            'username' => 'required',
             'name' => 'required', 
-            'email' => 'required|email', 
-            'password' => 'required', 
-            'c_password' => 'required|same:password', 
+            'password' => 'required',
+            'email' => 'required',
         ]);
-        if ($validator->fails()) { 
-                    return response()->json(['error'=>$validator->errors()], 401);            
-                }
+        if ($validator->fails()) 
+        { 
+            return response()->json(['response_code'=>1], 200);            
+        }
         $input = $request->all(); 
-                $input['password'] = bcrypt($input['password']); 
-                $user = User::create($input); 
-                $success['token'] =  $user->createToken('MyApp')-> accessToken; 
-                $success['name'] =  $user->name;
-        return response()->json(['success'=>$success], $this-> successStatus); 
+        //return User::create($input['username'], $input['password'], $input['name'], $input['email']);
+        //return  DB::table('users')->select('*')->where('username', '=', $input['username'])->get();
+        if(User::checkUserExists($input['username']))
+            return response()->json(['response_code'=>1], $this->successStatus);
+        if(!User::create($input['username'], $input['password'], $input['name'], $input['email']))
+        {
+            return response()->json(['response_code'=>2], $this->successStatus); 
+        }
+
+        return response()->json(['response_code'=>0], $this->successStatus);  
     }
 
 
