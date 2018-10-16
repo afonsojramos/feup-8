@@ -2,6 +2,7 @@
 
 #include "ticapi.h"
 #include "ext/file_dialog.h"
+#include "web_comunication_api.h"
 
 typedef struct
 {
@@ -23,7 +24,7 @@ typedef struct
 	void (*setWindowTitle)(const char* title);
 
 	void (*openSystemPath)(const char* path);
-	
+
 	void (*preseed)();
 	void (*poll)();
 
@@ -69,7 +70,7 @@ typedef struct
 
 	s32 gifScale;
 	s32 gifLength;
-	
+
 	bool checkNewVersion;
 	bool noSound;
 	bool showSync;

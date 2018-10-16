@@ -74,6 +74,7 @@ typedef enum
 	TIC_DIALOG_MODE,
 	TIC_MENU_MODE,
 	TIC_SURF_MODE,
+	TIC_EXERCISE_MODE,
 } EditorMode;
 
 typedef struct
@@ -150,6 +151,7 @@ void playSystemSfx(s32 id);
 void runGameFromSurf();
 void gotoCode();
 void gotoSurf();
+void gotoExercises();
 void exitFromGameMenu();
 void runProject();
 

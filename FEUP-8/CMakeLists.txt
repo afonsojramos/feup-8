@@ -362,6 +362,9 @@ endif()
 
 set(TIC80LIB_DIR src)
 set(TIC80LIB_SRC
+	${TIC80LIB_DIR}/base64_enc_dec.c
+	${TIC80LIB_DIR}/cJSON_Utils.c
+	${TIC80LIB_DIR}/cJSON.c
 	${TIC80LIB_DIR}/studio.c
 	${TIC80LIB_DIR}/console.c
 	${TIC80LIB_DIR}/run.c
@@ -381,6 +384,8 @@ set(TIC80LIB_SRC
 	${TIC80LIB_DIR}/dialog.c
 	${TIC80LIB_DIR}/menu.c
 	${TIC80LIB_DIR}/surf.c
+	${TIC80LIB_DIR}/exercise.c
+	${TIC80LIB_DIR}/web_comunication_api.c
 	${TIC80LIB_DIR}/unit_tests.c
 )
 
@@ -464,3 +469,11 @@ foreach(TIC80_OUTPUT ${TIC80_OUTPUTS})
 	endif()
 
 endforeach()
+
+
+
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wfatal-errors -O0 -ggdb3")
+	else()
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+endif()

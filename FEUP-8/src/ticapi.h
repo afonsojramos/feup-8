@@ -170,10 +170,28 @@ typedef struct
 	const tic_script_config* (*get_script_config)(tic_mem* memory);
 } tic_api;
 
+typedef struct 
+{
+    char *correct_code_base64;
+    char *test_code_base64;
+} ExerciseTest;
+
+typedef struct
+{
+	int id;
+    char *title;
+    int progress; //-1 if not logged in
+    char *creator_name;
+    char *img_base64;
+    char *description;
+    ExerciseTest exerciseTest;
+} tic_exercise;
+
 struct tic_mem
 {
 	tic_ram 			ram;
 	tic_cartridge 		cart;
+	tic_exercise		exe;
 	tic_font 			font;
 	tic_api 			api;
 	tic_persistent		persistent;
