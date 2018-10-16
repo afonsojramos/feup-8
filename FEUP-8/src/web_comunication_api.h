@@ -12,6 +12,7 @@
 #define GET_EXERCISES_PATH "/api/exercises/all"
 #define GET_EXERCISE_DETAILS_PATH "/api/exercises"
 #define SAVE_PROGRESS_PATH "/api/exercises"
+#define EXECUTE_TEST_PATH "/api/exercises"
 #define CONNECTION_TIMEOUT_MS 5000
 
 typedef struct 
@@ -29,6 +30,7 @@ static char* getStringCopy(const char *original);
 int registerRequest(const char *name, const char *email, const char *username, const char *password);
 int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *numberOfExercises);
 int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise);
+int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, Buffer *testResponse);
 
 
 

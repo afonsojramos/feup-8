@@ -50,7 +50,6 @@ static char* getStringCopy(const char *original)
 * Creates login request and sends it to the web server. Returns an int code indentifying the result of the request.
 * @param username The username to login with.
 * @param password The password to login with.
-* @param password The password to login with.
 * @return An int identifying the result of the request. Int returned and respective meaning:
 * 0 - success.
 * 1 - wrong username or password.
@@ -62,7 +61,7 @@ static char* getStringCopy(const char *original)
 int loginRequest(const char *username, const char *password)
 {
     Buffer dataToSend;
-    int FIXED_LOGIN_MESSAGE_SIZE = 19;
+    int FIXED_LOGIN_MESSAGE_SIZE = 20;
     dataToSend.size = strlen(username) + strlen(password) + FIXED_LOGIN_MESSAGE_SIZE;
     dataToSend.data = malloc(sizeof(u8) * dataToSend.size);
     sprintf(dataToSend.data, "username=%s&password=%s", username, password);
@@ -110,8 +109,9 @@ int loginRequest(const char *username, const char *password)
 
 /**
 * Creates register request and sends it to the web server. Returns an int code indentifying the result of the request.
+* @param name The name to register with.
+* @param email The email to register with.
 * @param username The username to register with.
-* @param password The password to register with.
 * @param password The password to register with.
 * @param auth_token The authentication token received from server. A pointer to a (char pointer (previously allocated)) should be passed as parameter.
 * @return An int identifying the result of the request. Int returned and respective meaning:
@@ -124,7 +124,7 @@ int loginRequest(const char *username, const char *password)
 int registerRequest(const char *name, const char *email, const char *username, const char *password)
 {
     Buffer dataToSend;
-    int FIXED_REGISTER_MESSAGE_SIZE = 32;
+    int FIXED_REGISTER_MESSAGE_SIZE = 33;
     dataToSend.size = strlen(name) + strlen(email) + strlen(username) + strlen(password) + FIXED_REGISTER_MESSAGE_SIZE;
     dataToSend.data = malloc(sizeof(u8) * dataToSend.size);
     sprintf(dataToSend.data, "name=%s&email=%s&username=%s&password=%s",
@@ -213,8 +213,9 @@ int logoutRequest()
 
 
 /**
-* Creates a list of all exercises received from the web server . Returns an int code indentifying the result of the request.
-* @param exercises_list The exercises list received from server. A pointer to a (char pointer (previously allocated)) should be passed as parameter.
+* Sends a request to list all exercises. Returns a list of all exercises received from the web server. Returns an int code indentifying the result of the request.
+* @param exercises_list The exercises list received from server. A pointer to a (char size_t variable type (previously allocated)) should be passed as parameter.
+* @param number_of_exercises The number of exercises received from server (returns by reference). A pointer to a size_t variable type (previously allocated) should be passed.
 * @return An int identifying the result of the request. Int returned and respective meaning:
 * 0 - success.
 * 2 - server error.
@@ -324,7 +325,7 @@ int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number
 /**
 * Creates an exercise struct based on the received exercise from the web server. Returns an int code indentifying the result of the request.
 * @param exercise_id The id of the exercise to load from server.
-* @param exercise The exercise received from server. A double pointer to a Exercise should be passed as parameter, in order to allocate memory for it inside.
+* @param exercise The exercise received from server (returns by reference). A pointer to a (tic_exercise struct (previously allocated)) should be passed as parameter.
 * @return An int identifying the result of the request. Int returned and respective meaning:
 * 0 - success.
 * 2 - server error.
@@ -437,20 +438,71 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
 * 2 - server error.
 * 3 - can't connect to server.
 */
-int saveProgressRequest(Buffer exercise_data, int progress, int exercise_id)
+int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id)
 {
     if(auth_token == NULL)
         return 1;
     char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
         
     Buffer dataToSend;
-    int FIXED_SAVE_PROGRESS_MESSAGE_SIZE = 24;
+    int FIXED_SAVE_PROGRESS_MESSAGE_SIZE = 21;
     char *exercise_data_encoded = b64_encode(exercise_data.data, exercise_data.size);
-    dataToSend.size = strlen(exercise_data_encoded) + log10(progress) + 1 + FIXED_SAVE_PROGRESS_MESSAGE_SIZE;
+    dataToSend.size = strlen(exercise_data_encoded) + strlen(code) + FIXED_SAVE_PROGRESS_MESSAGE_SIZE;
     dataToSend.data = malloc(sizeof(u8) * dataToSend.size);
-    sprintf(dataToSend.data, "exercise_data=%s&progress=%d", exercise_data.data, progress);
+    sprintf(dataToSend.data, "exercise_data=%s&code=%s", exercise_data.data, code);
     char *request_address = malloc(sizeof(char) * (strlen(SAVE_PROGRESS_PATH) + 1 + log10(exercise_id) + 1 + 4));
     sprintf(request_address, "%s/%d/save", SAVE_PROGRESS_PATH, exercise_id);
+
+    Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    if(response.data == NULL)
+        return 3;
+    
+    cJSON *monitor_json = cJSON_Parse(response.data);
+    if (monitor_json == NULL)
+    {
+        const char *error_ptr = cJSON_GetErrorPtr();
+        if (error_ptr != NULL)
+        {
+            fprintf(stderr, "Error before: %s\n", error_ptr);
+        }
+        free(dataToSend.data);
+        free(response.data);
+        cJSON_free(monitor_json);
+        return 2;
+    }
+
+    cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
+    if(ret_code_obj == NULL)
+        return 2;
+    int ret_code = ret_code_obj->valueint;
+    free(dataToSend.data);
+    free(response.data);
+    cJSON_free(monitor_json);
+    cJSON_free(ret_code_obj);
+    return ret_code;
+}
+
+
+/**
+* Creates save exercise progress request and sends it to the web server. Returns an int code indentifying the result of the request.
+* @param exercise_data The data of the exercise to save (binary data).
+* @param progress An int representing the current progress on the exercise.
+* @param exercise_id An int representing the id of the exercise of which to save the progress.
+* @return An int identifying the result of the request. Int returned and respective meaning:
+* 0 - success.
+* 1 - must be logged in to save progress.
+* 2 - server error.
+* 3 - can't connect to server.
+*/
+int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, Buffer *testResponse)
+{
+    Buffer dataToSend;
+    int FIXED_EXECUTE_TEST_MESSAGE_SIZE = 6;
+    dataToSend.size = strlen(code) + FIXED_EXECUTE_TEST_MESSAGE_SIZE;
+    dataToSend.data = malloc(sizeof(u8) * dataToSend.size);
+    sprintf(dataToSend.data, "code=%s", exercise_data.data);
+    char *request_address = malloc(sizeof(char) * (strlen(EXECUTE_TEST_PATH) + 1 + log10(exerciseId) + 1 + 4));
+    sprintf(request_address, "%s/%d/test", EXECUTE_TEST_PATH, exercise_id);
 
     Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     if(response.data == NULL)
