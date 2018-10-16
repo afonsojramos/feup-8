@@ -1,6 +1,9 @@
 #include "system.h"
 #include "net.h"
 #include "tools.h"
+#include "cJSON.h"
+#include "base64_enc_dec.h"
+#include "web_comunication_api.h"
 #include "unit_tests.h"
 
 #include <stdlib.h>
@@ -1542,8 +1545,10 @@ static void emsStart(s32 argc, char **argv, const char* folder)
 
 #endif
 
+
 s32 main(s32 argc, char **argv)
 {
+
 	const char* folder = getAppFolder();
 
 	if (argc > 1 && strcmp(argv[1], "-test") == 0)

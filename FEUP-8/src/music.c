@@ -340,7 +340,7 @@ static void goEnd(Music* music)
 static void pageUp(Music* music)
 {
 	music->tracker.row -= TRACKER_ROWS;
-	if(music->tracker.row < 0) 
+	if(music->tracker.row < 0)
 		music->tracker.row = 0;
 
 	updateTracker(music);
@@ -353,9 +353,9 @@ static void pageDown(Music* music)
 	music->tracker.row += TRACKER_ROWS;
 	s32 rows = getRows(music);
 
-	if(music->tracker.row >= rows) 
+	if(music->tracker.row >= rows)
 		music->tracker.row = rows-1;
-	
+
 	updateTracker(music);
 }
 
@@ -611,7 +611,7 @@ static void copyToClipboard(Music* music, bool cut)
 			}
 
 			resetSelection(music);
-		}		
+		}
 	}
 }
 
@@ -780,7 +780,7 @@ static void processTrackerKeyboard(Music* music)
 	else if(keyWasPressed(tic_key_pageup)) 	pageUp(music);
 	else if(keyWasPressed(tic_key_pagedown)) pageDown(music);
 	else if(keyWasPressed(tic_key_tab)) 		doTab(music);
-	else if(keyWasPressed(tic_key_delete)) 		
+	else if(keyWasPressed(tic_key_delete))
 	{
 		deleteSelection(music);
 		history_add(music->history);
@@ -792,7 +792,7 @@ static void processTrackerKeyboard(Music* music)
 		const tic_sound_state* pos = getMusicPos(music);
 		pos->music.track < 0
 			? (shift ? playFrameRow(music) : playFrame(music))
-			: stopTrack(music);        
+			: stopTrack(music);
 	}
 
 	if(shift)
@@ -881,7 +881,7 @@ static void processTrackerKeyboard(Music* music)
 						downRow(music);
 
 						break;
-					}				
+					}
 				}
 			}
 			break;
@@ -908,7 +908,7 @@ static void processTrackerKeyboard(Music* music)
 				s32 val = -1;
 
 				char sym = getKeyboardText();
-							
+
 				if (sym >= '0' && sym <= '9') val = sym - '0';
 
 				if(val >= 0)
@@ -916,7 +916,7 @@ static void processTrackerKeyboard(Music* music)
 					enum {Base = 10};
 					s32 sfx = getSfx(music);
 
-					sfx = col == 3 
+					sfx = col == 3
 						? val * Base + sfx % Base
 						: sfx / Base * Base + val % Base;
 
@@ -931,7 +931,7 @@ static void processTrackerKeyboard(Music* music)
 			if (getNote(music) >= 0)
 			{
 				s32 val = -1;
-							
+
 				char sym = getKeyboardText();
 
 				if(sym >= '0' && sym <= '9') val = sym - '0';
@@ -962,8 +962,8 @@ static void processPatternKeyboard(Music* music)
 	else if(keyWasPressed(tic_key_tab)) 	nextPattern(music);
 	else if(keyWasPressed(tic_key_left)) 	patternColLeft(music);
 	else if(keyWasPressed(tic_key_right)) 	patternColRight(music);
-	else if(keyWasPressed(tic_key_down) 
-		|| keyWasPressed(tic_key_return)) 
+	else if(keyWasPressed(tic_key_down)
+		|| keyWasPressed(tic_key_return))
 		music->tracker.row = music->tracker.scroll;
 	else
 	{
@@ -987,7 +987,7 @@ static void processPatternKeyboard(Music* music)
 				setChannelPatternValue(music, patternId, channel);
 
 				if(music->tracker.patternCol == 0)
-					patternColRight(music);		 				
+					patternColRight(music);
 			}
 		}
 	}
@@ -1030,7 +1030,7 @@ static void processKeyboard(Music* music)
 	}
 	else
 	{
-		music->tracker.row >= 0 
+		music->tracker.row >= 0
 			? processTrackerKeyboard(music)
 			: processPatternKeyboard(music);
 	}
@@ -1338,7 +1338,7 @@ static void drawTumbler(Music* music, s32 x, s32 y, s32 index)
 	tic_mem* tic = music->tic;
 
 	enum{On=36, Off = 52, Size=5, Chroma=14};
-	
+
 	tic_rect rect = {x, y, Size, Size};
 
 	if(checkMousePos(&rect))
@@ -1541,7 +1541,7 @@ static void scrollNotes(Music* music, s32 delta)
 			rect.y = music->tracker.row;
 			rect.h = 1;
 		}
-		
+
 		for(s32 i = rect.y; i < rect.y + rect.h; i++)
 		{
 			s32 note = pattern->rows[i].note + pattern->rows[i].octave * NOTES - NoteStart;
@@ -1563,7 +1563,7 @@ static void drawTrackerLayout(Music* music)
 {
 	tic_mem* tic = music->tic;
 
-	// process scroll
+	//Process scroll
 	{
 		tic80_input* input = &tic->ram.input;
 
@@ -1574,7 +1574,7 @@ static void drawTrackerLayout(Music* music)
 				scrollNotes(music, input->mouse.scrolly > 0 ? 1 : -1);
 			}
 			else
-			{		
+			{
 				enum{Scroll = NOTES_PER_BEET};
 				s32 delta = input->mouse.scrolly > 0 ? -Scroll : Scroll;
 
@@ -1591,7 +1591,7 @@ static void drawTrackerLayout(Music* music)
 	{
 		const tic_sound_state* pos = getMusicPos(music);
 
-		if(pos->music.track == music->track && 
+		if(pos->music.track == music->track &&
 			music->tracker.row >= 0 &&
 			pos->music.row >= 0)
 		{
@@ -1665,7 +1665,7 @@ void initMusic(Music* music, tic_mem* tic, tic_music* src)
 			},
 
 			.patterns = {true, true, true, true},
-			.select = 
+			.select =
 			{
 				.start = {0, 0},
 				.rect = {0, 0, 0, 0},

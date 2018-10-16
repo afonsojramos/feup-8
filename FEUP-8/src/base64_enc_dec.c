@@ -1,4 +1,7 @@
-#include <stdio.h>
+#include "base64_enc_dec.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 size_t b64_encoded_size(size_t inlen)
 {
@@ -160,7 +163,7 @@ void testBase64EncodeAndDecode()
 	//and encoded_size is the size of the array
 	size_t decoded_size = b64_decoded_size(encoded);
 	char *decoded = malloc(sizeof(char) * decoded_size);
-	if (b64_decode(encoded, decoded, decoded) != 1)
+	if (b64_decode(encoded, decoded, decoded_size) != 1)
 		printf("Error decoding, malformed string");
 
 	//Testing

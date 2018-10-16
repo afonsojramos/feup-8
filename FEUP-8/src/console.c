@@ -1464,6 +1464,12 @@ static void onConsoleSurfCommand(Console* console, const char* param)
 	commandDone(console);
 }
 
+static void onConsoleExerciseCommand(Console* console, const char* param)
+{
+	gotoExercises();
+	commandDone(console);
+}
+
 static void onConsoleCodeCommand(Console* console, const char* param)
 {
 	gotoCode();
@@ -2295,17 +2301,19 @@ static void onConsoleRamCommand(Console* console, const char* param)
 	commandDone(console);
 }
 
-static void onConsoleExercisesCommand(Console* console, const char* param)
+static void onConsoleLoadExerciseCommand(Console* console, const char* param)
 {
-	printBack(console, "\nList of all exercises:\n");
+	tic_mem* tic = console->tic;
+	if(param && strlen(param))
+	{
+		if (getExerciseDetailsRequest(atoi(param), &tic->exe) == 0)
+		return;
+	}
+	else printBack(console, "\nexercise identifier is missing");
+
 	commandDone(console);
 }
 
-static void onConsoleSolveCommand(Console* console, const char* param)
-{
-	printBack(console, "\nNot implemented\n");
-	commandDone(console);
-}
 static const struct
 {
 	const char* command;
@@ -2333,18 +2341,19 @@ static const struct
 #if defined(CAN_EXPORT)
 	{"folder",		NULL, "open working folder in OS", 	onConsoleFolderCommand},
 #endif
-	{"add",			NULL, "add file", 					onConsoleAddCommand},
-	{"get",			NULL, "download file", 				onConsoleGetCommand},
-	{"export",		NULL, "export native game",			onConsoleExportCommand},
-	{"import",		NULL, "import sprites from .gif",	onConsoleImportCommand},
-	{"del",			NULL, "delete file or dir",			onConsoleDelCommand},
-	{"cls",			NULL, "clear screen",				onConsoleClsCommand},
-	{"demo",		NULL, "install demo carts",			onConsoleInstallDemosCommand},
-	{"config",		NULL, "edit TIC config",			onConsoleConfigCommand},
-	{"version",		NULL, "show the current version",	onConsoleVersionCommand},
-	{"edit",		NULL, "open cart editor",			onConsoleCodeCommand},
-	{"surf",		NULL, "open carts browser",			onConsoleSurfCommand},
-	{"exercises",	NULL, "see all exercises", 		onConsoleExercisesCommand},
+	{"add",		    NULL, "add file", 					onConsoleAddCommand},
+	{"get",		    NULL, "download file", 				onConsoleGetCommand},
+	{"export",  	NULL, "export native game",			onConsoleExportCommand},
+	{"import",	    NULL, "import sprites from .gif",	onConsoleImportCommand},
+	{"del",		    NULL, "delete file or dir",			onConsoleDelCommand},
+	{"cls", 		NULL, "clear screen",				onConsoleClsCommand},
+	{"demo",    	NULL, "install demo carts",			onConsoleInstallDemosCommand},
+	{"config",	    NULL, "edit TIC config",			onConsoleConfigCommand},
+	{"version",	    NULL, "show the current version",	onConsoleVersionCommand},
+	{"edit",    	NULL, "open cart editor",			onConsoleCodeCommand},
+	{"surf",	    NULL, "open carts browser",			onConsoleSurfCommand},
+	{"exercises",	NULL, "open avaiable exercises",			onConsoleExerciseCommand},
+	{"loadexe",		NULL, "load a specific exercise",			onConsoleLoadExerciseCommand},
 };
 
 static bool predictFilename(const char* name, const char* info, s32 id, void* data, bool dir)

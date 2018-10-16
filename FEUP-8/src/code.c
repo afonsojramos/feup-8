@@ -97,7 +97,7 @@ static void drawCode(Code* code, bool withCursor)
 				code->tic->api.draw_char(code->tic, symbol, x+1, y+1, 0, code->altFont);
 			}
 
-			code->tic->api.draw_char(code->tic, symbol, x, y, *colorPointer, code->altFont);	
+			code->tic->api.draw_char(code->tic, symbol, x, y, *colorPointer, code->altFont);
 		}
 
 		if(code->cursor.position == pointer)
@@ -628,17 +628,17 @@ static void doTab(Code* code, bool shift, bool crtl)
 {
 	char* cursor_position = code->cursor.position;
 	char* cursor_selection = code->cursor.selection;
-	
+
 	bool has_selection = cursor_selection && cursor_selection != cursor_position;
 	bool modifier_key_pressed = shift || crtl;
-	
+
 	if(has_selection || modifier_key_pressed)
 	{
 		char* start;
 		char* end;
-		
+
 		bool changed = false;
-		
+
 		if(cursor_selection) {
 			start = MIN(cursor_selection, cursor_position);
 			end = MAX(cursor_selection, cursor_position);
@@ -667,19 +667,19 @@ static void doTab(Code* code, bool shift, bool crtl)
 
 				changed = true;
 			}
-			
+
 			line = getNextLineByPos(code, line);
 			if(line >= end) break;
 		}
-		
+
 		if(changed) {
-			
+
 			if(has_selection) {
 				code->cursor.position = start;
 				code->cursor.selection = end;
 			}
 			else if (start <= end) code->cursor.position = end;
-			
+
 			history(code);
 			parseSyntaxColor(code);
 		}
@@ -763,12 +763,12 @@ static void updateOutlineCode(Code* code)
 static char* ticStrlwr(char *string)
 {
 	char *bufp = string;
-	while (*bufp) 
+	while (*bufp)
 	{
 		*bufp = tolower((u8)*bufp);
 		++bufp;
 	}
-	
+
 	return string;
 }
 
@@ -880,7 +880,7 @@ static void commentLine(Code* code)
 			code->cursor.position -= size;
 	}
 
-	code->cursor.selection = NULL;	
+	code->cursor.selection = NULL;
 
 	history(code);
 

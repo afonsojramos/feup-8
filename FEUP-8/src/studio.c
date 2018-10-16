@@ -30,6 +30,7 @@
 #include "world.h"
 #include "sfx.h"
 #include "music.h"
+#include "exercise.h"
 #include "history.h"
 #include "config.h"
 #include "code.h"
@@ -80,6 +81,7 @@ static const EditorMode Modes[] =
 	TIC_MAP_MODE,
 	TIC_SFX_MODE,
 	TIC_MUSIC_MODE,
+	TIC_EXERCISE_MODE,
 };
 
 static struct
@@ -120,6 +122,7 @@ static struct
 				s8 map;
 				s8 sfx;
 				s8 music;
+				s8 exercise;
 			} index;
 
 			s8 indexes[COUNT_OF(Modes)];
@@ -155,6 +158,7 @@ static struct
 		Map* 	map;
 		Sfx* 	sfx;
 		Music* 	music;
+		Exercise* exercise;
 	} editor[TIC_EDITOR_BANKS];
 
 	struct
@@ -180,7 +184,7 @@ static struct
 } impl =
 {
 	.tic80local = NULL,
-	.cart = 
+	.cart =
 	{
 		.mdate = 0,
 	},
@@ -202,7 +206,7 @@ static struct
 		tic_key_s, // y
 	},
 
-	.bank = 
+	.bank =
 	{
 		.show = false,
 		.chained = true,
@@ -251,7 +255,7 @@ char getKeyboardText()
             bool shift = tic->api.key(tic, tic_key_shift);
 
             return caps
-                ? key >= tic_key_a && key <= tic_key_z 
+                ? key >= tic_key_a && key <= tic_key_z
                     ? shift ? Symbols[key] : Shift[key]
                     : shift ? Shift[key] : Symbols[key]
                 : shift ? Shift[key] : Symbols[key];
@@ -418,7 +422,7 @@ bool fromClipboard(void* data, s32 size, bool flip, bool remove_white_spaces)
 			{
 				if (remove_white_spaces)
 					removeWhiteSpaces(clipboard);
-							
+
 				bool valid = strlen(clipboard) == size * 2;
 
 				if(valid) str2buf(clipboard, strlen(clipboard), data, flip);
@@ -599,7 +603,7 @@ static void drawBankIcon(s32 x, s32 y)
 
 				if(checkMouseClick(&rect, tic_mouse_left))
 				{
-					if(impl.bank.chained) 
+					if(impl.bank.chained)
 						memset(impl.bank.indexes, i, sizeof impl.bank.indexes);
 					else impl.bank.indexes[mode] = i;
 				}
@@ -718,11 +722,21 @@ void drawToolbar(tic_mem* tic, u8 color, bool bg)
 		0b01101100,
 		0b00000000,
 		0b00000000,
+
+		0b00000000,
+		0b01111000,
+		0b01000000,
+		0b01110000,
+		0b01000000,
+		0b01111000,
+		0b00000000,
+		0b00000000,
+
 	};
 
 	enum {Size = 7};
 
-	static const char* Tips[] = {"CODE EDITOR [f1]", "SPRITE EDITOR [f2]", "MAP EDITOR [f3]", "SFX EDITOR [f4]", "MUSIC EDITOR [f5]",};
+	static const char* Tips[] = {"CODE EDITOR [f1]", "SPRITE EDITOR [f2]", "MAP EDITOR [f3]", "SFX EDITOR [f4]", "MUSIC EDITOR [f5]", "EXERCISE [F6]",};
 
 	s32 mode = -1;
 
@@ -764,6 +778,7 @@ void drawToolbar(tic_mem* tic, u8 color, bool bg)
 		"MAP EDITOR",
 		"SFX EDITOR",
 		"MUSIC EDITOR",
+		"EXERCISE",
 	};
 
 #if defined (TIC80_PRO)
@@ -790,16 +805,16 @@ void setStudioEvent(StudioEvent event)
 {
 	switch(impl.mode)
 	{
-	case TIC_CODE_MODE: 	
+	case TIC_CODE_MODE:
 		{
 			Code* code = impl.editor[impl.bank.index.code].code;
-			code->event(code, event); 			
+			code->event(code, event);
 		}
 		break;
-	case TIC_SPRITE_MODE:	
+	case TIC_SPRITE_MODE:
 		{
 			Sprite* sprite = impl.editor[impl.bank.index.sprites].sprite;
-			sprite->event(sprite, event); 
+			sprite->event(sprite, event);
 		}
 	break;
 	case TIC_MAP_MODE:
@@ -820,6 +835,14 @@ void setStudioEvent(StudioEvent event)
 			music->event(music, event);
 		}
 		break;
+	//Init the exercises mode
+	case TIC_EXERCISE_MODE:
+		{
+			Exercise* exercise = impl.editor[impl.bank.index.exercise].exercise;
+			exercise->event(exercise, event);
+		}
+		break;
+
 	default: break;
 	}
 }
@@ -907,6 +930,14 @@ void gotoSurf()
 void gotoCode()
 {
 	setStudioMode(TIC_CODE_MODE);
+}
+
+/*
+	Go to exercises mode
+*/
+void gotoExercises()
+{
+	setStudioMode(TIC_EXERCISE_MODE);
 }
 
 static void initMenuMode()
@@ -1027,8 +1058,8 @@ s32 getMouseY()
 
 static inline bool pointInRect(const tic_point* pt, const tic_rect* rect)
 {
-	return (pt->x >= rect->x) 
-		&& (pt->x < (rect->x + rect->w)) 
+	return (pt->x >= rect->x)
+		&& (pt->x < (rect->x + rect->w))
 		&& (pt->y >= rect->y)
 		&& (pt->y < (rect->y + rect->h));
 }
@@ -1104,6 +1135,7 @@ static void initModules()
 		initMap(impl.editor[i].map, impl.studio.tic, &tic->cart.banks[i].map);
 		initSfx(impl.editor[i].sfx, impl.studio.tic, &tic->cart.banks[i].sfx);
 		initMusic(impl.editor[i].music, impl.studio.tic, &tic->cart.banks[i].music);
+		initExercise(impl.editor[i].exercise, impl.studio.tic, &tic->exe);
 	}
 
 	initWorldMap();
@@ -1333,7 +1365,7 @@ static void processShortcuts()
 	bool alt = tic->api.key(tic, tic_key_alt);
 	bool ctrl = tic->api.key(tic, tic_key_ctrl);
 
-	if(keyWasPressedOnce(tic_key_f6)) switchCrtMonitor();
+	if(keyWasPressedOnce(tic_key_f7)) switchCrtMonitor();
 
 	if(isGameMenu())
 	{
@@ -1346,7 +1378,7 @@ static void processShortcuts()
 		{
 			if(alt) goFullscreen();
 		}
-		else if(keyWasPressedOnce(tic_key_f7)) setCoverImage();
+		else if(keyWasPressedOnce(tic_key_f10)) setCoverImage();
 		else if(keyWasPressedOnce(tic_key_f8)) takeScreenshot();
 #if !defined(__EMSCRIPTEN__)
 		else if(keyWasPressedOnce(tic_key_f9)) startVideoRecord();
@@ -1381,6 +1413,7 @@ static void processShortcuts()
 		else if(keyWasPressedOnce(tic_key_f3)) setStudioMode(TIC_MAP_MODE);
 		else if(keyWasPressedOnce(tic_key_f4)) setStudioMode(TIC_SFX_MODE);
 		else if(keyWasPressedOnce(tic_key_f5)) setStudioMode(TIC_MUSIC_MODE);
+			else if(keyWasPressedOnce(tic_key_f6)) setStudioMode(TIC_EXERCISE_MODE);
 		else if(keyWasPressedOnce(tic_key_f7)) setCoverImage();
 		else if(keyWasPressedOnce(tic_key_f8)) takeScreenshot();
 #if !defined(__EMSCRIPTEN__)
@@ -1443,7 +1476,7 @@ static void updateStudioProject()
 
 				showDialog(Rows, COUNT_OF(Rows), reloadConfirm, NULL);
 			}
-			else console->updateProject(console);						
+			else console->updateProject(console);
 		}
 	}
 
@@ -1490,7 +1523,7 @@ static void drawDesyncLabel(u32* frame)
 			0b0010001010010100,
 			0b1100110010010011,
 		};
-		
+
 		enum{sx = TIC80_WIDTH-24, sy = 8, Cols = sizeof DesyncLabel[0]*BITS_IN_BYTE, Rows = COUNT_OF(DesyncLabel)};
 
 		const u32* pal = tic_palette_blit(&impl.config->cart.bank0.palette);
@@ -1548,7 +1581,7 @@ static void drawPopup()
 			anim = (((POPUP_DUR - Dur) - impl.popup.counter) * (TIC_FONT_HEIGHT+1) / Dur);
 
 		impl.studio.tic->api.rect(impl.studio.tic, 0, anim, TIC80_WIDTH, TIC_FONT_HEIGHT+1, (tic_color_red));
-		impl.studio.tic->api.text(impl.studio.tic, impl.popup.message, 
+		impl.studio.tic->api.text(impl.studio.tic, impl.popup.message,
 			(s32)(TIC80_WIDTH - strlen(impl.popup.message)*TIC_FONT_WIDTH)/2,
 			anim + 1, (tic_color_white), false);
 	}
@@ -1590,16 +1623,16 @@ static void renderStudio()
 	case TIC_START_MODE:	impl.start->tick(impl.start); break;
 	case TIC_CONSOLE_MODE: 	impl.console->tick(impl.console); break;
 	case TIC_RUN_MODE: 		impl.run->tick(impl.run); break;
-	case TIC_CODE_MODE: 	
+	case TIC_CODE_MODE:
 		{
 			Code* code = impl.editor[impl.bank.index.code].code;
 			code->tick(code);
 		}
 		break;
-	case TIC_SPRITE_MODE:	
+	case TIC_SPRITE_MODE:
 		{
 			Sprite* sprite = impl.editor[impl.bank.index.sprites].sprite;
-			sprite->tick(sprite);		
+			sprite->tick(sprite);
 		}
 		break;
 	case TIC_MAP_MODE:
@@ -1620,6 +1653,12 @@ static void renderStudio()
 			music->tick(music);
 		}
 		break;
+	case TIC_EXERCISE_MODE:
+	{
+		Exercise* exercise = impl.editor[impl.bank.index.exercise].exercise;
+		exercise->tick(exercise);
+	}
+	break;
 
 	case TIC_WORLD_MODE:	impl.world->tick(impl.world); break;
 	case TIC_DIALOG_MODE:	impl.dialog->tick(impl.dialog); break;
@@ -1741,7 +1780,7 @@ static void studioTick()
 	renderStudio();
 
 	tic_mem* tic = impl.studio.tic;
-	
+
 	{
 		tic_scanline scanline = NULL;
 		tic_overline overline = NULL;
@@ -1780,7 +1819,7 @@ static void studioTick()
 
 		recordFrame(tic->screen);
 		drawDesyncLabel(tic->screen);
-	
+
 	}
 }
 
@@ -1796,6 +1835,7 @@ static void studioClose()
 			free(impl.editor[i].map);
 			free(impl.editor[i].sfx);
 			free(impl.editor[i].music);
+			free(impl.editor[i].exercise);
 		}
 
 		free(impl.start);
@@ -1840,6 +1880,8 @@ Studio* studioInit(s32 argc, char **argv, s32 samplerate, const char* folder, Sy
 			impl.editor[i].map 		= calloc(1, sizeof(Map));
 			impl.editor[i].sfx 		= calloc(1, sizeof(Sfx));
 			impl.editor[i].music 	= calloc(1, sizeof(Music));
+			impl.editor[i].exercise = calloc(1, sizeof(Exercise));
+
 		}
 
 		impl.start 		= calloc(1, sizeof(Start));

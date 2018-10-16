@@ -22,22 +22,38 @@
 
 #pragma once
 
-#include "fs.h"
+#include "studio.h"
+#include "web_comunication_api.h"
 
-typedef struct Net Net;
+typedef struct Exercise Exercise;
 
-typedef struct
+typedef struct UnitTest UnitTest;
+
+struct UnitTest
 {
-	u8* data;
-	s32 size;
-}Buffer;
+	char* title;
+	char* description;
+	char* correctCode; //Would it be better to have only the expeted output??
+} ;
 
+struct Exercise
+{
+	tic_mem* tic;
 
-Net* createNet();
-char *buildHttpParameter(const char *key, const char *value);
-char* concateStrings(const char *string1, const char *string2);
-static Buffer sendHttpRequest(const char* address, int port, const char* path, char *message, int messageSize, s32 timeout);
-Buffer sendHttpGetRequest(const char* address, int port, const char* path, Buffer *dataToSend, char *additionalHeaderString, s32 timeout);
-Buffer sendHttpPostRequest(const char* address, int port, const char* path, Buffer *dataToSend, char *additionalHeaderString, s32 timeout);
-void* netGetRequest(Net* net, const char* path, s32* size);
-void closeNet(Net* net);
+	tic_exercise* exe;
+
+	struct UnitTest* unitTests; 
+
+	enum
+	{
+		EXERCISE_OVERVIEW_TAB,
+		EXERCISE_TESTS_TAB,
+	} tab;
+
+	struct History* history;
+
+	void(*tick)(Exercise*);
+	void(*event)(Exercise*, StudioEvent);
+};
+
+void initExercise(Exercise*, tic_mem* tic, tic_exercise* exe);

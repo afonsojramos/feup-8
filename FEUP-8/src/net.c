@@ -23,9 +23,15 @@
 #include "net.h"
 #include "tic.h"
 #include "SDL_net.h"
+#include "web_comunication_api.h"
+#include "cJSON.h"
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <limits.h>
+#include <math.h>
+
+#define MEGABYTE 1024*1024
 
 struct Net
 {
@@ -59,11 +65,170 @@ static void netClearCache(Net* net)
 	memset(net->cache.path, 0, sizeof net->cache.path);
 }
 
-typedef struct
+/**
+* Changes the pointer to the returned data in http reponse, in order to get only the data, placed after the double /r/n.
+* @param buf The struct Buffer that contains the data received, of which the pointer will be changed.
+*/
+static void getDataFromHttpResponse(Buffer *buf)
 {
-	u8* data;
-	s32 size;
-}Buffer;
+	char *ocurrence = strstr(buf->data, "\r\n\r\n");
+	ocurrence += sizeof(char) * strlen("\r\n\r\n");
+	size_t new_size = sizeof(char) * (strlen(ocurrence) + 1);
+	char *new_data = malloc(new_size);
+	memcpy(new_data, ocurrence, new_size);
+	new_data[new_size - 1] = '\0';
+	free(buf->data);
+	buf->data = new_data;
+	buf->size = new_size;
+}
+
+/**
+* Builds a string to send as http parameter according to the key and value received as parameters.
+* @param key A strin representing the key to be sent as http parameter.
+* @param value A stringg representing the value to be sent as http parameter.
+* @return A string representing what should be sent through the socket according to the http standard.
+*/
+char *buildHttpParameter(const char *key, const char *value)
+{
+	size_t key_size = sizeof(char) * (strlen(key) + 1);
+	char *parameter = malloc(key_size);
+	memcpy(parameter, key, key_size);
+	parameter = concateStrings(parameter, value);
+	parameter = concateStrings(parameter, "\r\n");
+
+	return parameter;
+}
+
+/**
+* Creates a string being the concate of two string
+* @param string1, the left side of the resultante string.
+* @param string2, the right side of the resultante string.
+* @return A string, the concate string.
+*/
+char* concateStrings(const char *string1, const char *string2)
+{
+    size_t resultSize = sizeof(char) * (strlen(string1) + strlen(string2) + 1);
+    char *result = malloc(resultSize);
+    memset(result, 0, resultSize);
+    sprintf(result, "%s%s", string1, string2);
+
+    return result;
+}
+
+/**
+* Sends a http request of type GET to adress:port/path with the data in the dataToSend paramater. Returns the received response, also a BUffer* with the data.
+* @param address The address of the server.
+* @param port The port of the server.
+* @param path The path to the request.
+* @param dataToSend The data to be sent to the server.
+* @param timeout The timeout it waits to the request be done.
+* @return A Buffer with the data received from the server as response.
+* Example: GET api/exercises?auth_token=hjfkhkasj HTTP/1.1\r\nHost: server.pt\r\n\r\n
+*/
+Buffer sendHttpGetRequest(const char* address, int port, const char* path, Buffer *dataToSend, char *additionalHeaderString, s32 timeout)
+{
+	if (additionalHeaderString == NULL)
+		additionalHeaderString = "";
+	Buffer dataToSend_;
+	if (dataToSend == NULL)
+	{
+		dataToSend_.data = "";
+		dataToSend_.size = 0;
+		dataToSend = &dataToSend_;
+	}
+	int GET_MESSAGE_DEFAULT_SIZE = 26;
+	int messageSize = GET_MESSAGE_DEFAULT_SIZE + strlen(path) + dataToSend->size + strlen(address) + strlen(additionalHeaderString);
+	char message[messageSize];
+	memset(message, 0, sizeof message);
+	sprintf(message, "GET %s?%s HTTP/1.1\r\nHost: %s\r\n%s\r\n", path, dataToSend->data, address, additionalHeaderString);
+	return sendHttpRequest(address, port, path, message, messageSize, timeout);
+}
+
+/**
+* Sends a http request of type POST to adress:port/path with the data in the dataToSend paramater. Returns the received response, also a BUffer* with the data.
+* @param address The address of the server.
+* @param port The port of the server.
+* @param path The path to the request.
+* @param dataToSend The data to be sent to the server.
+* @param timeout The timeout it waits to the request be done.
+* @return A Buffer with the data received from the server as response.
+* Example: "POST api/exercises HTTP/1.1\r\nHost: server.pt\r\nContent-type: application/x-www-form-urlencoded\r\nContent-Length: 20\r\n\r\nauth_token=hjfkhkasj"
+*/
+Buffer sendHttpPostRequest(const char* address, int port, const char* path, Buffer *dataToSend, char *additionalHeaderString, s32 timeout)
+{
+	if (additionalHeaderString == NULL)
+		additionalHeaderString = "";
+	Buffer dataToSend_;
+	if (dataToSend == NULL)
+	{
+		dataToSend_.data = "";
+		dataToSend_.size = 0;
+		dataToSend = &dataToSend_;
+	}
+	int POST_MESSAGE_DEFAULT_SIZE = 103;
+	size_t dataToSend_size_size = (log10(dataToSend->size) + 1);
+	int messageSize = POST_MESSAGE_DEFAULT_SIZE + strlen(path) + strlen(address) + dataToSend_size_size + strlen(additionalHeaderString) + dataToSend->size;
+	char message[messageSize];
+	memset(message, 0, messageSize);
+	sprintf(message, "POST %s HTTP/1.1\r\nHost: %s\r\nContent-type: application/x-www-form-urlencoded\r\nContent-Length: %d\r\n%s\r\n%s", path, address, dataToSend->size, additionalHeaderString, dataToSend->data);
+
+	return sendHttpRequest(address, port, path, message, messageSize, timeout);
+}
+
+static Buffer sendHttpRequest(const char* address, int port, const char* path, char *message, int messageSize, s32 timeout)
+{
+	Buffer buffer = {.data = NULL, .size = 0};
+{
+		IPaddress ip;
+		if (SDLNet_ResolveHost(&ip, address, port) >= 0)
+		{
+			TCPsocket sock = SDLNet_TCP_Open(&ip);
+
+			if (sock)
+			{
+
+				SDLNet_SocketSet set = SDLNet_AllocSocketSet(1);
+
+				if(set)
+				{
+					SDLNet_TCP_AddSocket(set, sock);
+
+					{
+						SDLNet_TCP_Send(sock, message, (s32)strlen(message));
+					}
+
+					if(SDLNet_CheckSockets(set, timeout) == 1 && SDLNet_SocketReady(sock))
+					{
+						enum {Size = MEGABYTE};
+						buffer.data = malloc(Size);
+						s32 size = 0;
+
+						for(;;)
+						{
+							size = SDLNet_TCP_Recv(sock, buffer.data + buffer.size, Size-1);
+
+							if(size > 0)
+							{
+								buffer.size += size;
+								buffer.data = realloc(buffer.data, buffer.size + Size);
+							}
+							else break;
+						}
+
+						getDataFromHttpResponse(&buffer);
+						buffer.data[buffer.size] = '\0';
+					}
+
+					SDLNet_FreeSocketSet(set);
+				}
+
+				SDLNet_TCP_Close(sock);
+			}
+		}
+	}
+
+	return buffer;
+}
 
 static Buffer httpRequest(const char* path, s32 timeout)
 {
@@ -111,7 +276,7 @@ static Buffer httpRequest(const char* path, s32 timeout)
 
 						buffer.data[buffer.size] = '\0';
 					}
-					
+
 					SDLNet_FreeSocketSet(set);
 				}
 
@@ -208,7 +373,7 @@ Net* createNet()
 
 	*net = (Net)
 	{
-		.cache = 
+		.cache =
 		{
 			.buffer = NULL,
 			.size = 0,
@@ -222,6 +387,6 @@ Net* createNet()
 void closeNet(Net* net)
 {
 	free(net);
-	
+
 	SDLNet_Quit();
 }

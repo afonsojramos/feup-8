@@ -1,3 +1,6 @@
+#ifndef base64_enc_dec__h
+#define base64_enc_dec__h
+
 #include <stdio.h>
 
 size_t b64_encoded_size(size_t inlen);
@@ -13,3 +16,5 @@ int b64_isvalidchar(char c);
 int b64_decode(const char *in, unsigned char *out, size_t outlen);
 
 void testBase64EncodeAndDecode();
+
+#endif
