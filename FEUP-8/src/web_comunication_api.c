@@ -397,19 +397,9 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
             else
                 exercise->progress = atoi(progress_obj->valuestring);
 
-            cJSON *correct_code_base64_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "correct_code_base64");
-            if(correct_code_base64_obj == NULL)
+            if(parseExerciseTestsReceived(exercise_element, &(exercise->exerciseTest)) == 2)
                 return 2;
-            exercise->exerciseTest.correct_code_base64 = getStringCopy(correct_code_base64_obj->valuestring);
-
-            cJSON *test_code_base64_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "test_code_base64");
-            if(test_code_base64_obj == NULL)
-                return 2;
-            exercise->exerciseTest.test_code_base64 = getStringCopy(test_code_base64_obj->valuestring);
-
                     
-            cJSON_free(correct_code_base64_obj);
-            cJSON_free(test_code_base64_obj);
             cJSON_free(title_obj);
             cJSON_free(creator_name_obj);
             cJSON_free(description_obj);
@@ -425,6 +415,86 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
     cJSON_free(ret_code_obj);
 
     return ret_code; //can display a message saying what hapenned and return acordingly
+}
+
+/**
+* Parses the exercises tests that come in JSON and puts them in the exerciseTestArray of ExerciseTest struct. Returns an int code identifying the result of the parse.
+* @param exercise_element A cJSON element representing the exercise tests info related.
+* @param exerciseTestArray A ExerciseTest instance for putting the exercise tests info. Double pointer to be allocated inside, when the number of tests is known.
+* @return An int identifying the result of the request. Int returned and respective meaning:
+* 0 - success.
+* 2 - parsing error.
+*/
+int parseExerciseTestsReceived(cJSON *exercise_element, ExerciseTest **exerciseTestArray)
+{
+    int ret_code = 0;
+
+    cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "tests");
+    if(tests_obj == NULL)
+    {
+        cJSON_free(tests_obj);
+        return 2;
+    }
+    ticExercise->number_of_exercise_tests = cJSON_GetArraySize(tests_obj);
+    *exerciseTestArray = malloc(sizeof(ExerciseTest) * ticExercise->number_of_exercise_tests);
+
+    cJSON *test;
+    size_t i = 0;
+    cJSON_ArrayForEach(test, tests_obj)
+    {
+        cJSON *id_obj = cJSON_GetObjectItemCaseSensitive(test, "id");
+        if(id_obj == NULL || id_obj->valuestring == NULL)
+        {
+            cJSON_free(id_obj);
+            ret_code = 2;
+            goto deallocate_parseExerciseTestsReceived;
+        }
+        int id = atoi(id_obj->valuestring);
+        cJSON_free(id_obj);
+        if(id == 0)
+        {
+            ret_code = 2;
+            goto deallocate_parseExerciseTestsReceived;
+        }
+        (*exerciseTestArray)[i].id = id;
+
+        cJSON *title_obj = cJSON_GetObjectItemCaseSensitive(test, "title");
+        if(title_obj == NULL|| title_obj->valuestring == NULL)
+        {
+            cJSON_free(title_obj);
+            ret_code = 2;
+            goto deallocate_parseExerciseTestsReceived;
+        }
+        (*exerciseTestArray)[i].title = title_obj->valuestring;
+        cJSON_free(title_obj);
+        
+        cJSON *hint_obj = cJSON_GetObjectItemCaseSensitive(test, "hint");
+        if(hint_obj == NULL|| hint_obj->valuestring == NULL)
+        {
+            cJSON_free(hint_obj);
+            ret_code = 2;
+            goto deallocate_parseExerciseTestsReceived;
+        }
+        (*exerciseTestArray)[i].hint = hint_obj->valuestring;
+        cJSON_free(hint_obj);
+
+        cJSON *test_code_obj = cJSON_GetObjectItemCaseSensitive(test, "test_code");
+        if(test_code_obj == NULL|| test_code_obj->valuestring == NULL)
+        {
+            cJSON_free(test_code_obj);
+            ret_code = 2;
+            goto deallocate_parseExerciseTestsReceived;
+        }
+        (*exerciseTestArray)[i].test_code = test_code_obj->valuestring;
+        cJSON_free(test_code_obj);
+
+        i++;
+    }
+
+deallocate_parseExerciseTestsReceived:
+    cJSON_free(tests_obj);
+    cJSON_free(test);
+    return ret_code;
 }
 
 /**

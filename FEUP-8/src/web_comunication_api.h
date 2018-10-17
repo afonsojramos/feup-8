@@ -29,8 +29,10 @@ int logoutRequest();
 static char* getStringCopy(const char *original);
 int registerRequest(const char *name, const char *email, const char *username, const char *password);
 int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *numberOfExercises);
-int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise);
-int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, Buffer *testResponse);
+int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
+int parseExerciseTestsReceived(cJSON *exercise_element, ExerciseTest **exerciseTestArray)
+int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id)
+int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise *ticExercise)
 
 
 
