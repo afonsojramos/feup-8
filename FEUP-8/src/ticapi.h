@@ -172,10 +172,11 @@ typedef struct
 
 typedef struct 
 {
+	int id;
 	char* title;
 	char* hint; //optional, empty string if none
     char* test_code_base64;
-	char passed;
+	bool passed;
 } ExerciseTest;
 
 typedef struct
@@ -186,7 +187,8 @@ typedef struct
     char *creator_name;
     char *img_base64;
     char *description;
-    ExerciseTest exerciseTest;
+    ExerciseTest exerciseTest[];
+	size_t number_of_exercise_tests;
 } tic_exercise;
 
 struct tic_mem
