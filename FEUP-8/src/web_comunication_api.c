@@ -485,7 +485,15 @@ int parseExerciseTestsReceived(cJSON *exercise_element, ExerciseTest **exerciseT
             ret_code = 2;
             goto deallocate_parseExerciseTestsReceived;
         }
-        (*exerciseTestArray)[i].test_code = test_code_obj->valuestring;
+        size_t code_decoded_size = b64_decoded_size(test_code_obj->valuestring);
+	    char *code_decoded = malloc(sizeof(char) * code_decoded_size);
+	    if (b64_decode(test_code_obj->valuestring, code_decoded, code_decoded_size) != 1)
+		{
+            free(code_decoded);
+            ret_code = 2;
+            goto deallocate_parseExerciseTestsReceived;
+        }
+        (*exerciseTestArray)[i].test_code = code_decoded;
         cJSON_free(test_code_obj);
 
         i++;
