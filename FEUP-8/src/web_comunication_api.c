@@ -494,14 +494,18 @@ int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id)
 * 2 - server error.
 * 3 - can't connect to server.
 */
-int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, Buffer *testResponse)
+int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, ExerciseTest *exerciseTest)
 {
+    char *additionalHeaderString = NULL;
+    if(auth_token != NULL) //if loged int the web server will receive the auth token in order to sava the most recent progress of the user based on the code tested.
+        additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
+
     Buffer dataToSend;
     int FIXED_EXECUTE_TEST_MESSAGE_SIZE = 6;
     dataToSend.size = strlen(code) + FIXED_EXECUTE_TEST_MESSAGE_SIZE;
     dataToSend.data = malloc(sizeof(u8) * dataToSend.size);
     sprintf(dataToSend.data, "code=%s", exercise_data.data);
-    char *request_address = malloc(sizeof(char) * (strlen(EXECUTE_TEST_PATH) + 1 + log10(exerciseId) + 1 + 4));
+    char *request_address = malloc(sizeof(char) * (strlen(EXECUTE_TEST_PATH) + 1 + (log10(exerciseId) + 1) + 1 + 4));
     sprintf(request_address, "%s/%d/test", EXECUTE_TEST_PATH, exercise_id);
 
     Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
@@ -526,6 +530,11 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, Buffer *testR
     if(ret_code_obj == NULL)
         return 2;
     int ret_code = ret_code_obj->valueint;
+
+
+    //get exercise test response
+
+
     free(dataToSend.data);
     free(response.data);
     cJSON_free(monitor_json);
