@@ -180,7 +180,6 @@ int registerRequest(const char *name, const char *email, const char *username, c
 */
 int logoutRequest()
 {
-    //auth_token = NULL; //reset auth_token
     if(auth_token == NULL)
         return 1;
     char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
@@ -208,6 +207,7 @@ int logoutRequest()
     cJSON_free(ret_code_obj);
     free(auth_token);
 
+    auth_token = NULL; //reset auth_token
     return ret_code; //can display a message saying what hapenned and return acordingly
 }
 
@@ -223,12 +223,11 @@ int logoutRequest()
 */
 int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number_of_exercises)
 {
-    //TODO: tirar auth_token
-    /*if(auth_token == NULL)
-        return 1;
-    char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();*/
+    char *additionalHeaderString = NULL;
+    if(auth_token != NULL)
+        additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
 
-    Buffer response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, GET_EXERCISES_PATH, NULL, NULL, CONNECTION_TIMEOUT_MS);
+    Buffer response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, GET_EXERCISES_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     if(response.data == NULL)
         return 3;
     cJSON *monitor_json = cJSON_Parse(response.data);
@@ -328,18 +327,19 @@ int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number
 * @param exercise The exercise received from server (returns by reference). A pointer to a (tic_exercise struct (previously allocated)) should be passed as parameter.
 * @return An int identifying the result of the request. Int returned and respective meaning:
 * 0 - success.
+* 1 - access denied.
 * 2 - server error.
 * 3 - can't connect to server.
 */
 int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
 {   
-    //TODO: tirar auth_token
-  /*  if(auth_token == NULL)
-        return NULL;
-    char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();*/
-    char *request_address = malloc(sizeof(char) * (strlen(GET_EXERCISE_DETAILS_PATH) + log10(exercise_id) + 1 + 1));
+    char *additionalHeaderString = NULL;
+    if(auth_token != NULL) //if logged in, the web server will receive the auth token in order to check if user can receive that exercise data.
+        additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
+
+    char *request_address = malloc(sizeof(char) * (strlen(GET_EXERCISE_DETAILS_PATH) + 1 + (log10(exercise_id) + 1)));
     sprintf(request_address, "%s/%d", GET_EXERCISE_DETAILS_PATH, exercise_id);
-    Buffer response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, NULL, NULL, CONNECTION_TIMEOUT_MS);
+    Buffer response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     if(response.data == NULL)
         return 3;
     cJSON *monitor_json = cJSON_Parse(response.data);
@@ -428,7 +428,7 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
 }
 
 /**
-* Creates save exercise progress request and sends it to the web server. Returns an int code indentifying the result of the request.
+* Creates save exercise progress request and sends it to the web server. Returns an int code identifying the result of the request.
 * @param exercise_data The data of the exercise to save (binary data).
 * @param progress An int representing the current progress on the exercise.
 * @param exercise_id An int representing the id of the exercise of which to save the progress.
@@ -484,20 +484,19 @@ int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id)
 
 
 /**
-* Creates save exercise progress request and sends it to the web server. Returns an int code indentifying the result of the request.
-* @param exercise_data The data of the exercise to save (binary data).
-* @param progress An int representing the current progress on the exercise.
-* @param exercise_id An int representing the id of the exercise of which to save the progress.
+* Creates test code on server request and sends it to the web server. Returns an int code identifying the result of the request.
+* @param exercise_id An int representing the id of the exercise of which student code tries to resolve.
+* @param code A string with student typed code to be tested.
+* @param ticExercise The struct representing the exercise that will be filled with the result from the tests.
 * @return An int identifying the result of the request. Int returned and respective meaning:
 * 0 - success.
-* 1 - must be logged in to save progress.
 * 2 - server error.
 * 3 - can't connect to server.
 */
-int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, ExerciseTest *exerciseTest)
+int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise *ticExercise)
 {
     char *additionalHeaderString = NULL;
-    if(auth_token != NULL) //if loged int the web server will receive the auth token in order to sava the most recent progress of the user based on the code tested.
+    if(auth_token != NULL) //if logged in, the web server will receive the auth token in order to sava the most recent progress of the user based on the code tested.
         additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
 
     Buffer dataToSend;
