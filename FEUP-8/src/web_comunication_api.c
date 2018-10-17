@@ -361,7 +361,7 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
     if (ret_code == 0)
     {
         exercise->id = exercise_id;
-       cJSON *exercise_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "exercise");
+        cJSON *exercise_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "exercise");
         if(exercise_obj == NULL)
             return 2;
           
@@ -371,9 +371,9 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
 
         cJSON_ArrayForEach(exercise_element, exercise_obj)
         {
-             cJSON *title_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "title");
+            cJSON *title_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "title");
             if(title_obj == NULL || title_obj->valuestring == NULL)
-            return 2;
+                return 2;
             exercise->title = getStringCopy(title_obj->valuestring);
 
             cJSON *creator_name_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "creator_name");
@@ -509,7 +509,11 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
 
     Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     if(response.data == NULL)
+    {
+        free(dataToSend.data);
+        free(response.data);
         return 3;
+    }
     
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
@@ -527,16 +531,72 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
 
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
     if(ret_code_obj == NULL)
-        return 2;
+    {
+        ret_code = 2;
+        goto deallocate_memory;
+    }
     int ret_code = ret_code_obj->valueint;
+    if(ret_code == 0)
+    {
+        cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "tests");
+        if(tests_obj == NULL)
+        {
+            cJSON_free(tests_obj);
+            ret_code = 2;
+            goto deallocate_memory;
+        }
+        ticExercise->number_of_exercise_tests = cJSON_GetArraySize(tests_obj);
+        ticExercise->exerciseTest = malloc(sizeof(ExerciseTest) * ticExercise->number_of_exercise_tests);
 
+        cJSON *test;
+        size_t i = 0;
+        cJSON_ArrayForEach(test, tests_obj)
+        {
+            cJSON *id_obj = cJSON_GetObjectItemCaseSensitive(test, "id");
+            if(id_obj == NULL || id_obj->valuestring == NULL)
+                return 2;
+            int id = atoi(id_obj->valuestring);
+            cJSON_free(id_obj);
+            if(id == 0)
+            {
+                cJSON_free(tests_obj);
+                cJSON_free(test);
+                ret_code = 2;
+                goto deallocate_memory;
+            }
 
-    //get exercise test response
+            cJSON *result_obj = cJSON_GetObjectItemCaseSensitive(test, "result");
+            if(result_obj == NULL|| result_obj->valuestring == NULL)
+            {
+                cJSON_free(result_obj);
+                cJSON_free(tests_obj);
+                cJSON_free(test);
+                ret_code = 2;
+                goto deallocate_memory;
+            }
 
+            bool passed = strcmp(result_obj->valuestring, "OK") == 0 ? true : false;
+            ExerciseTest *exerciseTestArray = ticExercise->exerciseTest;
+            for(size_t i = 0: i < ticExercise->number_of_exercise_tests; i++)
+            {
+                if(exerciseTestArray[i].id == id)
+                    exerciseTestArray[i].passed = passed;
+            }
+            ticExercise->creator_name = getStringCopy(result_obj->valuestring);
+            cJSON_free(result_obj);
 
+            i++;
+        }
+
+        cJSON_free(tests_obj);
+        cJSON_free(test);
+    }
+
+deallocate_memory:
     free(dataToSend.data);
     free(response.data);
     cJSON_free(monitor_json);
     cJSON_free(ret_code_obj);
+    
     return ret_code;
 }
