@@ -172,8 +172,10 @@ typedef struct
 
 typedef struct 
 {
-    char *correct_code_base64;
-    char *test_code_base64;
+	char* title;
+	char* hint; //optional, empty string if none
+    char* test_code_base64;
+	char passed;
 } ExerciseTest;
 
 typedef struct
