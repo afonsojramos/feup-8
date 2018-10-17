@@ -175,7 +175,7 @@ typedef struct
 	int id;
 	char* title;
 	char* hint; //optional, empty string if none
-    char* test_code_base64;
+    char* test_code;
 	bool passed;
 } ExerciseTest;
 
