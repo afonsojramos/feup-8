@@ -64,14 +64,17 @@ class UserController extends Controller
 
      /** 
      * Logout's the user currently logged in.
-     * @return the response code 0 indicating sucess.
+     * @return the response code (0 indicating sucess, 1 not logged in, 2 server error)
      */ 
     public function logout() 
     {
-        if (Auth::check())
-            Auth::logout();
+        if (!Auth::guard('api')->check()) //not logged in
+            return response()->json(['response_code' => 1], 200);
 
-        return response()->json(['response_code'=>0], $this->successStatus); 
+        if (!Auth::guard('api')->user()->token()->revoke())
+            return response()->json(['response_code' => 2], 200);
+
+        return response()->json(['response_code' => 0], $this->successStatus); 
     }
 
 }
