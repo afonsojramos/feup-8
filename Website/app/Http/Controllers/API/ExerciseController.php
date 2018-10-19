@@ -21,7 +21,25 @@ class ExerciseController extends Controller
         //TODO: send also the progress if logged in
         try 
         {
-            $exercises = DB::table('exercise')->select('id', 'title')->where('isPrivate', 'false')->get();
+            $exercises = DB::table('exercise')
+            ->select('id', 'title')
+            ->where('isPrivate', 'false');
+
+            $current_user_id = UserController::getCurrentlyLoggedInUserId();
+            
+            if ($current_user_id != 0) //logged in
+            {
+                $private_exercises = DB::table('exercise')
+                ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
+                ->select('id', 'title')
+                ->where('isPrivate', 'true')
+                ->where('student_id', $current_user_id);
+                
+
+                $exercises = $exercises->unionAll($private_exercises);
+            }
+
+            $exercises = $exercises->get();
         } 
         catch (\Exception $e) 
         {
