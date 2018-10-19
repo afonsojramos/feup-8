@@ -64,14 +64,35 @@ class ExerciseController extends Controller
             ->join('test', 'exercise.id', '=', 'test.exercise_id')
             ->join('users', 'exercise.creator_id', '=', 'users.id')
             ->select('exercise.title', 'exercise.description', 'exercise.image_path as image_base64',
-                 'test.correct_code as correct_code_base64' , 'test.tests_code as test_code_base64', 'users.name as creator_name')
-            ->where('exercise.id', '=', $id)->get();
+                'test.tests_code as test_code_base64', 'users.name as creator_name')
+            ->where('isPrivate', 'false')
+            ->where('exercise.id', '=', $id);
+
+            $current_user_id = UserController::getCurrentlyLoggedInUserId();
+            
+            if ($current_user_id != 0) //logged in
+            {
+                $private_exercise = DB::table('exercise')
+                ->join('test', 'exercise.id', '=', 'test.exercise_id')
+                ->join('users', 'exercise.creator_id', '=', 'users.id')
+                ->select('exercise.title', 'exercise.description', 'exercise.image_path as image_base64',
+                    'test.tests_code as test_code_base64', 'users.name as creator_name')
+                ->where('isPrivate', 'true')
+                ->where('student_id', $current_user_id)
+                ->where('exercise.id', '=', $id);
+
+                $exercise = $exercise->unionAll($private_exercise);
+            }
+
+            $exercise = $exercise->distinct('exercise.id')->get();
+
             //TODO: send feup8 file
             //TODO: send image then
             //TODO: ->join('exerciseStudent', 'exercise.id', '=', 'exerciseStudent.exercise_id') mas com exerciseStudent.student_id = Auth::id indo buscar o 'exerciseStudent.progress' no select
         } 
         catch (\Exception $e) 
         {
+            return $e;
             return response()->json(['response_code'=>1], 200);
         }
 
