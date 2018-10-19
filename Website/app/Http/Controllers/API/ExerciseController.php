@@ -36,7 +36,13 @@ class ExerciseController extends Controller
                     ->where('isPrivate', 'true')
                     ->where('student_id', $current_user_id);
                 
-                $exercises = $exercises->unionAll($private_exercises);
+                $exercises_in_progress = DB::table('exercise')
+                    ->join('ExerciseStudent', 'exercise.id', '=', 'ExerciseStudent.exercise_id')
+                    ->select('id', 'title', 'progress')
+                    ->where('student_id', $current_user_id);
+                
+                $exercises = $exercises->unionAll($private_exercises)->distinct('exercise.id');
+                $exercises = $exercises->unionAll($exercises_in_progress)->distinct('exercise.id');
             }
 
             $exercises = $exercises->get();
