@@ -17,25 +17,25 @@ class ExerciseController extends Controller
      */ 
     public function getAllExercises()
     { 
-        //TODO: add exercises that are private but that user has access
-        //TODO: send also the progress if logged in
+        /*TODO: send also the progress if logged in
+            ->join('ExerciseStudent', 'exercise.id', '=', 'ExerciseStudent.exercise_id')
+            ->select('id', 'title', 'progress')
+            e fazer para non private*/
         try 
         {
             $exercises = DB::table('exercise')
-            ->select('id', 'title')
-            ->where('isPrivate', 'false');
+                ->select('id', 'title')
+                ->where('isPrivate', 'false');
 
             $current_user_id = UserController::getCurrentlyLoggedInUserId();
-            
             if ($current_user_id != 0) //logged in
             {
                 $private_exercises = DB::table('exercise')
-                ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
-                ->select('id', 'title')
-                ->where('isPrivate', 'true')
-                ->where('student_id', $current_user_id);
+                    ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
+                    ->select('id', 'title')
+                    ->where('isPrivate', 'true')
+                    ->where('student_id', $current_user_id);
                 
-
                 $exercises = $exercises->unionAll($private_exercises);
             }
 
@@ -61,12 +61,12 @@ class ExerciseController extends Controller
         try 
         {
             $exercise = DB::table('exercise')
-            ->join('test', 'exercise.id', '=', 'test.exercise_id')
-            ->join('users', 'exercise.creator_id', '=', 'users.id')
-            ->select('exercise.title', 'exercise.description', 'exercise.image_path as image_base64',
-                'test.tests_code as test_code_base64', 'users.name as creator_name')
-            ->where('isPrivate', 'false')
-            ->where('exercise.id', '=', $id);
+                ->join('test', 'exercise.id', '=', 'test.exercise_id')
+                ->join('users', 'exercise.creator_id', '=', 'users.id')
+                ->select('exercise.title', 'exercise.description', 'exercise.image_path as image_base64',
+                    'test.tests_code as test_code_base64', 'users.name as creator_name')
+                ->where('isPrivate', 'false')
+                ->where('exercise.id', '=', $id);
 
             $current_user_id = UserController::getCurrentlyLoggedInUserId();
             
