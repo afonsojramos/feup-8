@@ -77,4 +77,9 @@ class UserController extends Controller
         return response()->json(['response_code' => 0], $this->successStatus); 
     }
 
+    public static function getCurrentlyLoggedInUserId()
+    {
+        return Auth::guard('api')->id();
+    }
+
 }
