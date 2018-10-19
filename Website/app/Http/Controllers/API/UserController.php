@@ -79,7 +79,10 @@ class UserController extends Controller
 
     public static function getCurrentlyLoggedInUserId()
     {
-        return Auth::guard('api')->id();
+        if (Auth::guard('api')->check())
+            return Auth::guard('api')->id();
+        else
+            return 0;
     }
 
 }
