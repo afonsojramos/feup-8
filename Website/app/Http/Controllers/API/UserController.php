@@ -16,10 +16,11 @@ class UserController extends Controller
     public $successStatus = 200;
 
     /** 
-     * login api 
-     * 
-     * @return \Illuminate\Http\Response 
-     */ 
+     * This methods allows to login a user. 
+     * The username and password will be checked for existing in the database, and if match.
+     * @param $request The post request with the username and password data.
+     * @return JSON response with response code (0-success, 1-username/password dont match). 
+    */  
     public function login(Request $request)
     { 
         $credentials = $request->only('username', 'password');
@@ -35,12 +36,12 @@ class UserController extends Controller
             return response()->json(['response_code'=> 1], 200);
     }
     
-/** 
+    /** 
      * This methods allows to register a user in the database. 
-     * The username will be checked for non existing yet, and both username and password asre requeired 
-     * @param $request The post request with the username and password data.
+     * All request parameters (name, username, email and password) are required.
+     * @param $request The post request with the name, username, email and password data.
      * @return JSON response with response code (0-success, 1-username/password dont match, 2-server error). 
-     */ 
+    */ 
     public function register(Request $request) 
     { 
         $validator = Validator::make($request->all(), [ 
@@ -61,11 +62,10 @@ class UserController extends Controller
         return response()->json(['response_code'=>0], $this->successStatus);  
     }
 
-
-     /** 
+    /** 
      * Logout's the user currently logged in.
      * @return the response code (0 indicating sucess, 1 not logged in, 2 server error)
-     */ 
+    */ 
     public function logout() 
     {
         if (!Auth::guard('api')->check()) //not logged in
@@ -77,6 +77,10 @@ class UserController extends Controller
         return response()->json(['response_code' => 0], $this->successStatus); 
     }
 
+    /** 
+     * Get's  the current logged in user.
+     * @return the id of the logged in user, 0 if noone logged in.
+    */
     public static function getCurrentlyLoggedInUserId()
     {
         if (Auth::guard('api')->check())
