@@ -107,7 +107,7 @@ class ExerciseController extends Controller
     */ 
     public function saveExerciseProgress(Request $request, $exercise_id)
     { 
-        if(!Auth::check())
+        if(!Auth::guard('api')->check())
             return response()->json(['responde_code'=>1], 200); //must be logged in to save progress
 
         // $progress = correr a funçao que vai executar os testes para saber o progress, $request['code']
