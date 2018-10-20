@@ -23,6 +23,8 @@ class ExerciseController extends Controller
             e fazer para non private*/
         try 
         {
+
+
             $exercises = DB::table('exercise')
                 ->select('id', 'title', '0 as progress')
                 ->where('isPrivate', 'false');
@@ -37,12 +39,22 @@ class ExerciseController extends Controller
                     ->where('student_id', $current_user_id);
                 
                 $exercises_in_progress = DB::table('exercise')
-                    ->join('ExerciseStudent', 'exercise.id', '=', 'ExerciseStudent.exercise_id')
-                    ->select('id', 'title', 'progress')
-                    ->where('student_id', 1);
-                
-                $exercises = $exercises_in_progress->union($exercises)->distinct('exercise.id');
-                $exercises = $exercises->union($private_exercises)->distinct('exercise.id');
+                        ->join('ExerciseStudent', 'exercise.id', '=', 'ExerciseStudent.exercise_id')
+                        ->select('id', 'title', 'progress')
+                        ->where('student_id', $current_user_id);
+                        
+                $exercises = $exercises
+                    ->union($private_exercises)
+                    ->whereNOTIn('id', function ($query)
+                    {
+                        global $current_user_id;
+                        $query
+                        ->select('id')
+                        ->from('exercise')
+                        ->join('ExerciseStudent', 'exercise.id', '=', 'ExerciseStudent.exercise_id')
+                        ->where('student_id', $current_user_id);
+                    });
+                $exercises = $exercises->union($exercises_in_progress);
                 //$exercises = $exercises_in_progress;
             }
 
@@ -51,6 +63,7 @@ class ExerciseController extends Controller
         } 
         catch (\Exception $e) 
         {
+            return $e;
             return response()->json(['response_code'=>1], 200);
         }
 
