@@ -64,7 +64,7 @@ class ExerciseController extends Controller
         catch (\Exception $e) 
         {
             return $e;
-            return response()->json(['response_code'=>1], 200);
+            return response()->json(['response_code'=>2], 200);
         }
 
         return response()->json(['response_code'=>0, 'exercises'=> $exercises], 200);
@@ -114,7 +114,7 @@ class ExerciseController extends Controller
         catch (\Exception $e) 
         {
             return $e;
-            return response()->json(['response_code'=>1], 200);
+            return response()->json(['response_code'=>2], 200);
         }
 
         return response()->json(['response_code'=>0, 'exercise'=> $exercise], 200);
