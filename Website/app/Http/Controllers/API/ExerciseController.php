@@ -24,7 +24,7 @@ class ExerciseController extends Controller
         try 
         {
             $exercises = DB::table('exercise')
-                ->select('id', 'title')
+                ->select('id', 'title', '0 as progress')
                 ->where('isPrivate', 'false');
 
             $current_user_id = UserController::getCurrentlyLoggedInUserId();
@@ -32,20 +32,22 @@ class ExerciseController extends Controller
             {
                 $private_exercises = DB::table('exercise')
                     ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
-                    ->select('id', 'title')
+                    ->select('id', 'title', '0 as progress')
                     ->where('isPrivate', 'true')
                     ->where('student_id', $current_user_id);
                 
                 $exercises_in_progress = DB::table('exercise')
                     ->join('ExerciseStudent', 'exercise.id', '=', 'ExerciseStudent.exercise_id')
                     ->select('id', 'title', 'progress')
-                    ->where('student_id', $current_user_id);
+                    ->where('student_id', 1);
                 
-                $exercises = $exercises->unionAll($private_exercises)->distinct('exercise.id');
-                $exercises = $exercises->unionAll($exercises_in_progress)->distinct('exercise.id');
+                $exercises = $exercises_in_progress->union($exercises)->distinct('exercise.id');
+                $exercises = $exercises->union($private_exercises)->distinct('exercise.id');
+                //$exercises = $exercises_in_progress;
             }
 
             $exercises = $exercises->get();
+            
         } 
         catch (\Exception $e) 
         {

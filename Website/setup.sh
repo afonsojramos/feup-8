@@ -2,6 +2,6 @@ cd database
 touch database.sqlite
 cd ..
 composer install
-composer require laravel/passport
 php artisan migrate
+composer require laravel/passport
 php artisan passport:install
