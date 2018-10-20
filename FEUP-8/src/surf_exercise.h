@@ -23,6 +23,7 @@
 #pragma once
 
 #include "studio.h"
+#include "web_comunication_api.h"
 
 typedef struct SurfExercises SurfExercises;
 
@@ -40,7 +41,7 @@ struct SurfExercises
 	{
 		s32 pos;
 		s32 anim;
-		struct MenuItem* items;
+	 	ExerciseSimplified* items;
 		s32 count;
 	} menu;
 

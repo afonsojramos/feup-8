@@ -14,9 +14,9 @@
 #define SAVE_PROGRESS_PATH "/api/exercises"
 #define CONNECTION_TIMEOUT_MS 5000
 
-typedef struct 
+typedef struct
 {
-	int id;
+		int id;
     char *title;
     int progress; //-1 if not logged in
 } ExerciseSimplified;
