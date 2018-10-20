@@ -3030,9 +3030,11 @@ void initConsole(Console* console, tic_mem* tic, FileSystem* fs, Config* config,
 #if defined(TIC80_PRO)
 		.loadProject = loadProject,
 		.updateProject = updateProject,
+		.onConsoleLoadExerciseCommand=onConsoleLoadExerciseCommand,
 #else
 		.loadProject = NULL,
 		.updateProject = NULL,
+		.onConsoleLoadExerciseCommand=onConsoleLoadExerciseCommand,
 #endif
 		.error = error,
 		.trace = trace,

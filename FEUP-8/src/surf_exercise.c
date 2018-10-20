@@ -384,7 +384,7 @@ static void getAllExercises(){
   getExercisesListRequest(&exercises, &number_of_exercises);
 }
 
-static bool addMenuItem(const char* name, const char* info, s32 id, void* ptr, bool dir)
+static bool addMenuItem(const char* name, const char* info, int id, void* ptr, bool dir)
 {
 	AddMenuItem* data = (AddMenuItem*)ptr;
 
@@ -571,7 +571,9 @@ static void initMenu(SurfExercises* surf)
 	char dir[FILENAME_MAX];
 	fsGetDir(surf->fs, dir);
 
-addMenuItem("hello", NULL, 0, &data, true);
+	addMenuItem("hello", NULL, 1, &data, true);
+	addMenuItem("bye", NULL, 2, &data, true);
+	addMenuItem("adios", NULL, 3, &data, true);
 	surf->menu.items = data.items;
 	surf->menu.count = data.count;
 }
@@ -758,6 +760,7 @@ static void processGamepad(SurfExercises* surf)
 		{
 			ExerciseSimplified* item = &surf->menu.items[surf->menu.pos];
 			//TODO: load do exercise
+			surf->console->onConsoleLoadExerciseCommand(surf->console, (int)item->id);
 		//	item->dir ? changeDirectory(surf, item->name) : loadCart(surf);
 		}
 
