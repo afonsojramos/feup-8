@@ -387,6 +387,7 @@ set(TIC80LIB_SRC
 	${TIC80LIB_DIR}/exercise.c
 	${TIC80LIB_DIR}/web_comunication_api.c
 	${TIC80LIB_DIR}/unit_tests.c
+	${TIC80LIB_DIR}/surf_exercise.c
 )
 
 set(TIC80_OUTPUTS tic80 tic80pro)

@@ -1466,7 +1466,7 @@ static void onConsoleSurfCommand(Console* console, const char* param)
 
 static void onConsoleExerciseCommand(Console* console, const char* param)
 {
-	gotoExercises();
+	gotoSurfExercises();
 	commandDone(console);
 }
 

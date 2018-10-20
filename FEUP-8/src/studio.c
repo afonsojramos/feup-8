@@ -37,6 +37,7 @@
 #include "dialog.h"
 #include "menu.h"
 #include "surf.h"
+#include "surf_exercise.h"
 
 #include "fs.h"
 
@@ -171,6 +172,7 @@ static struct
 		Dialog* dialog;
 		Menu* menu;
 		Surf* surf;
+		SurfExercises * surf2;
 	};
 
 	FileSystem* fs;
@@ -921,10 +923,21 @@ static void initSurfMode()
 	initSurf(impl.surf, impl.studio.tic, impl.console);
 }
 
+static void initSurfExercisesMode()
+ {
+	 initSurfExercises(impl.surf2, impl.studio.tic, impl.console);
+ }
+
 void gotoSurf()
 {
 	initSurfMode();
 	setStudioMode(TIC_SURF_MODE);
+}
+
+void gotoSurfExercises()
+{
+	initSurfExercisesMode();
+	setStudioMode(TIC_SURF_EXERCISE_MODE);
 }
 
 void gotoCode()
@@ -1002,6 +1015,7 @@ void setStudioMode(EditorMode mode)
 		case TIC_WORLD_MODE: initWorldMap(); break;
 		case TIC_RUN_MODE: initRunMode(); break;
 		case TIC_SURF_MODE: impl.surf->resume(impl.surf); break;
+		case TIC_SURF_EXERCISE_MODE: impl.surf2->resume(impl.surf2); break;
 		default: break;
 		}
 
@@ -1610,6 +1624,11 @@ static void renderStudio()
 			sfx = &impl.config->cart.bank0.sfx;
 			music = &impl.config->cart.bank0.music;
 			break;
+			TIC_SURF_EXERCISE_MODE:
+			sfx = &impl.config->cart.bank0.sfx;
+			music = &impl.config->cart.bank0.music;
+			break;
+
 		default:
 			sfx = &impl.studio.tic->cart.banks[impl.bank.index.sfx].sfx;
 			music = &impl.studio.tic->cart.banks[impl.bank.index.music].music;
@@ -1664,6 +1683,7 @@ static void renderStudio()
 	case TIC_DIALOG_MODE:	impl.dialog->tick(impl.dialog); break;
 	case TIC_MENU_MODE:		impl.menu->tick(impl.menu); break;
 	case TIC_SURF_MODE:		impl.surf->tick(impl.surf); break;
+	case TIC_SURF_EXERCISE_MODE: 	impl.surf2->tick(impl.surf2); break;
 	default: break;
 	}
 
@@ -1846,6 +1866,7 @@ static void studioClose()
 		free(impl.dialog);
 		free(impl.menu);
 		free(impl.surf);
+		free(impl.surf2);
 	}
 
 	if(impl.tic80local)
@@ -1892,6 +1913,7 @@ Studio* studioInit(s32 argc, char **argv, s32 samplerate, const char* folder, Sy
 		impl.dialog 	= calloc(1, sizeof(Dialog));
 		impl.menu 		= calloc(1, sizeof(Menu));
 		impl.surf 		= calloc(1, sizeof(Surf));
+		impl.surf2 		= calloc(1, sizeof(SurfExercises));
 	}
 
 	fsMakeDir(impl.fs, TIC_LOCAL);
