@@ -27,7 +27,7 @@ class ExerciseController extends Controller
 
             $exercises = DB::table('exercise')
                 ->select('id', 'title', '0 as progress')
-                ->where('isPrivate', 'false');
+                ->where('isPrivate', false);
 
             $current_user_id = UserController::getCurrentlyLoggedInUserId();
             if ($current_user_id != 0) //logged in
@@ -35,7 +35,7 @@ class ExerciseController extends Controller
                 $private_exercises = DB::table('exercise')
                     ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
                     ->select('id', 'title', '0 as progress')
-                    ->where('isPrivate', 'true')
+                    ->where('isPrivate', true)
                     ->where('student_id', $current_user_id);
                 
                 $exercises_in_progress = DB::table('exercise')
@@ -85,8 +85,8 @@ class ExerciseController extends Controller
                 ->join('test', 'exercise.id', '=', 'test.exercise_id')
                 ->join('users', 'exercise.creator_id', '=', 'users.id')
                 ->select('exercise.title', 'exercise.description', 'exercise.image_path as image_base64',
-                    'test.tests_code as test_code_base64', 'users.name as creator_name')
-                ->where('isPrivate', 'false')
+                    'users.name as creator_name')
+                ->where('isPrivate', false)
                 ->where('exercise.id', '=', $id);
 
             $current_user_id = UserController::getCurrentlyLoggedInUserId();
@@ -94,18 +94,19 @@ class ExerciseController extends Controller
             if ($current_user_id != 0) //logged in
             {
                 $private_exercise = DB::table('exercise')
-                ->join('test', 'exercise.id', '=', 'test.exercise_id')
-                ->join('users', 'exercise.creator_id', '=', 'users.id')
-                ->select('exercise.title', 'exercise.description', 'exercise.image_path as image_base64',
-                    'test.tests_code as test_code_base64', 'users.name as creator_name')
-                ->where('isPrivate', 'true')
-                ->where('student_id', $current_user_id)
-                ->where('exercise.id', '=', $id);
+                    ->join('test', 'exercise.id', '=', 'test.exercise_id')
+                    ->join('users', 'exercise.creator_id', '=', 'users.id')
+                    ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
+                    ->select('exercise.title', 'exercise.description', 'exercise.image_path as image_base64',
+                    'users.name as creator_name')
+                    ->where('isPrivate', true)
+                    ->where('student_id', $current_user_id)
+                    ->where('exercise.id', '=', $id);
 
                 $exercise = $exercise->unionAll($private_exercise);
             }
 
-            $exercise = $exercise->distinct('exercise.id')->get();
+            $exercise = $exercise->get();
 
             //TODO: send feup8 file
             //TODO: send image then
@@ -113,7 +114,6 @@ class ExerciseController extends Controller
         } 
         catch (\Exception $e) 
         {
-            return $e;
             return response()->json(['response_code'=>2], 200);
         }
 
