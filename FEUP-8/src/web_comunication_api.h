@@ -2,6 +2,8 @@
 #define web_comunication_api__h
 
 #include "ticapi.h"
+#include "cJSON.h"
+#include "net.h"
 #include <string.h>
 
 #define WEB_SERVER_ADDRESS "127.0.0.1"
@@ -30,7 +32,7 @@ static char* getStringCopy(const char *original);
 int registerRequest(const char *name, const char *email, const char *username, const char *password);
 int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *numberOfExercises);
 int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise);
-int parseExerciseTestsReceived(cJSON *exercise_element, ExerciseTest **exerciseTestArray);
+int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercise);
 int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id);
 int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise *ticExercise);
 

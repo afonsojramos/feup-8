@@ -1,7 +1,5 @@
 #include "web_comunication_api.h"
-#include "net.h"
 #include "base64_enc_dec.h"
-#include "cJSON.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -397,7 +395,7 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
             else
                 exercise->progress = atoi(progress_obj->valuestring);
 
-            if(parseExerciseTestsReceived(exercise_element, &(exercise->exerciseTest)) == 2)
+            if(parseExerciseTestsReceived(exercise_element, exercise) == 2)
                 return 2;
                     
             cJSON_free(title_obj);
@@ -425,10 +423,10 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
 * 0 - success.
 * 2 - parsing error.
 */
-int parseExerciseTestsReceived(cJSON *exercise_element, ExerciseTest **exerciseTestArray)
+int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercise)
 {
     int ret_code = 0;
-
+    ExerciseTest **exerciseTestArray = &(ticExercise->exerciseTest);
     cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "tests");
     if(tests_obj == NULL)
     {
@@ -577,13 +575,14 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
     if(auth_token != NULL) //if logged in, the web server will receive the auth token in order to sava the most recent progress of the user based on the code tested.
         additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
 
+    int ret_code;
     Buffer dataToSend;
     int FIXED_EXECUTE_TEST_MESSAGE_SIZE = 6;
     dataToSend.size = strlen(code) + FIXED_EXECUTE_TEST_MESSAGE_SIZE;
     dataToSend.data = malloc(sizeof(u8) * dataToSend.size);
-    sprintf(dataToSend.data, "code=%s", exercise_data.data);
+    sprintf(dataToSend.data, "code=%s", code);
     char *request_address = malloc(sizeof(char) * (strlen(EXECUTE_TEST_PATH) + 1 + (log10(exerciseId) + 1) + 1 + 4));
-    sprintf(request_address, "%s/%d/test", EXECUTE_TEST_PATH, exercise_id);
+    sprintf(request_address, "%s/%d/test", EXECUTE_TEST_PATH, exerciseId);
 
     Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     if(response.data == NULL)
@@ -613,7 +612,7 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
         ret_code = 2;
         goto deallocate_memory;
     }
-    int ret_code = ret_code_obj->valueint;
+    ret_code = ret_code_obj->valueint;
     if(ret_code == 0)
     {
         cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "tests");
@@ -623,8 +622,10 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
             ret_code = 2;
             goto deallocate_memory;
         }
-        ticExercise->number_of_exercise_tests = cJSON_GetArraySize(tests_obj);
-        ticExercise->exerciseTest = malloc(sizeof(ExerciseTest) * ticExercise->number_of_exercise_tests);
+
+        //TODO em principio é para tirar
+        /*ticExercise->number_of_exercise_tests = cJSON_GetArraySize(tests_obj);
+        ticExercise->exerciseTest = malloc(sizeof(ExerciseTest) * ticExercise->number_of_exercise_tests);*/
 
         cJSON *test;
         size_t i = 0;
@@ -655,7 +656,7 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
 
             bool passed = strcmp(result_obj->valuestring, "OK") == 0 ? true : false;
             ExerciseTest *exerciseTestArray = ticExercise->exerciseTest;
-            for(size_t i = 0: i < ticExercise->number_of_exercise_tests; i++)
+            for(size_t i = 0; i < ticExercise->number_of_exercise_tests; i++)
             {
                 if(exerciseTestArray[i].id == id)
                     exerciseTestArray[i].passed = passed;
