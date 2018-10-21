@@ -75,43 +75,59 @@ class ExerciseController extends Controller
                 ->join('test', 'exercise.id', '=', 'test.exercise_id')
                 ->join('users', 'exercise.creator_id', '=', 'users.id')
                 ->select('exercise.title', 'exercise.description', 'exercise.image_path as image_base64',
-                    'users.name as creator_name')
+                'users.name as creator_name', '0 as progress', ' as feup8_file')
                 ->where('isPrivate', false)
                 ->where('exercise.id', '=', $id);
-
-            $current_user_id = UserController::getCurrentlyLoggedInUserId();
             
+            $current_user_id = UserController::getCurrentlyLoggedInUserId();
             if ($current_user_id != 0) //logged in
             {
-                $exercises_ids_in_progress = DB::table('ExerciseStudent')
+                $exercise_ids_in_progress = DB::table('ExerciseStudent')
                     ->select('exercise_id as id')
-                    ->where('student_id', $current_user_id);
+                    ->where('student_id', $current_user_id)
+                    ->where('exercise.id', '=', $id);
+
+                $exercise = $exercise
+                    ->whereNotIn('exercise.id', $exercise_ids_in_progress);
 
                 $private_exercise = DB::table('exercise')
-                    ->join('test', 'exercise.id', '=', 'test.exercise_id')
-                    ->join('users', 'exercise.creator_id', '=', 'users.id')
                     ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
+                    ->join('users', 'exercise.creator_id', '=', 'users.id')
                     ->select('exercise.title', 'exercise.description', 'exercise.image_path as image_base64',
-                    'users.name as creator_name')
+                    'users.name as creator_name', '0 as progress', ' as feup8_file')
+                    ->whereNotIn('exercise.id', $exercise_ids_in_progress)
                     ->where('isPrivate', true)
                     ->where('student_id', $current_user_id)
                     ->where('exercise.id', '=', $id);
 
-                $exercise = $exercise->unionAll($private_exercise);
+                $exercise_in_progress = DB::table('exercise')
+                        ->join('ExerciseStudent', 'exercise.id', '=', 'ExerciseStudent.exercise_id')
+                        ->join('users', 'exercise.creator_id', '=', 'users.id')
+                        ->select('exercise.title', 'exercise.description', 'exercise.image_path as image_base64',
+                        'users.name as creator_name', 'progress', 'feup8_file')
+                        ->where('student_id', $current_user_id)
+                        ->where('exercise.id', '=', $id);
+                        
+                $exercise = $exercise->union($private_exercise);
+                $exercise = $exercise->union($exercise_in_progress);
             }
 
             $exercise = $exercise->get();
-
-            //TODO: send feup8 file
-            //TODO: send image then
-            //TODO: ->join('exerciseStudent', 'exercise.id', '=', 'exerciseStudent.exercise_id') mas com exerciseStudent.student_id = Auth::id indo buscar o 'exerciseStudent.progress' no select
         } 
         catch (\Exception $e) 
         {
             return response()->json(['response_code'=>2], 200);
         }
 
-        return response()->json(['response_code'=>0, 'exercise'=> $exercise], 200);
+        if (count($exercise) == 0)
+            return response()->json(['response_code'=>1], 200);
+
+        $tests = DB::table('test')
+            ->select('id', 'title', 'test_code', 'hint')
+            ->where('exercise_id', '=', $id)
+            ->get();
+
+        return response()->json(['response_code'=>0, 'exercise'=> $exercise, 'tests' => $tests], 200);
     }
 
     /** 
