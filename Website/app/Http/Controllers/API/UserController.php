@@ -44,6 +44,7 @@ class UserController extends Controller
     */ 
     public function register(Request $request) 
     { 
+        //TODO:make login
         $validator = Validator::make($request->all(), [ 
             'username' => 'required',
             'name' => 'required', 

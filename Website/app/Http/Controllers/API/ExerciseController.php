@@ -68,7 +68,6 @@ class ExerciseController extends Controller
     */ 
     public function getExerciseDetails($id)
     { 
-        //TODO: verify id por permissoes para ver o exercise
         try 
         {
             $exercise = DB::table('exercise')
@@ -141,7 +140,7 @@ class ExerciseController extends Controller
         if(!Auth::guard('api')->check())
             return response()->json(['responde_code'=>1], 200); //must be logged in to save progress
 
-        // $progress = correr a funçao que vai executar os testes para saber o progress, $request['code']
+        // TODO: $progress = correr a funçao que vai executar os testes para saber o progress, $request['code']
         try 
         {
             if(checkExerciseStudentExists())
