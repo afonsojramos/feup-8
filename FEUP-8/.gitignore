@@ -127,3 +127,4 @@ lib/
 *.cmake
 CMakeCache.txt
 Makefile
+*.sh

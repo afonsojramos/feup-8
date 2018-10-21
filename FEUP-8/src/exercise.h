@@ -33,7 +33,7 @@ struct UnitTest
 {
 	char* title;
 	char* description;
-	char* correctCode; //Would it be better to have only the expeted output??
+	char* correctCode; //Would it be better to have only the expected output??
 } ;
 
 struct Exercise
@@ -42,7 +42,9 @@ struct Exercise
 
 	tic_exercise* exe;
 
-	struct UnitTest* unitTests; 
+	struct UnitTest* unitTests;
+
+	u8 testIndex : SFX_COUNT_BITS;
 
 	enum
 	{
