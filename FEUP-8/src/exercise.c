@@ -300,7 +300,7 @@ static void drawTestBox(Exercise *exercise, UnitTest *test)
 	exercise->tic->api.rect(exercise->tic, 14, 30, (TIC80_WIDTH - 27), (TIC80_HEIGHT - 50), (tic_color_white));
 
 	exercise->tic->api.fixed_text(exercise->tic, test->title, 16, 35, (tic_color_black), false);
-	exercise->tic->api.fixed_text(exercise->tic, test->description, 16, 45, (tic_color_black), false);
+	exercise->tic->api.fixed_text(exercise->tic, test->description, 16, 45, (tic_color_gray), false);
 
 	drawCode(exercise, test->correctCode, tic_color_blue, 16, 16, 55);
 }
@@ -393,7 +393,7 @@ void initExercise(Exercise *exercise, tic_mem *tic, tic_exercise *exe)
 	exercise->unitTests[1] = (UnitTest){
 		.title = "Test 2",
 		.description = "Description test 2",
-		.correctCode = "lorem ipsum sid dolore..... 2",
+		.correctCode = "function testAddZero()\n\tluaunit.assertEquals(add(1, 0), 0)\n\tluaunit.assertEquals(add(0, 5), 0)\n\tluaunit.assertEquals(add(0, 0), 0)\nend",
 	};
 
 	exercise->unitTests[2] = (UnitTest){
