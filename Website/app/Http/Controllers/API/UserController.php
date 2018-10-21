@@ -44,6 +44,7 @@ class UserController extends Controller
     */ 
     public function register(Request $request) 
     { 
+        //TODO: make user being logged in after register
         $validator = Validator::make($request->all(), [ 
             'username' => 'required',
             'name' => 'required', 
