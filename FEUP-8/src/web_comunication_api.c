@@ -121,6 +121,7 @@ int loginRequest(const char *username, const char *password)
 */
 int registerRequest(const char *name, const char *email, const char *username, const char *password)
 {
+    //TODO support para receber auth_token aquando de register
     Buffer dataToSend;
     int FIXED_REGISTER_MESSAGE_SIZE = 33;
     dataToSend.size = strlen(name) + strlen(email) + strlen(username) + strlen(password) + FIXED_REGISTER_MESSAGE_SIZE;
@@ -425,6 +426,7 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
 */
 int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercise)
 {
+    //TODO: alterar para nova forma como vêm os testes segundo api
     int ret_code = 0;
     ExerciseTest **exerciseTestArray = &(ticExercise->exerciseTest);
     cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "tests");
