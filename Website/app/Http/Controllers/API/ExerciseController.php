@@ -16,11 +16,7 @@ class ExerciseController extends Controller
      * @return A list of all available exercises in JSON, and the response code of 0 menig sucess. Response code 1 otherwise. 
      */ 
     public function getAllExercises()
-    { 
-        /*TODO: send also the progress if logged in
-            ->join('ExerciseStudent', 'exercise.id', '=', 'ExerciseStudent.exercise_id')
-            ->select('id', 'title', 'progress')
-            e fazer para non private*/
+    {
         try 
         {
             $exercises = DB::table('exercise')
@@ -52,15 +48,12 @@ class ExerciseController extends Controller
                         
                 $exercises = $exercises->union($private_exercises);
                 $exercises = $exercises->union($exercises_in_progress);
-                //$exercises = $exercises_in_progress;
             }
 
             $exercises = $exercises->get();
-            
         } 
         catch (\Exception $e) 
         {
-            return $e;
             return response()->json(['response_code'=>2], 200);
         }
 
@@ -90,6 +83,10 @@ class ExerciseController extends Controller
             
             if ($current_user_id != 0) //logged in
             {
+                $exercises_ids_in_progress = DB::table('ExerciseStudent')
+                    ->select('exercise_id as id')
+                    ->where('student_id', $current_user_id);
+
                 $private_exercise = DB::table('exercise')
                     ->join('test', 'exercise.id', '=', 'test.exercise_id')
                     ->join('users', 'exercise.creator_id', '=', 'users.id')
