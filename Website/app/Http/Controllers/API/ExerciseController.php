@@ -23,8 +23,6 @@ class ExerciseController extends Controller
             e fazer para non private*/
         try 
         {
-
-
             $exercises = DB::table('exercise')
                 ->select('id', 'title', '0 as progress')
                 ->where('isPrivate', false);
@@ -32,28 +30,27 @@ class ExerciseController extends Controller
             $current_user_id = UserController::getCurrentlyLoggedInUserId();
             if ($current_user_id != 0) //logged in
             {
+                $exercises_ids_in_progress = DB::table('ExerciseStudent')
+                    ->select('exercise_id as id')
+                    ->where('student_id', $current_user_id);
+
+                $exercises = $exercises
+                    ->whereNotIn('id', $exercises_ids_in_progress);
+
                 $private_exercises = DB::table('exercise')
                     ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
                     ->select('id', 'title', '0 as progress')
+                    ->whereNotIn('id', $exercises_ids_in_progress)
                     ->where('isPrivate', true)
                     ->where('student_id', $current_user_id);
                 
+
                 $exercises_in_progress = DB::table('exercise')
                         ->join('ExerciseStudent', 'exercise.id', '=', 'ExerciseStudent.exercise_id')
                         ->select('id', 'title', 'progress')
                         ->where('student_id', $current_user_id);
                         
-                $exercises = $exercises
-                    ->union($private_exercises)
-                    ->whereNOTIn('id', function ($query)
-                    {
-                        global $current_user_id;
-                        $query
-                        ->select('id')
-                        ->from('exercise')
-                        ->join('ExerciseStudent', 'exercise.id', '=', 'ExerciseStudent.exercise_id')
-                        ->where('student_id', $current_user_id);
-                    });
+                $exercises = $exercises->union($private_exercises);
                 $exercises = $exercises->union($exercises_in_progress);
                 //$exercises = $exercises_in_progress;
             }
