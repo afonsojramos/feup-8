@@ -28,8 +28,8 @@ class UserController extends Controller
         if (Auth::attempt($credentials)) 
         {
             $user = Auth::user(); 
-            $response['auth_token'] =  $user->createToken('MyApp')->accessToken; 
-            $response['response_code'] =  0; 
+            $response['response_code'] = 0; 
+            $response['auth_token'] = $user->createToken('MyApp')->accessToken; 
             return response()->json($response, $this->successStatus); 
         }
         else

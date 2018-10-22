@@ -112,19 +112,19 @@ class ExerciseController extends Controller
             }
 
             $exercise = $exercise->get();
+
+            if (count($exercise) == 0)
+                return response()->json(['response_code'=>1], 200);
+
+            $tests = DB::table('test')
+                ->select('id', 'title', 'test_code', 'hint')
+                ->where('exercise_id', '=', $id)
+                ->get();
         } 
         catch (\Exception $e) 
         {
             return response()->json(['response_code'=>2], 200);
         }
-
-        if (count($exercise) == 0)
-            return response()->json(['response_code'=>1], 200);
-
-        $tests = DB::table('test')
-            ->select('id', 'title', 'test_code', 'hint')
-            ->where('exercise_id', '=', $id)
-            ->get();
 
         return response()->json(['response_code'=>0, 'exercise'=> $exercise, 'tests' => $tests], 200);
     }
