@@ -23,8 +23,12 @@
 #include "exercise.h"
 #include "history.h"
 
-// #define TRACKER_ROWS (MUSIC_PATTERN_ROWS / 4)
+// #define TRACKER_ROWS (exercise_PATTERN_ROWS / 4)
 
+/**
+ * 
+ * 
+ */ 
 static void drawCode(Exercise *exercise, char *text, u8 color, s32 xStart, s32 x, s32 y)
 {
 	char *pointer = text;
@@ -62,15 +66,19 @@ static void drawCode(Exercise *exercise, char *text, u8 color, s32 xStart, s32 x
 	// 	drawCursor(code, cursor.x, cursor.y, cursor.symbol);
 }
 
+/**
+ * 
+ * 
+ */ 
 static void processKeyboard(Exercise *exercise)
 {
 	tic_mem *tic = exercise->tic;
 
 	// switch(getClipboardEvent())
 	// {
-	// case TIC_CLIPBOARD_CUT: copyToClipboard(music, true); break;
-	// case TIC_CLIPBOARD_COPY: copyToClipboard(music, false); break;
-	// case TIC_CLIPBOARD_PASTE: copyFromClipboard(music); break;
+	// case TIC_CLIPBOARD_CUT: copyToClipboard(exercise, true); break;
+	// case TIC_CLIPBOARD_COPY: copyToClipboard(exercise, false); break;
+	// case TIC_CLIPBOARD_PASTE: copyFromClipboard(exercise); break;
 	// default: break;
 	// }
 
@@ -85,22 +93,17 @@ static void processKeyboard(Exercise *exercise)
 	}
 	// else
 	// {
-	// 	music->tracker.row >= 0
-	// 		? processTrackerKeyboard(music)
-	// 		: processPatternKeyboard(music);
+	// 	exercise->tracker.row >= 0
+	// 		? processTrackerKeyboard(exercise)
+	// 		: processPatternKeyboard(exercise);
 	// }
 }
 
-static void undo(Exercise *exercise)
-{
-	history_undo(exercise->history);
-}
 
-static void redo(Exercise *exercise)
-{
-	history_redo(exercise->history);
-}
-
+/**
+ * 
+ * 
+ */
 static void drawOverviewLayout(Exercise *exercise)
 {
 	exercise->tic->api.clear(exercise->tic, (tic_color_dark_red));
@@ -128,6 +131,80 @@ static void drawOverviewLayout(Exercise *exercise)
 	//exercise->tic->api.fixed_text(exercise->tic, buf, (TIC80_WIDTH - (sizeof buf - 1) * TIC_FONT_WIDTH) / 3, 3 *(TIC80_HEIGHT / 8), (tic_color_white), false);
 	drawCode(exercise, text, tic_color_red, TIC80_WIDTH / 8, TIC80_WIDTH / 8, TIC80_HEIGHT / 8);
 	free(text);
+}
+
+static void runTests(Exercise *exercise)
+{
+	//exercise->tic->api.exercise(exercise->tic, exercise->track, -1, -1, true);
+}
+
+static void stopTests(Exercise *exercise)
+{
+	//exercise->tic->api.exercise(exercise->tic, -1, -1, -1, false);
+}
+
+/**
+ * 
+ */
+static void drawPlayTestButtons(Exercise *exercise)
+{
+	static const u8 Icons[] =
+		{
+
+			0b00000000,
+			0b00100000,
+			0b00110000,
+			0b00111000,
+			0b00110000,
+			0b00100000,
+			0b00000000,
+			0b00000000,
+
+			0b00000000,
+			0b01111100,
+			0b01111100,
+			0b01111100,
+			0b01111100,
+			0b01111100,
+			0b00000000,
+			0b00000000,
+
+		};
+
+	enum
+	{
+		Offset = TIC80_WIDTH - 52,
+		Width = 7,
+		Height = 7,
+		Rows = 8,
+		Count = sizeof Icons / Rows
+	};
+
+	for (s32 i = 0; i < Count; i++)
+	{
+		tic_rect rect = {Offset + Width * i, 0, Width, Height};
+
+		bool over = false;
+
+		if (checkMousePos(&rect))
+		{
+			setCursor(tic_cursor_hand);
+			over = true;
+
+			static const char *Tooltips[] = {"PLAY TESTS", "STOP [enter]"};
+			showTooltip(Tooltips[i]);
+
+			static void (*const Handlers[])(Exercise *) = {runTests, stopTests};
+
+			if (checkMouseClick(&rect, tic_mouse_left))
+				Handlers[i](exercise);
+		}
+
+		// if (i == 0 /*&& exercise->tracker.follow*/)
+		// 	drawBitIcon(rect.x, rect.y, Icons + i * Rows, over ? (tic_color_peach) : (tic_color_red));
+		// else
+	    drawBitIcon(rect.x, rect.y, Icons + i * Rows, over ? (tic_color_dark_gray) : (tic_color_light_blue));
+	}
 }
 
 /**
@@ -199,14 +276,22 @@ static void drawModeTabs(Exercise *exercise)
 	}
 }
 
+/**
+ * 
+ * 
+ */
 static void drawExerciseToolbar(Exercise *exercise)
 {
 	exercise->tic->api.rect(exercise->tic, 0, 0, TIC80_WIDTH, TOOLBAR_SIZE, (tic_color_white));
 
-	//drawPlayButtons(exercise);
+	drawPlayTestButtons(exercise);
 	drawModeTabs(exercise);
 }
 
+/**
+* 
+* 
+*/
 static void drawSwitch(Exercise *exercise, s32 x, s32 y, const char *label, s32 value, void (*set)(Exercise *, s32))
 {
 	static const u8 LeftArrow[] =
@@ -274,6 +359,10 @@ static void drawSwitch(Exercise *exercise, s32 x, s32 y, const char *label, s32 
 	}
 }
 
+/**
+* 
+* 
+*/
 static void setIndex(Exercise *exercise, s32 delta)
 {
 	if (exercise->testIndex < (sizeof(exercise->unitTests) / 2) && exercise->testIndex > 1)
@@ -284,6 +373,10 @@ static void setIndex(Exercise *exercise, s32 delta)
 		exercise->testIndex += delta;
 }
 
+/**
+* 
+* 
+*/
 static void drawTestsPanel(Exercise *exercise, s32 x, s32 y)
 {
 	enum
@@ -294,7 +387,10 @@ static void drawTestsPanel(Exercise *exercise, s32 x, s32 y)
 	drawSwitch(exercise, x, y += Gap + TIC_FONT_HEIGHT, "Test", exercise->testIndex, setIndex);
 }
 
-
+/**
+* 
+* 
+*/
 static void drawTestBox(Exercise *exercise, UnitTest *test)
 {
 	exercise->tic->api.rect(exercise->tic, 14, 30, (TIC80_WIDTH - 27), (TIC80_HEIGHT - 50), (tic_color_white));
@@ -305,6 +401,10 @@ static void drawTestBox(Exercise *exercise, UnitTest *test)
 	drawCode(exercise, test->correctCode, tic_color_blue, 16, 16, 55);
 }
 
+/**
+* 
+* 
+*/
 static void drawTestsLayout(Exercise *exercise)
 {
 	tic_mem *tic = exercise->tic;
@@ -317,6 +417,10 @@ static void drawTestsLayout(Exercise *exercise)
 	drawTestBox(exercise, test);
 }
 
+/**
+* 
+* 
+*/
 static void tick(Exercise *exercise)
 {
 	char *name;
@@ -348,25 +452,11 @@ static void tick(Exercise *exercise)
 	drawToolbar(exercise->tic, (tic_color_gray), false);
 }
 
-static void onStudioEvent(Exercise *exercise, StudioEvent event)
-{
-	switch (event)
-	{
-	case TIC_TOOLBAR_CUT: /*copyToClipboard(exercise, true);*/
-		break;
-	case TIC_TOOLBAR_COPY: /* copyToClipboard(exercise, false); */
-		break;
-	case TIC_TOOLBAR_PASTE: /* copyFromClipboard(exercise); */
-		break;
-	case TIC_TOOLBAR_UNDO: /*  undo(exercise); */
-		break;
-	case TIC_TOOLBAR_REDO: /* redo(exercise); */
-		break;
-	default:
-		break;
-	}
-}
 
+/**
+* 
+* 
+*/
 void initExercise(Exercise *exercise, tic_mem *tic, tic_exercise *exe)
 {
 	if (exercise->history)
@@ -379,9 +469,8 @@ void initExercise(Exercise *exercise, tic_mem *tic, tic_exercise *exe)
 		.unitTests = malloc(4 * sizeof(UnitTest)), //Mock
 		.tab = EXERCISE_OVERVIEW_TAB,
 		//.history = history_create(tic->exe.title , sizeof(tic->exe)),
-		.event = onStudioEvent,
 		.testIndex = 1, 
-		};
+	};
 
 	//DELETE
 	exercise->unitTests[0] = (UnitTest){
