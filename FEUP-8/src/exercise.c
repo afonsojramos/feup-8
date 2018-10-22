@@ -25,11 +25,12 @@
 
 // #define TRACKER_ROWS (exercise_PATTERN_ROWS / 4)
 
+
 /**
  * 
  * 
  */ 
-static void drawCode(Exercise *exercise, char *text, u8 color, s32 xStart, s32 x, s32 y)
+static void drawCode(Exercise *exercise, char *text, u8 color, s32 xStart, s32 x, s32 y, s32 xEnd)
 {
 	char *pointer = text;
 
@@ -39,7 +40,7 @@ static void drawCode(Exercise *exercise, char *text, u8 color, s32 xStart, s32 x
 	{
 		char symbol = *pointer;
 
-		if (x >= -TIC_FONT_WIDTH && x < TIC80_WIDTH && y >= -TIC_FONT_HEIGHT && y < TIC80_HEIGHT)
+		if (x >= -TIC_FONT_WIDTH && x < xEnd && y >= -TIC_FONT_HEIGHT && y < TIC80_HEIGHT)
 		{
 
 			exercise->tic->api.draw_char(exercise->tic, symbol, x + 1, y + 1, color, false);
@@ -47,7 +48,7 @@ static void drawCode(Exercise *exercise, char *text, u8 color, s32 xStart, s32 x
 			//code->tic->api.draw_char(code->tic, symbol, x, y, *colorPointer, code->altFont);
 		}
 
-		if (symbol == '\n')
+		if (symbol == '\n' || (x + 1) >= xEnd)
 		{
 			x = xStart;
 			y += STUDIO_TEXT_HEIGHT;
@@ -74,14 +75,6 @@ static void processKeyboard(Exercise *exercise)
 {
 	tic_mem *tic = exercise->tic;
 
-	// switch(getClipboardEvent())
-	// {
-	// case TIC_CLIPBOARD_CUT: copyToClipboard(exercise, true); break;
-	// case TIC_CLIPBOARD_COPY: copyToClipboard(exercise, false); break;
-	// case TIC_CLIPBOARD_PASTE: copyFromClipboard(exercise); break;
-	// default: break;
-	// }
-
 	bool ctrl = tic->api.key(tic, tic_key_ctrl);
 
 	if (ctrl)
@@ -91,12 +84,6 @@ static void processKeyboard(Exercise *exercise)
 		else if (keyWasPressed(tic_key_down))
 			printf("DOWN\n");
 	}
-	// else
-	// {
-	// 	exercise->tracker.row >= 0
-	// 		? processTrackerKeyboard(exercise)
-	// 		: processPatternKeyboard(exercise);
-	// }
 }
 
 
@@ -107,30 +94,20 @@ static void processKeyboard(Exercise *exercise)
 static void drawOverviewLayout(Exercise *exercise)
 {
 	exercise->tic->api.clear(exercise->tic, (tic_color_dark_red));
-	char *text;
-	text = calloc(2000, sizeof(char));
+	
 	//TODO: MUDAR ISTO NO FUTURO
-	char title[500] = "-- title: ";
-	char author[500] = "-- author: ";
-	char description[500] = "-- description: ";
-	//strcat(title,exercise->tic->exe.title);
-	strcat(text, title);
-	strcat(text, "\n");
-	//strcat(author,exercise->tic->exe.creator_name);
-	strcat(text, author);
-	strcat(text, "\n");
-	//strcat(description,exercise->tic->exe.description);
-	strcat(text, description);
-	strcat(text, "\n");
-	static char buf[40];
-	strcpy(buf, title);
-	//exercise->tic->api.fixed_text(exercise->tic, buf, (TIC80_WIDTH - (sizeof buf - 1) * TIC_FONT_WIDTH) / 3, TIC80_HEIGHT / 8, (tic_color_red), false);
-	strcpy(buf, author);
-	//exercise->tic->api.fixed_text(exercise->tic, buf, (TIC80_WIDTH - (sizeof buf - 1) * TIC_FONT_WIDTH) / 3, 2 *(TIC80_HEIGHT / 8), (tic_color_green), false);
-	strcpy(buf, description);
-	//exercise->tic->api.fixed_text(exercise->tic, buf, (TIC80_WIDTH - (sizeof buf - 1) * TIC_FONT_WIDTH) / 3, 3 *(TIC80_HEIGHT / 8), (tic_color_white), false);
-	drawCode(exercise, text, tic_color_red, TIC80_WIDTH / 8, TIC80_WIDTH / 8, TIC80_HEIGHT / 8);
-	free(text);
+
+	int titleLength = TIC80_WIDTH / 12 + strlen("-- title: ") * TIC_FONT_WIDTH;
+	int authorLength = TIC80_WIDTH / 12 + strlen("-- author: ") * TIC_FONT_WIDTH;
+
+	drawCode(exercise, "-- title: ", tic_color_black, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 8, TIC80_WIDTH);
+	drawCode(exercise, exercise->tic->exe.title, tic_color_red, titleLength, titleLength, TIC80_HEIGHT / 8, TIC80_WIDTH);
+
+	drawCode(exercise, "-- author: ", tic_color_black, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 5.25, TIC80_WIDTH);
+	drawCode(exercise, exercise->tic->exe.creator_name, tic_color_red, authorLength, authorLength, TIC80_HEIGHT / 5.25, TIC80_WIDTH);
+
+	drawCode(exercise, "-- description: ", tic_color_black, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 4, TIC80_WIDTH);
+	drawCode(exercise, exercise->tic->exe.description, tic_color_red, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 3, TIC80_WIDTH - 10);
 }
 
 static void runTests(Exercise *exercise)
@@ -398,7 +375,7 @@ static void drawTestBox(Exercise *exercise, UnitTest *test)
 	exercise->tic->api.fixed_text(exercise->tic, test->title, 16, 35, (tic_color_black), false);
 	exercise->tic->api.fixed_text(exercise->tic, test->description, 16, 45, (tic_color_gray), false);
 
-	drawCode(exercise, test->correctCode, tic_color_blue, 16, 16, 55);
+	drawCode(exercise, test->correctCode, tic_color_blue, 16, 16, 55, TIC80_WIDTH);
 }
 
 /**
@@ -423,16 +400,6 @@ static void drawTestsLayout(Exercise *exercise)
 */
 static void tick(Exercise *exercise)
 {
-	char *name;
-	char *author;
-	char *description;
-	name = malloc(64);
-	author = malloc(64);
-	description = malloc(64);
-	memcpy(name, "exercicio de teste", sizeof("exercicio de teste"));
-	memcpy(author, "professor Jorge", sizeof("professor Jorge"));
-	memcpy(description, "Este exercicio\n nao tem nada e serve apenas \n para teste", sizeof("Este exercicio\n nao tem nada e serve apenas \n para teste"));
-
 	switch (exercise->tab)
 	{
 	case EXERCISE_OVERVIEW_TAB:
@@ -443,14 +410,11 @@ static void tick(Exercise *exercise)
 		break;
 	}
 
-	free(name);
-	free(author);
-	free(description);
-
 	processKeyboard(exercise);
 	drawExerciseToolbar(exercise);
 	drawToolbar(exercise->tic, (tic_color_gray), false);
 }
+
 
 
 /**
@@ -471,6 +435,32 @@ void initExercise(Exercise *exercise, tic_mem *tic, tic_exercise *exe)
 		//.history = history_create(tic->exe.title , sizeof(tic->exe)),
 		.testIndex = 1, 
 	};
+
+	/*
+	* Mock 
+	*/
+
+	char *name;
+	char *author;
+	char *description;
+	name = malloc(64);
+	author = malloc(64);
+	description = malloc(20000);
+	memcpy(name, "exercicio de teste", sizeof("exercicio de teste"));
+	memcpy(author, "professor Jorge", sizeof("professor Jorge"));
+	memcpy(description, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus scelerisque, dolor in varius ullamcorper, massa metus maximus lorem, sed fermentum justo velit viverra dui. Vestibulum nec lacus ac felis eleifend cursus sit amet vel nulla. Fusce eget mi sed neque pulvinar sollicitudin non id justo. Donec facilisis eget ex ac auctor. Suspendisse in metus vel tortor eleifend blandit nec vitae eros. Pellentesque rutrum commodo fermentum. Nunc vehicula eleifend neque ac convallis. Nunc elementum tincidunt risus. Aenean augue lectus, molestie eget enim sed, suscipit cursus eros. Morbi a egestas arcu. Aliquam sem orci, sodales ac posuere vitae, eleifend eget urna.\nNullam sit amet sollicitudin libero. Vestibulum sem enim, pretium a lobortis quis, mattis in nibh. Phasellus non pretium magna, id venenatis neque. Nulla accumsan eleifend consequat. Donec eu leo tortor. Quisque posuere elit ornare, malesuada nulla at, fermentum enim. Sed tellus felis, dignissim nec feugiat ac, suscipit et diam.\nMorbi ac augue eu purus vestibulum ultrices. Nullam vel magna at justo ullamcorper vulputate. Phasellus justo nulla, elementum sed lorem et, auctor malesuada libero. Integer ac erat eu eros ornare ultricies. Cras mattis quis risus id egestas. Phasellus porttitor diam sit amet ante ullamcorper, eu rhoncus massa mattis. Aliquam a sollicitudin diam. Pellentesque congue mauris nec nisl mattis, eu venenatis enim tincidunt. In blandit ut sem et faucibus. Cras ut eros faucibus, finibus leo eget, placerat mi. Aliquam erat volutpat. Morbi pretium vehicula iaculis. ",
+		   sizeof("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus scelerisque, dolor in varius ullamcorper, massa metus maximus lorem, sed fermentum justo velit viverra dui. Vestibulum nec lacus ac felis eleifend cursus sit amet vel nulla. Fusce eget mi sed neque pulvinar sollicitudin non id justo. Donec facilisis eget ex ac auctor. Suspendisse in metus vel tortor eleifend blandit nec vitae eros. Pellentesque rutrum commodo fermentum. Nunc vehicula eleifend neque ac convallis. Nunc elementum tincidunt risus. Aenean augue lectus, molestie eget enim sed, suscipit cursus eros. Morbi a egestas arcu. Aliquam sem orci, sodales ac posuere vitae, eleifend eget urna.\nNullam sit amet sollicitudin libero. Vestibulum sem enim, pretium a lobortis quis, mattis in nibh. Phasellus non pretium magna, id venenatis neque. Nulla accumsan eleifend consequat. Donec eu leo tortor. Quisque posuere elit ornare, malesuada nulla at, fermentum enim. Sed tellus felis, dignissim nec feugiat ac, suscipit et diam.\nMorbi ac augue eu purus vestibulum ultrices. Nullam vel magna at justo ullamcorper vulputate. Phasellus justo nulla, elementum sed lorem et, auctor malesuada libero. Integer ac erat eu eros ornare ultricies. Cras mattis quis risus id egestas. Phasellus porttitor diam sit amet ante ullamcorper, eu rhoncus massa mattis. Aliquam a sollicitudin diam. Pellentesque congue mauris nec nisl mattis, eu venenatis enim tincidunt. In blandit ut sem et faucibus. Cras ut eros faucibus, finibus leo eget, placerat mi. Aliquam erat volutpat. Morbi pretium vehicula iaculis. "));
+
+	exercise->tic->exe.title = malloc(strlen(name) + 1);
+	strcpy(exercise->tic->exe.title, name);
+	exercise->tic->exe.creator_name = malloc(strlen(author) + 1);
+	strcpy(exercise->tic->exe.creator_name, author);
+	exercise->tic->exe.description = malloc(strlen(description) + 1);
+	strcpy(exercise->tic->exe.description, description);
+
+	free(name);
+	free(author);
+	free(description);
 
 	//DELETE
 	exercise->unitTests[0] = (UnitTest){
