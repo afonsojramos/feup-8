@@ -44,7 +44,6 @@ class UserController extends Controller
     */ 
     public function register(Request $request) 
     { 
-        //TODO:make login
         $validator = Validator::make($request->all(), [ 
             'username' => 'required',
             'name' => 'required', 
@@ -60,7 +59,7 @@ class UserController extends Controller
         if(!User::create($input['username'], $input['password'], $input['name'], $input['email']))
             return response()->json(['response_code'=>2], $this->successStatus); 
 
-        return response()->json(['response_code'=>0], $this->successStatus);  
+        return login($request); 
     }
 
     /** 
