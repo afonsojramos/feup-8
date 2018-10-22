@@ -52,9 +52,22 @@ class ExerciseTest extends TestCase
     {
         $response = $this->call('GET', '/api/exercise/1');
         $response->assertStatus(200);
-        $response_array = $response->decodeResponseJson();
+       /* $response_array = $response->decodeResponseJson();
         $this->assertEquals($response_array['response_code'], 0);
-        $this->assertFalse(array_key_exists('exercises', $response_array));
+        $this->assertFalse(array_key_exists('exercises', $response_array));*/
+        echo $response->decodeResponseJson();
+        array_diff($response->decodeResponseJson(), json_decode(
+        {
+            "response_code": 0,
+            "exercise":
+            [
+                {
+                    "id": 1,
+                    "title": "Make a supermario game.",
+                    "progress": 0
+                }
+            ]
+        }));
         
     }
 
