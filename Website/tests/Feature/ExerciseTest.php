@@ -21,6 +21,21 @@ class ExerciseTest extends TestCase
         
     }
 
+
+        /**
+     * This
+     *
+     */
+    public function testGetExerciseDetails()
+    {
+        $response = $this->call('GET', '/api/exercise/1');
+        $response->assertStatus(200);
+        $response_array = $response->decodeResponseJson();
+        $this->assertEquals($response_array['response_code'], 0);
+        $this->assertFalse(array_key_exists('exercises', $response_array));
+        
+    }
+
         /**
      * This
      *
