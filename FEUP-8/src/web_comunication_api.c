@@ -340,7 +340,6 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
     sprintf(request_address, "%s/%d", GET_EXERCISE_DETAILS_PATH, exercise_id);
     Buffer response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     free(request_address);
-    printf("response data: %s\n", response.data);
     if(response.data == NULL)
         return 3;
     cJSON *monitor_json = cJSON_Parse(response.data);
@@ -399,13 +398,14 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
 
             if(parseExerciseTestsReceived(monitor_json, exercise) == 2)
                 return 2;
-                    
+        
             cJSON_free(title_obj);
             cJSON_free(creator_name_obj);
             cJSON_free(description_obj);
             cJSON_free(img_base64_obj);
             cJSON_free(progress_obj);
-            cJSON_free(exercise_obj);     
+            cJSON_free(exercise_obj);
+        
         }
 
     }
@@ -519,7 +519,7 @@ deallocate_parseExerciseTestsReceivedAndReturn:
 * 3 - can't connect to server.
 */
 int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id)
-{
+{/*
     if(auth_token == NULL)
         return 1;
     char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
@@ -559,7 +559,7 @@ int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id)
     free(response.data);
     cJSON_free(monitor_json);
     cJSON_free(ret_code_obj);
-    return ret_code;
+    return ret_code;*/
 }
 
 
