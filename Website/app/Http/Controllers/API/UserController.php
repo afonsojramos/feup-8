@@ -30,7 +30,7 @@ class UserController extends Controller
             $user = Auth::user(); 
             $response['response_code'] = 0; 
             $response['auth_token'] = $user->createToken('MyApp')->accessToken; 
-            return response()->json($response, UserController::successStatus); 
+            return response()->json($response, UserController::$successStatus); 
         }
         else
             return response()->json(['response_code'=> 1], 200);
@@ -55,9 +55,9 @@ class UserController extends Controller
 
         $input = $request->all(); 
         if(User::checkUserExists($input['username']))
-            return response()->json(['response_code'=>1], UserController::successStatus);
+            return response()->json(['response_code'=>1], UserController::$successStatus);
         if(!User::create($input['username'], $input['password'], $input['name'], $input['email']))
-            return response()->json(['response_code'=>2], UserController::successStatus); 
+            return response()->json(['response_code'=>2], UserController::$successStatus); 
 
         return UserController::login($request); 
     }
@@ -74,7 +74,7 @@ class UserController extends Controller
         if (!Auth::guard('api')->user()->token()->revoke())
             return response()->json(['response_code' => 2], 200);
 
-        return response()->json(['response_code' => 0], UserController::successStatus); 
+        return response()->json(['response_code' => 0], UserController::$successStatus); 
     }
 
     /** 
