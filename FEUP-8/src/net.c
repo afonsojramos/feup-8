@@ -93,6 +93,7 @@ char *buildHttpParameter(const char *key, const char *value)
 	size_t key_size = sizeof(char) * (strlen(key) + 1);
 	char *parameter = malloc(key_size);
 	memcpy(parameter, key, key_size);
+	parameter = concateStrings(parameter, ": ");
 	parameter = concateStrings(parameter, value);
 	parameter = concateStrings(parameter, "\r\n");
 
@@ -141,6 +142,7 @@ Buffer sendHttpGetRequest(const char* address, int port, const char* path, Buffe
 	char message[messageSize];
 	memset(message, 0, sizeof message);
 	sprintf(message, "GET %s?%s HTTP/1.1\r\nHost: %s\r\n%s\r\n", path, dataToSend->data, address, additionalHeaderString);
+	printf("message: %s\n", message);
 	return sendHttpRequest(address, port, path, message, messageSize, timeout);
 }
 
