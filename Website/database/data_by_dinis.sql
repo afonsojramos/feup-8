@@ -35,7 +35,7 @@ INSERT INTO `users` (`id`,`username`,`name`,`password`,`email`,`isTeacher`) VALU
 
 
 
-INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (1,"Suspendisse sed dolor. Fusce mi lorem, vehicula et, rutrum eu, ultrices sit amet, risus. Donec","Duis elementum,","ac, fermentum vel, mauris. Integer sem elit, pharetra ut,",1);
+INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (1,"Z2RmZ2Rmc2twb2V3aXAwb3RvaTM0MGk0ZW9yZmdsa2Rqa2dmZGo5MzM0NDkwdDM0NDU2OQ==","Duis elementum,","ac, fermentum vel, mauris. Integer sem elit, pharetra ut,",1);
 INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (2,"velit. Cras lorem lorem, luctus ut, pellentesque eget, dictum placerat, augue. Sed molestie. Sed id risus quis diam","consequat purus. Maecenas","at lacus. Quisque purus sapien,",2);
 INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (3,"gravida molestie arcu. Sed eu nibh vulputate mauris sagittis placerat. Cras dictum ultricies ligula. Nullam enim. Sed nulla ante, iaculis","aliquam eros turpis","montes, nascetur ridiculus mus. Proin vel nisl. Quisque",3);
 INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (4,"nunc sed pede. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Proin vel arcu eu","erat vel pede","quis turpis vitae purus gravida sagittis.",4);
@@ -56,11 +56,11 @@ INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (15,"d
 
 
 
-INSERT INTO `ExerciseStudent` (`exercise_id`,`student_id`,`progress`) VALUES (3,3,44);
-INSERT INTO `ExerciseStudent` (`exercise_id`,`student_id`,`progress`) VALUES (4,4,42);
-INSERT INTO `ExerciseStudent` (`exercise_id`,`student_id`,`progress`) VALUES (5,5,32);
-INSERT INTO `ExerciseStudent` (`exercise_id`,`student_id`,`progress`) VALUES (6,6,98);
-INSERT INTO `ExerciseStudent` (`exercise_id`,`student_id`,`progress`) VALUES (7,7,24);
+INSERT INTO `ExerciseStudent` (`exercise_id`,`student_id`,`progress`, 'feup8_file') VALUES (3,3,44,"dfjldsjulkgjfdglkj");
+INSERT INTO `ExerciseStudent` (`exercise_id`,`student_id`,`progress`, 'feup8_file') VALUES (4,4,42,"dfjldsjulkgjfdglkj");
+INSERT INTO `ExerciseStudent` (`exercise_id`,`student_id`,`progress`, 'feup8_file') VALUES (5,5,32,"dfjldsjulkgjfdglkj");
+INSERT INTO `ExerciseStudent` (`exercise_id`,`student_id`,`progress`, 'feup8_file') VALUES (6,6,98,"dfjldsjulkgjfdglkj");
+INSERT INTO `ExerciseStudent` (`exercise_id`,`student_id`,`progress`, 'feup8_file') VALUES (7,7,24,"dfjldsjulkgjfdglkj");
 
 
 
