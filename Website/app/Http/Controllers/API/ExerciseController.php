@@ -222,9 +222,8 @@ class ExerciseController extends Controller
             $possible_exercise = $public_exercise->union($private_exercise);
             
             $tests_code_array = DB::table('test')
-                ->join('exercise', 'test.exercise_id', '=', 'exercise.id')
                 ->select('test.test_code')
-                ->whereIn('exercise.id', $possible_exercise)
+                ->whereIn('exercise_id', $possible_exercise)
                 ->get();
          /*}
          else
