@@ -201,14 +201,29 @@ class ExerciseController extends Controller
     */ 
     public function testStudentCodeForExercise(Request $request, $exercise_id)
     { 
-        $decoded_tests_code_array = DB::table('test')
-            ->join('exercise', 'test.exercise_id', '=', 'exercise.id')
-            ->join('ExerciseStudentPermissions', 'test.exercise_id', '=', 'ExerciseStudentPermissions.exercise_id')
-            ->select('test.test_code')
-            ->where('student_id', Auth::guard('api')->user()->id)
-            ->where('exercise.id', '=', $id);
-        return $decoded_tests_code_array;
-        //funcTiago($request['code'], $decoded_tests_code_array);
+        $tests_code_array;
+        if(Auth::guard('api')->check())
+         {
+            $tests_code_array = DB::table('test')
+                ->join('exercise', 'test.exercise_id', '=', 'exercise.id')
+                ->join('ExerciseStudentPermissions', 'test.exercise_id', '=', 'ExerciseStudentPermissions.exercise_id')
+                ->select('test.test_code')
+                ->where('exercise.id', '=', $exercise_id)
+                ->where('student_id', Auth::guard('api')->user()->id)
+                ->get();
+         }
+         else
+         {
+            $tests_code_array = DB::table('test')
+                ->join('exercise', 'test.exercise_id', '=', 'exercise.id')
+                ->select('test.test_code')
+                ->where('exercise.id', '=', $exercise_id)
+                ->get();
+         }
+
+
+        return $tests_code_array;
+         //funcTiago($request['code'], $tests_code_array);
     }
 
 }
