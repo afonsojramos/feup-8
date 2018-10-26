@@ -21,7 +21,7 @@ class UserController extends Controller
      * @param $request The post request with the username and password data.
      * @return JSON response with response code (0-success, 1-username/password dont match). 
     */  
-    public function login(Request $request)
+    public static function login(Request $request)
     { 
         $credentials = $request->only('username', 'password');
 
@@ -59,7 +59,7 @@ class UserController extends Controller
         if(!User::create($input['username'], $input['password'], $input['name'], $input['email']))
             return response()->json(['response_code'=>2], $this->successStatus); 
 
-        return login($request); 
+        return UserController::login($request); 
     }
 
     /** 
