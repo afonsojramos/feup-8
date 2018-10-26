@@ -228,16 +228,7 @@ class ExerciseController extends Controller
             ->select('test.test_code')
             ->whereIn('exercise_id', $possible_exercise)
             ->get();
-         /*}
-         else
-         {
-            $tests_code_array = DB::table('test')
-                ->join('exercise', 'test.exercise_id', '=', 'exercise.id')
-                ->select('test.test_code')
-                ->where('exercise.id', '=', $exercise_id)
-                ->get();
-         }
-*/
+
 
         return $tests_code_array;
          //funcTiago($request['code'], $tests_code_array);
