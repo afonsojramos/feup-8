@@ -36,7 +36,7 @@ INSERT INTO `users` (`id`,`username`,`name`,`password`,`email`,`isTeacher`) VALU
 
 
 INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (1,"Z2RmZ2Rmc2twb2V3aXAwb3RvaTM0MGk0ZW9yZmdsa2Rqa2dmZGo5MzM0NDkwdDM0NDU2OQ==","Duis elementum,","ac, fermentum vel, mauris. Integer sem elit, pharetra ut,",1);
-INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (2,""Z2RmZ2Rmc2twb2V3aXAwb3RvaTM0MGk0ZW9yZmdsa2Rqa2dmZGo5MzM0NDkwdDM0NDU2OQ==","at lacus. Quisque purus sapien,",2);
+INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (2,"Z2RmZ2Rmc2twb2V3aXAwb3RvaTM0MGk0ZW9yZmdsa2Rqa2dmZGo5MzM0NDkwdDM0NDU2OQ==","at lacus. Quisque purus sapien,",2);
 INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (3,"Z2RmZ2Rmc2twb2V3aXAwb3RvaTM0MGk0ZW9yZmdsa2Rqa2dmZGo5MzM0NDkwdDM0NDU2OQ==","aliquam eros turpis","montes, nascetur ridiculus mus. Proin vel nisl. Quisque",3);
 INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (4,"Z2RmZ2Rmc2twb2V3aXAwb3RvaTM0MGk0ZW9yZmdsa2Rqa2dmZGo5MzM0NDkwdDM0NDU2OQ==","erat vel pede","quis turpis vitae purus gravida sagittis.",4);
 INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (5,"Z2RmZ2Rmc2twb2V3aXAwb3RvaTM0MGk0ZW9yZmdsa2Rqa2dmZGo5MzM0NDkwdDM0NDU2OQ==","quis, pede. Suspendisse","lobortis quam a felis ullamcorper viverra. Maecenas",5);
