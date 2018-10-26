@@ -209,7 +209,7 @@ class ExerciseController extends Controller
                 ->join('ExerciseStudentPermissions', 'test.exercise_id', '=', 'ExerciseStudentPermissions.exercise_id')
                 ->select('test.test_code')
                 ->where('exercise.id', '=', $exercise_id)
-                ->where('student_id', Auth::guard('api')->user()->id)
+                ->where('ExerciseStudentPermissions.student_id', '=', Auth::guard('api')->user()->id)->orWhere('exercise.isPrivate', false)
                 ->get();
          }
          else
