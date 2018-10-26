@@ -204,20 +204,29 @@ class ExerciseController extends Controller
         $userID = 0;
         if(Auth::guard('api')->check())
             $userID = Auth::guard('api')->user()->id;
-
+            //return $userID;
          //{
+
+            $public_exercise = DB::table('exercise')
+                ->select('id')
+                ->where('isPrivate', false)
+                ->where('exercise.id', '=', $exercise_id);
+            
+            $private_exercise = DB::table('exercise')
+                ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
+                ->select('id')
+                ->where('isPrivate', true)
+                ->where('exercise.id', '=', $exercise_id)
+                ->where('ExerciseStudentPermissions.student_id', $userID);
+
+            $possible_exercise = $public_exercise->union($private_exercise);
+            
             $tests_code_array = DB::table('test')
                 ->join('exercise', 'test.exercise_id', '=', 'exercise.id')
                 ->join('ExerciseStudentPermissions', 'test.exercise_id', '=', 'ExerciseStudentPermissions.exercise_id')
                 ->select('test.test_code')
                 ->where('exercise.id', '=', $exercise_id)
-                ->where(function ($query) 
-                {
-                    global $userID;
-                    $userID = 11;
-                    $query->where('ExerciseStudentPermissions.student_id', '=', $userID)
-                    ->orWhere('exercise.isPrivate', false);
-                })
+                ->whereIn('exercise.id', $possible_exercise)
                 ->get();
          /*}
          else
