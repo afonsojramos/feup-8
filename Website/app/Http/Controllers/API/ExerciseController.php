@@ -143,7 +143,7 @@ class ExerciseController extends Controller
         // TODO: $progress = correr a funçao que vai executar os testes para saber o progress, $request['code']
         try 
         {
-            if(ExerciseController::checkExerciseStudentExists())
+            if(ExerciseController::checkExerciseStudentExists($exercise_id))
             {
                 DB::table('exerciseStudent')
                     ->where('exercise_id', '=', $exercise_id)
