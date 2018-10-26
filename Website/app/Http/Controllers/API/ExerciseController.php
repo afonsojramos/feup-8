@@ -209,14 +209,14 @@ class ExerciseController extends Controller
 
             $public_exercise = DB::table('exercise')
                 ->select('id')
-                ->where('isPrivate', false)
-                ->where('exercise.id', '=', $exercise_id);
+                ->where('exercise.id', '=', $exercise_id)
+                ->where('isPrivate', false);
             
             $private_exercise = DB::table('exercise')
                 ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
                 ->select('id')
-                ->where('isPrivate', true)
                 ->where('exercise.id', '=', $exercise_id)
+                ->where('isPrivate', true)
                 ->where('ExerciseStudentPermissions.student_id', $userID);
 
             $possible_exercise = $public_exercise->union($private_exercise);
@@ -224,7 +224,6 @@ class ExerciseController extends Controller
             $tests_code_array = DB::table('test')
                 ->join('exercise', 'test.exercise_id', '=', 'exercise.id')
                 ->select('test.test_code')
-                ->where('exercise.id', '=', $exercise_id)
                 ->whereIn('exercise.id', $possible_exercise)
                 ->get();
          /*}
