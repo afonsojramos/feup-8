@@ -1552,11 +1552,11 @@ s32 main(s32 argc, char **argv)
 	//login request
 	//printf("registerRequest - %d\n", registerRequest("stuff", "stuff@email.com", "stuff", "stuff"));
 	printf("loginRequest - %d\n", loginRequest("stuff1", "stuff1"));
-	printf("loginRequest - %d\n", loginRequest("stuff", "stuff"));
+	printf("loginRequest - %d\n", loginRequest("stuff2", "stuff"));
 
 
 	//getExercisesListRequest
-	/*
+	
 	ExerciseSimplified *exercises_list;
 	unsigned int number_of_ex;
 	printf("getExercisesListRequest - %d\n", getExercisesListRequest(&exercises_list, &number_of_ex));
@@ -1569,13 +1569,13 @@ s32 main(s32 argc, char **argv)
 		printf("exercises_list[%d].progress = %d\n", i, exercises_list[i].progress);
 		
 	}
-	*/
+	
 
 
 	//getExerciseDetailsRequest
-
+	/*
 	tic_exercise exercises_list;
-	printf("getExerciseDetailsRequest - %d\n", getExerciseDetailsRequest(1, &exercises_list));
+	printf("getExerciseDetailsRequest - %d\n", getExerciseDetailsRequest(2, &exercises_list));
 	printf("stufff\n");
 		printf("dfgdfgdfg\n");
 
@@ -1589,7 +1589,7 @@ s32 main(s32 argc, char **argv)
 		printf("test hint = %s\n", exercises_list.exerciseTest->hint);
 		printf("test testcode = %s\n", exercises_list.exerciseTest->test_code);
 		//printf("test passed = %d\n", exercises_list.exerciseTest->passed);
-
+	*/
 
 	const char* folder = getAppFolder();
 
