@@ -23,13 +23,23 @@
 #include "exercise.h"
 #include "history.h"
 
+#include <ctype.h>
+
+#define TEXT_BUFFER_HEIGHT ((TIC80_HEIGHT - TOOLBAR_SIZE - STUDIO_TEXT_HEIGHT) / STUDIO_TEXT_HEIGHT)
+
 // #define TRACKER_ROWS (exercise_PATTERN_ROWS / 4)
 
-
 /**
- * 
- * 
- */ 
+* draw code in fixed mode
+*
+* @param exercise a pointer to the exercise loaded
+* @param text a pointer to the text to be drawn 
+* @param color to start the display
+* @param xStart x_position to start the display
+* @param x      x_position to iterate the display
+* @param y      y_position to start the display
+* @param xEnd   x_position to end the display
+*/
 static void drawCode(Exercise *exercise, char *text, u8 color, s32 xStart, s32 x, s32 y, s32 xEnd)
 {
 	char *pointer = text;
@@ -59,18 +69,56 @@ static void drawCode(Exercise *exercise, char *text, u8 color, s32 xStart, s32 x
 
 		pointer++;
 	}
-
-	// if(code->cursor.position == pointer)
-	// 	cursor.x = x, cursor.y = y;
-	//
-	// if(withCursor && cursor.x >= 0 && cursor.y >= 0)
-	// 	drawCursor(code, cursor.x, cursor.y, cursor.symbol);
 }
 
 /**
- * 
- * 
- */ 
+* draw code in scroll mode
+*
+* @param exercise a pointer to the exercise loaded
+* @param text a pointer to the text to be drawn in scroll
+* @param color to start the display
+* @param x      x_position to iterate the display
+* @param y      y_position to start the display
+* @param xEnd   x_position to end the display
+* @param yEnd   y_position to end the display
+*/
+static void drawCodeScroll(Exercise *exercise, char *text, u8 color, s32 x, s32 y, s32 xEnd, s32 yEnd)
+{
+	s32 xStart = x;
+	x -= -exercise->scroll.x * TIC_FONT_WIDTH;
+	s32 yStart = y;
+	y -= -exercise->scroll.y * STUDIO_TEXT_HEIGHT;
+
+	char *pointer = text;
+
+	while (*pointer)
+	{
+		char symbol = *pointer;
+
+		if (x >= -TIC_FONT_WIDTH && x < xEnd && y >= -TIC_FONT_HEIGHT && y < yEnd && y >= yStart)
+		{
+
+			exercise->tic->api.draw_char(exercise->tic, symbol, x + 1, y + 1, color, false);
+		}
+
+		if (symbol == '\n' || (x + 1) >= xEnd)
+		{
+			x = xStart;
+			y += STUDIO_TEXT_HEIGHT;
+			color++;
+		}
+		else
+			x += TIC_FONT_WIDTH;
+
+		pointer++;
+	}
+}
+
+/**
+* proccess keyboard
+*
+* @param exercise a pointer to the exercise loaded
+*/
 static void processKeyboard(Exercise *exercise)
 {
 	tic_mem *tic = exercise->tic;
@@ -86,43 +134,173 @@ static void processKeyboard(Exercise *exercise)
 	}
 }
 
+/**
+* count lines of the text to be scrolled 
+*
+* @param exercise a pointer to the exercise loaded
+* @param text to display/process scroll
+*/
+static s32 getLinesCount(Exercise *exercise, char *text)
+{
+	s32 count = 0;
+
+	while (*text)
+		if (*text++ == '\n')
+			count++;
+
+	return count;
+}
 
 /**
- * 
- * 
- */
+* normalized scroll
+*
+* @param exercise a pointer to the exercise loaded
+* @param text to display/process scroll
+*/
+static void normalizeScroll(Exercise *exercise, char *text)
+{
+	if (exercise->scroll.x > 0)
+		exercise->scroll.x = 0;
+	if (exercise->scroll.y > 0)
+		exercise->scroll.y = 0;
+	else
+	{
+		s32 lines = getLinesCount(exercise, text);
+		if (exercise->scroll.y > lines)
+			exercise->scroll.y = lines;
+	}
+}
+
+/**
+* centered scroll
+*
+* @param exercise a pointer to the exercise loaded
+* @param text to display/process scroll
+*/
+static void centerScroll(Exercise *exercise, char *text)
+{
+	s32 col, line;
+	exercise->scroll.x = col - TIC80_WIDTH / TIC_FONT_WIDTH / 2;
+	exercise->scroll.y = line - TEXT_BUFFER_HEIGHT / 2;
+
+	normalizeScroll(exercise, text);
+}
+
+/**
+* process mouse for scroll
+*
+* @param exercise a pointer to the exercise loaded
+* @param text to display/process scroll
+*/
+static void processMouse(Exercise *exercise, char *text)
+{
+	tic_mem *tic = exercise->tic;
+
+	if (checkMousePos(&exercise->rect))
+	{
+		if (exercise->scroll.active)
+		{
+			if (checkMouseDown(&exercise->rect, tic_mouse_right))
+			{
+				exercise->scroll.x = (exercise->scroll.start.x - getMouseX()) / TIC_FONT_WIDTH;
+				exercise->scroll.y = (exercise->scroll.start.y - getMouseY()) / STUDIO_TEXT_HEIGHT;
+
+				normalizeScroll(exercise, text);
+			}
+			else
+				exercise->scroll.active = false;
+		}
+		else
+		{
+			if (checkMouseDown(&exercise->rect, tic_mouse_left))
+			{
+				s32 mx = getMouseX();
+				s32 my = getMouseY();
+
+				s32 x = (mx - exercise->rect.x) / TIC_FONT_WIDTH;
+				s32 y = (my - exercise->rect.y) / STUDIO_TEXT_HEIGHT;
+			}
+
+			if (checkMouseDown(&exercise->rect, tic_mouse_right))
+			{
+				exercise->scroll.active = true;
+
+				exercise->scroll.start.x = getMouseX() + exercise->scroll.x * TIC_FONT_WIDTH;
+				exercise->scroll.start.y = getMouseY() + exercise->scroll.y * STUDIO_TEXT_HEIGHT;
+			}
+		}
+	}
+}
+
+/**
+* draw the overview layout when the overview tab is selected (default)
+*
+* @param exercise a pointer to the exercise loaded
+*/
 static void drawOverviewLayout(Exercise *exercise)
 {
 	exercise->tic->api.clear(exercise->tic, (tic_color_dark_red));
-	
-	//TODO: MUDAR ISTO NO FUTURO
 
 	int titleLength = TIC80_WIDTH / 12 + strlen("-- title: ") * TIC_FONT_WIDTH;
 	int authorLength = TIC80_WIDTH / 12 + strlen("-- author: ") * TIC_FONT_WIDTH;
 
-	drawCode(exercise, "-- title: ", tic_color_black, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 8, TIC80_WIDTH);
+	drawCode(exercise, "-- title: ", tic_color_peach, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 8, TIC80_WIDTH);
 	drawCode(exercise, exercise->tic->exe.title, tic_color_red, titleLength, titleLength, TIC80_HEIGHT / 8, TIC80_WIDTH);
 
-	drawCode(exercise, "-- author: ", tic_color_black, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 5.25, TIC80_WIDTH);
+	drawCode(exercise, "-- author: ", tic_color_peach, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 5.25, TIC80_WIDTH);
 	drawCode(exercise, exercise->tic->exe.creator_name, tic_color_red, authorLength, authorLength, TIC80_HEIGHT / 5.25, TIC80_WIDTH);
 
-	drawCode(exercise, "-- description: ", tic_color_black, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 4, TIC80_WIDTH);
-	drawCode(exercise, exercise->tic->exe.description, tic_color_red, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 3, TIC80_WIDTH - 10);
+	drawCode(exercise, "-- description: ", tic_color_peach, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 4, TIC80_WIDTH);
+
+	if (strlen(exercise->tic->exe.description) < 385)
+		drawCode(exercise, exercise->tic->exe.description, tic_color_red, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 3, TIC80_WIDTH - 10);
+	else
+	{
+		tic80_input *input = &exercise->tic->ram.input;
+
+		if (input->mouse.scrolly)
+		{
+			enum
+			{
+				Scroll = 3
+			};
+			s32 delta = input->mouse.scrolly > 0 ? -Scroll : Scroll;
+			exercise->scroll.y += delta;
+
+			normalizeScroll(exercise, exercise->tic->exe.description);
+		}
+
+		processMouse(exercise, exercise->tic->exe.description);
+
+		drawCodeScroll(exercise, exercise->tic->exe.description, tic_color_red, TIC80_WIDTH / 12, TIC80_HEIGHT / 3, TIC80_WIDTH - 10, TIC80_HEIGHT - 10);
+	}
 }
 
+/** 
+* start running of tests 
+*
+* @param exercise a pointer to the exercise loaded
+*/
 static void runTests(Exercise *exercise)
 {
 	//exercise->tic->api.exercise(exercise->tic, exercise->track, -1, -1, true);
 }
 
+/** 
+* stop running of tests 
+*
+* @param exercise a pointer to the exercise loaded
+*/
 static void stopTests(Exercise *exercise)
 {
 	//exercise->tic->api.exercise(exercise->tic, -1, -1, -1, false);
 }
 
-/**
- * 
- */
+/** 
+* draw the buttons to accionate/stop tests for running in the Exercise Toolbar
+*
+* @param exercise a pointer to the exercise loaded
+*/
 static void drawPlayTestButtons(Exercise *exercise)
 {
 	static const u8 Icons[] =
@@ -180,94 +358,19 @@ static void drawPlayTestButtons(Exercise *exercise)
 		// if (i == 0 /*&& exercise->tracker.follow*/)
 		// 	drawBitIcon(rect.x, rect.y, Icons + i * Rows, over ? (tic_color_peach) : (tic_color_red));
 		// else
-	    drawBitIcon(rect.x, rect.y, Icons + i * Rows, over ? (tic_color_dark_gray) : (tic_color_light_blue));
+		drawBitIcon(rect.x, rect.y, Icons + i * Rows, over ? (tic_color_dark_gray) : (tic_color_light_blue));
 	}
 }
 
 /**
- * Draws Exercise tabs, 1st containing
- * the general loaded exercises overview
- * while the 2nd has the unit tests
- *
- * @param exercise a pointer do the currently loaded
- * exercise
-*/
-static void drawModeTabs(Exercise *exercise)
-{
-	static const u8 Icons[] =
-		{
-			0b00000000,
-			0b00111100,
-			0b00100100,
-			0b00100100,
-			0b00100100,
-			0b00111100,
-			0b00000000,
-			0b00000000,
-
-			0b00000000,
-			0b00111110,
-			0b00001000,
-			0b00001000,
-			0b00001000,
-			0b00001000,
-			0b00000000,
-			0b00000000,
-		};
-
-	enum
-	{
-		Width = 9,
-		Height = 7,
-		Rows = 8,
-		Count = sizeof Icons / Rows
-	};
-
-	for (s32 i = 0; i < Count; i++)
-	{
-		tic_rect rect = {TIC80_WIDTH - Width * (Count - i), 0, Width, Height};
-
-		static const s32 Tabs[] = {EXERCISE_OVERVIEW_TAB, EXERCISE_TESTS_TAB};
-
-		bool over = false;
-
-		if (checkMousePos(&rect))
-		{
-			setCursor(tic_cursor_hand);
-			over = true;
-
-			static const char *Tooltips[] = {"OVERVIEW MODE", "TESTS MODE"};
-			showTooltip(Tooltips[i]);
-
-			if (checkMouseClick(&rect, tic_mouse_left))
-				exercise->tab = Tabs[i];
-		}
-
-		if (exercise->tab == Tabs[i])
-		{
-			exercise->tic->api.rect(exercise->tic, rect.x, rect.y, rect.w, rect.h, (tic_color_gray));
-			drawBitIcon(rect.x, rect.y + 1, Icons + i * Rows, tic_color_black);
-		}
-
-		drawBitIcon(rect.x, rect.y, Icons + i * Rows, exercise->tab == Tabs[i] ? (tic_color_white) : over ? (tic_color_dark_gray) : (tic_color_light_blue));
-	}
-}
-
-/**
- * 
- * 
- */
-static void drawExerciseToolbar(Exercise *exercise)
-{
-	exercise->tic->api.rect(exercise->tic, 0, 0, TIC80_WIDTH, TOOLBAR_SIZE, (tic_color_white));
-
-	drawPlayTestButtons(exercise);
-	drawModeTabs(exercise);
-}
-
-/**
-* 
-* 
+* draw the switch with the arrows and the correct index
+*
+* @param exercise a pointer to the exercise loaded
+* @param x x_position of where to draw the switch
+* @param y y_position of where to draw the switch
+* @param label for the switch (ex: 'Test ')
+* @param value of the label (ex: index of Test in display)
+* @param function_set of exercise and delta to upgrade index/test display
 */
 static void drawSwitch(Exercise *exercise, s32 x, s32 y, const char *label, s32 value, void (*set)(Exercise *, s32))
 {
@@ -337,8 +440,10 @@ static void drawSwitch(Exercise *exercise, s32 x, s32 y, const char *label, s32 
 }
 
 /**
-* 
-* 
+* set Index for number of tests to switch
+*
+* @param exercise a pointer to the exercise loaded
+* @param delta number to switch
 */
 static void setIndex(Exercise *exercise, s32 delta)
 {
@@ -351,8 +456,11 @@ static void setIndex(Exercise *exercise, s32 delta)
 }
 
 /**
-* 
-* 
+* draw test switch panel, to switch between existent tests
+*
+* @param exercise a pointer to the exercise loaded
+* @param x x_position of where to draw the switch
+* @param y y_position of where to draw the switch
 */
 static void drawTestsPanel(Exercise *exercise, s32 x, s32 y)
 {
@@ -365,8 +473,10 @@ static void drawTestsPanel(Exercise *exercise, s32 x, s32 y)
 }
 
 /**
-* 
-* 
+* draw each unit test in a box
+*
+* @param exercise a pointer to the exercise loaded
+* @param test a pointer to the unit test to be displayed
 */
 static void drawTestBox(Exercise *exercise, UnitTest *test)
 {
@@ -375,12 +485,34 @@ static void drawTestBox(Exercise *exercise, UnitTest *test)
 	exercise->tic->api.fixed_text(exercise->tic, test->title, 16, 35, (tic_color_black), false);
 	exercise->tic->api.fixed_text(exercise->tic, test->description, 16, 45, (tic_color_gray), false);
 
-	drawCode(exercise, test->correctCode, tic_color_blue, 16, 16, 55, TIC80_WIDTH);
+	if (strlen(test->correctCode) < 500)
+		drawCode(exercise, test->correctCode, tic_color_blue, 16, 16, 55, TIC80_WIDTH);
+	else
+	{
+		tic80_input *input = &exercise->tic->ram.input;
+
+		if (input->mouse.scrolly)
+		{
+			enum
+			{
+				Scroll = 3
+			};
+			s32 delta = input->mouse.scrolly > 0 ? -Scroll : Scroll;
+			exercise->scroll.y += delta;
+
+			normalizeScroll(exercise, test->correctCode);
+		}
+
+		processMouse(exercise, test->correctCode);
+
+		drawCodeScroll(exercise, test->correctCode, tic_color_blue, 16, 55, TIC80_WIDTH, TIC80_HEIGHT - 25);
+	}
 }
 
 /**
-* 
-* 
+* draw the tests layout when the tests tab is selected
+*
+* @param exercise a pointer to the exercise loaded
 */
 static void drawTestsLayout(Exercise *exercise)
 {
@@ -388,15 +520,98 @@ static void drawTestsLayout(Exercise *exercise)
 
 	tic->api.clear(tic, (tic_color_gray));
 
-	drawTestsPanel(exercise, (TIC80_WIDTH/2 - 25), 10);
+	drawTestsPanel(exercise, (TIC80_WIDTH / 2 - 25), 10);
 
-	UnitTest *test = &(exercise->unitTests[exercise->testIndex-1]);
+	UnitTest *test = &(exercise->unitTests[exercise->testIndex - 1]);
 	drawTestBox(exercise, test);
 }
 
 /**
-* 
-* 
+* Draws Exercise tabs, 1st containing
+* the general loaded exercises overview
+* while the 2nd has the unit tests
+*
+* @param exercise a pointer do the currently loaded
+* exercise
+*/
+static void drawModeTabs(Exercise *exercise)
+{
+	static const u8 Icons[] =
+		{
+			0b00000000,
+			0b00111100,
+			0b00100100,
+			0b00100100,
+			0b00100100,
+			0b00111100,
+			0b00000000,
+			0b00000000,
+
+			0b00000000,
+			0b00111110,
+			0b00001000,
+			0b00001000,
+			0b00001000,
+			0b00001000,
+			0b00000000,
+			0b00000000,
+		};
+
+	enum
+	{
+		Width = 9,
+		Height = 7,
+		Rows = 8,
+		Count = sizeof Icons / Rows
+	};
+
+	for (s32 i = 0; i < Count; i++)
+	{
+		tic_rect rect = {TIC80_WIDTH - Width * (Count - i), 0, Width, Height};
+
+		static const s32 Tabs[] = {EXERCISE_OVERVIEW_TAB, EXERCISE_TESTS_TAB};
+
+		bool over = false;
+
+		if (checkMousePos(&rect))
+		{
+			setCursor(tic_cursor_hand);
+			over = true;
+
+			static const char *Tooltips[] = {"OVERVIEW MODE", "TESTS MODE"};
+			showTooltip(Tooltips[i]);
+
+			if (checkMouseClick(&rect, tic_mouse_left))
+				exercise->tab = Tabs[i];
+		}
+
+		if (exercise->tab == Tabs[i])
+		{
+			exercise->tic->api.rect(exercise->tic, rect.x, rect.y, rect.w, rect.h, (tic_color_gray));
+			drawBitIcon(rect.x, rect.y + 1, Icons + i * Rows, tic_color_black);
+		}
+
+		drawBitIcon(rect.x, rect.y, Icons + i * Rows, exercise->tab == Tabs[i] ? (tic_color_white) : over ? (tic_color_dark_gray) : (tic_color_light_blue));
+	}
+}
+
+/** 
+* draw Exercise Toolbar with the buttons to accionate/stop tests for running 
+*
+* @param exercise a pointer to the exercise loaded
+*/
+static void drawExerciseToolbar(Exercise *exercise)
+{
+	exercise->tic->api.rect(exercise->tic, 0, 0, TIC80_WIDTH, TOOLBAR_SIZE, (tic_color_white));
+
+	drawPlayTestButtons(exercise);
+	drawModeTabs(exercise);
+}
+
+/**
+* tick function called every second to display exercise
+*
+* @param exercise a pointer to the exercise loaded
 */
 static void tick(Exercise *exercise)
 {
@@ -415,11 +630,12 @@ static void tick(Exercise *exercise)
 	drawToolbar(exercise->tic, (tic_color_gray), false);
 }
 
-
-
 /**
-* 
-* 
+* init an Exercise
+*
+* @param exercise a pointer to the exercise to load
+* @param tic a pointer to the tic_mem (memory)
+* @param exe a pointer to the exercise info to load on exercise struct 
 */
 void initExercise(Exercise *exercise, tic_mem *tic, tic_exercise *exe)
 {
@@ -433,7 +649,8 @@ void initExercise(Exercise *exercise, tic_mem *tic, tic_exercise *exe)
 		.unitTests = malloc(4 * sizeof(UnitTest)), //Mock
 		.tab = EXERCISE_OVERVIEW_TAB,
 		//.history = history_create(tic->exe.title , sizeof(tic->exe)),
-		.testIndex = 1, 
+		.testIndex = 1,
+		.scroll = {0, 0, {0, 0}, false},
 	};
 
 	/*
@@ -448,8 +665,8 @@ void initExercise(Exercise *exercise, tic_mem *tic, tic_exercise *exe)
 	description = malloc(20000);
 	memcpy(name, "exercicio de teste", sizeof("exercicio de teste"));
 	memcpy(author, "professor Jorge", sizeof("professor Jorge"));
-	memcpy(description, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus scelerisque, dolor in varius ullamcorper, massa metus maximus lorem, sed fermentum justo velit viverra dui. Vestibulum nec lacus ac felis eleifend cursus sit amet vel nulla. Fusce eget mi sed neque pulvinar sollicitudin non id justo. Donec facilisis eget ex ac auctor. Suspendisse in metus vel tortor eleifend blandit nec vitae eros. Pellentesque rutrum commodo fermentum. Nunc vehicula eleifend neque ac convallis. Nunc elementum tincidunt risus. Aenean augue lectus, molestie eget enim sed, suscipit cursus eros. Morbi a egestas arcu. Aliquam sem orci, sodales ac posuere vitae, eleifend eget urna.\nNullam sit amet sollicitudin libero. Vestibulum sem enim, pretium a lobortis quis, mattis in nibh. Phasellus non pretium magna, id venenatis neque. Nulla accumsan eleifend consequat. Donec eu leo tortor. Quisque posuere elit ornare, malesuada nulla at, fermentum enim. Sed tellus felis, dignissim nec feugiat ac, suscipit et diam.\nMorbi ac augue eu purus vestibulum ultrices. Nullam vel magna at justo ullamcorper vulputate. Phasellus justo nulla, elementum sed lorem et, auctor malesuada libero. Integer ac erat eu eros ornare ultricies. Cras mattis quis risus id egestas. Phasellus porttitor diam sit amet ante ullamcorper, eu rhoncus massa mattis. Aliquam a sollicitudin diam. Pellentesque congue mauris nec nisl mattis, eu venenatis enim tincidunt. In blandit ut sem et faucibus. Cras ut eros faucibus, finibus leo eget, placerat mi. Aliquam erat volutpat. Morbi pretium vehicula iaculis. ",
-		   sizeof("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus scelerisque, dolor in varius ullamcorper, massa metus maximus lorem, sed fermentum justo velit viverra dui. Vestibulum nec lacus ac felis eleifend cursus sit amet vel nulla. Fusce eget mi sed neque pulvinar sollicitudin non id justo. Donec facilisis eget ex ac auctor. Suspendisse in metus vel tortor eleifend blandit nec vitae eros. Pellentesque rutrum commodo fermentum. Nunc vehicula eleifend neque ac convallis. Nunc elementum tincidunt risus. Aenean augue lectus, molestie eget enim sed, suscipit cursus eros. Morbi a egestas arcu. Aliquam sem orci, sodales ac posuere vitae, eleifend eget urna.\nNullam sit amet sollicitudin libero. Vestibulum sem enim, pretium a lobortis quis, mattis in nibh. Phasellus non pretium magna, id venenatis neque. Nulla accumsan eleifend consequat. Donec eu leo tortor. Quisque posuere elit ornare, malesuada nulla at, fermentum enim. Sed tellus felis, dignissim nec feugiat ac, suscipit et diam.\nMorbi ac augue eu purus vestibulum ultrices. Nullam vel magna at justo ullamcorper vulputate. Phasellus justo nulla, elementum sed lorem et, auctor malesuada libero. Integer ac erat eu eros ornare ultricies. Cras mattis quis risus id egestas. Phasellus porttitor diam sit amet ante ullamcorper, eu rhoncus massa mattis. Aliquam a sollicitudin diam. Pellentesque congue mauris nec nisl mattis, eu venenatis enim tincidunt. In blandit ut sem et faucibus. Cras ut eros faucibus, finibus leo eget, placerat mi. Aliquam erat volutpat. Morbi pretium vehicula iaculis. "));
+	memcpy(description, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nPhasellus scelerisque, dolor in varius ullamcorper, massa metus maximus lorem, sed fermentum justo velit viverra dui. \nVestibulum nec lacus ac felis eleifend cursus sit amet vel nulla. \nFusce eget mi sed neque pulvinar sollicitudin non id justo. Donec facilisis eget ex ac auctor. Suspendisse in metus vel tortor eleifend blandit nec vitae eros. \nPellentesque rutrum commodo fermentum. \nNunc vehicula eleifend neque ac convallis. Nunc elementum tincidunt risus. Aenean augue lectus, molestie eget enim sed, suscipit cursus eros. \nMorbi a egestas arcu. Aliquam sem orci, sodales ac posuere vitae, eleifend eget urna.\nNullam sit amet sollicitudin libero. \nVestibulum sem enim, pretium a lobortis quis, mattis in nibh. Phasellus non pretium magna, id venenatis neque. Nulla accumsan eleifend consequat. Donec eu leo tortor. \nQuisque posuere elit ornare, malesuada nulla at, fermentum enim. \nSed tellus felis, dignissim nec feugiat ac, suscipit et diam.\nMorbi ac augue eu purus vestibulum ultrices. \nNullam vel magna at justo ullamcorper vulputate. \nPhasellus justo nulla, elementum sed lorem et, auctor malesuada libero. \nInteger ac erat eu eros ornare ultricies. Cras mattis quis risus id egestas. Phasellus porttitor diam sit amet ante ullamcorper, eu rhoncus massa mattis. Aliquam a sollicitudin diam. Pellentesque congue mauris nec nisl mattis, eu venenatis enim tincidunt. In blandit ut sem et faucibus. \nCras ut eros faucibus, finibus leo eget, placerat mi. Aliquam erat volutpat. \nMorbi pretium vehicula iaculis. ",
+		   sizeof("Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nPhasellus scelerisque, dolor in varius ullamcorper, massa metus maximus lorem, sed fermentum justo velit viverra dui. \nVestibulum nec lacus ac felis eleifend cursus sit amet vel nulla. \nFusce eget mi sed neque pulvinar sollicitudin non id justo. Donec facilisis eget ex ac auctor. Suspendisse in metus vel tortor eleifend blandit nec vitae eros. \nPellentesque rutrum commodo fermentum. \nNunc vehicula eleifend neque ac convallis. Nunc elementum tincidunt risus. Aenean augue lectus, molestie eget enim sed, suscipit cursus eros. \nMorbi a egestas arcu. Aliquam sem orci, sodales ac posuere vitae, eleifend eget urna.\nNullam sit amet sollicitudin libero. \nVestibulum sem enim, pretium a lobortis quis, mattis in nibh. Phasellus non pretium magna, id venenatis neque. Nulla accumsan eleifend consequat. Donec eu leo tortor. \nQuisque posuere elit ornare, malesuada nulla at, fermentum enim. \nSed tellus felis, dignissim nec feugiat ac, suscipit et diam.\nMorbi ac augue eu purus vestibulum ultrices. \nNullam vel magna at justo ullamcorper vulputate. \nPhasellus justo nulla, elementum sed lorem et, auctor malesuada libero. \nInteger ac erat eu eros ornare ultricies. Cras mattis quis risus id egestas. Phasellus porttitor diam sit amet ante ullamcorper, eu rhoncus massa mattis. Aliquam a sollicitudin diam. Pellentesque congue mauris nec nisl mattis, eu venenatis enim tincidunt. In blandit ut sem et faucibus. \nCras ut eros faucibus, finibus leo eget, placerat mi. Aliquam erat volutpat. \nMorbi pretium vehicula iaculis. "));
 
 	exercise->tic->exe.title = malloc(strlen(name) + 1);
 	strcpy(exercise->tic->exe.title, name);
@@ -484,8 +701,6 @@ void initExercise(Exercise *exercise, tic_mem *tic, tic_exercise *exe)
 	exercise->unitTests[3] = (UnitTest){
 		.title = "Test 4",
 		.description = "Description test 4",
-		.correctCode = "lorem ipsum sid dolore.....  4",
+		.correctCode = "function testAddZero()\n\tluaunit.assertEquals(add(1, 0), 0)\n\tluaunit.assertEquals(add(0, 5), 0)\n\tluaunit.assertEquals(add(0, 0), 0)\n\tluaunit.assertEquals(add(1, 0), 0)\n\tluaunit.assertEquals(add(0, 5), 0)\n\tluaunit.assertEquals(add(0, 0), 0)\n\tluaunit.assertEquals(add(1, 0), 0)\n\tluaunit.assertEquals(add(0, 5), 0)\n\tluaunit.assertEquals(add(0, 0), 0)\n\n\tluaunit.assertEquals(add(1, 0), 0)\n\tluaunit.assertEquals(add(0, 5), 0)\n\tluaunit.assertEquals(add(0, 0), 0)\n\n\tluaunit.assertEquals(add(1, 0), 0)\n\tluaunit.assertEquals(add(0, 5), 0)\n\tluaunit.assertEquals(add(0, 0), 0)\nend",
 	};
-
-	//resetSelection(exercise);
 }

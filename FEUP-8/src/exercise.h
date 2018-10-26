@@ -52,6 +52,20 @@ struct Exercise
 		EXERCISE_TESTS_TAB,
 	} tab;
 
+	tic_rect rect;
+
+	struct
+	{
+		s32 x;
+		s32 y;
+
+		tic_point start;
+
+		bool active;
+		bool gesture;
+
+	} scroll;
+
 	struct History* history;
 
 	void(*tick)(Exercise*);
