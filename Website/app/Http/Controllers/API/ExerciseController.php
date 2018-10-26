@@ -223,7 +223,6 @@ class ExerciseController extends Controller
             
             $tests_code_array = DB::table('test')
                 ->join('exercise', 'test.exercise_id', '=', 'exercise.id')
-                ->join('ExerciseStudentPermissions', 'test.exercise_id', '=', 'ExerciseStudentPermissions.exercise_id')
                 ->select('test.test_code')
                 ->where('exercise.id', '=', $exercise_id)
                 ->whereIn('exercise.id', $possible_exercise)
