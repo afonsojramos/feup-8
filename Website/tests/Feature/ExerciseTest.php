@@ -13,6 +13,11 @@ class ExerciseTest extends TestCase
      */
     public function testGetAllPublicExercises()
     {
+        //test with 0 exercises
+        //test get all public exercises without login
+        //test get all public exercises with login but no permission for more
+        //test get all public exercises + private for logged in
+
         $response = $this->call('GET', '/api/exercises/all');
         $response->assertStatus(200);
        /* $response_array = $response->decodeResponseJson();
@@ -50,6 +55,11 @@ class ExerciseTest extends TestCase
      */
     public function testGetExerciseDetails()
     {
+        //test get exercise datails from a non existing exercise
+        //test get exercise datails from an exercise private without permissions logged in
+        //test get exercise datails from an exercise private not logged in and without permissions
+        //test get exercise datails from an exercise private logged in and with permissions
+
         $response = $this->call('GET', '/api/exercise/1');
         $response->assertStatus(200);
        /* $response_array = $response->decodeResponseJson();
@@ -81,30 +91,4 @@ class ExerciseTest extends TestCase
         
     }
 
-        /**
-     * This
-     *
-     */
-    public function testRegisterRepeated()
-    {
-        $response = $this->call('POST', '/api/register', ['username' => 'user1', 'password' => 'password', 
-            'name' => 'name', 'email' => 'email']);
-        $response->assertStatus(200);
-        $response_array = $response->decodeResponseJson();
-        $this->assertEquals($response_array['response_code'], 1);
-        $this->assertFalse(array_key_exists('auth_token', $response_array));
-    }
-
-    /**
-     * A basic test example.
-     *
-     */
-    public function testLogin()
-    {
-        $response = $this->call('POST', '/api/login', ['username' => 'user1', 'password' => '$2y$10$vOp6qnGv9Ae/0NdmD/D7fudXzoU6CltbYSSrIqK2/ARmTUBgzo2gK']);
-        $response->assertStatus(200);
-        $response_array = $response->decodeResponseJson();
-        $this->assertEquals($response_array['response_code'], 0);
-        $this->assertTrue(array_key_exists('auth_token', $response_array));
-    }
 }

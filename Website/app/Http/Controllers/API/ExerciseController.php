@@ -141,24 +141,25 @@ class ExerciseController extends Controller
             return response()->json(['responde_code'=>1], 200); //must be logged in to save progress
 
         // TODO: $progress = correr a funçao que vai executar os testes para saber o progress, $request['code']
+        $progress = 10;
         try 
         {
-            if(checkExerciseStudentExists())
+            if(ExerciseController::checkExerciseStudentExists($exercise_id))
             {
                 DB::table('exerciseStudent')
                     ->where('exercise_id', '=', $exercise_id)
-                    ->where('student_id', '=', Auth::user()->id)
-                    ->update(['progress'=>$progress])
-                    ->update(['feup8_file'=>$request['exercise_data']]);
+                    ->where('student_id', '=', Auth::guard('api')->user()->id)
+                    ->update(['progress'=>$progress, 'feup8_file'=>$request['exercise_data']]);
             }
             else
             {
-                DB::table('exerciseStudent')->insert(['exercise_id' => $exercise_id, 'student_id' => Auth::user()->id, 
+                DB::table('exerciseStudent')->insert(['exercise_id' => $exercise_id, 'student_id' => Auth::guard('api')->user()->id, 
                     'progress'=>$progress, 'feup8_file'=>$request['exercise_data']]);
             }    
         } 
         catch (\Exception $e) 
         {
+            return $e;
             return response()->json(['response_code'=>2], 200);
         }
 
@@ -178,7 +179,7 @@ class ExerciseController extends Controller
             $exercise_student = DB::table('exerciseStudent')
                 ->select('*')
                 ->where('exercise_id', '=', $exercise_id)
-                ->where('student_id', '=', Auth::id)
+                ->where('student_id', '=', Auth::guard('api')->user()->id)
                 ->get();
             if(count($exercise_student) != 0)
                 return true;
