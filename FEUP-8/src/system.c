@@ -1550,7 +1550,9 @@ static void emsStart(s32 argc, char **argv, const char* folder)
 s32 main(s32 argc, char **argv)
 {
 	//login request
-	//printf("loginRequest - %d\n", loginRequest("stuff", "stuff"));
+	//printf("registerRequest - %d\n", registerRequest("stuff", "stuff@email.com", "stuff", "stuff"));
+	printf("loginRequest - %d\n", loginRequest("stuff1", "stuff1"));
+	printf("loginRequest - %d\n", loginRequest("stuff", "stuff"));
 
 
 	//getExercisesListRequest
@@ -1586,7 +1588,7 @@ s32 main(s32 argc, char **argv)
 		printf("test title = %s\n", exercises_list.exerciseTest->title);
 		printf("test hint = %s\n", exercises_list.exerciseTest->hint);
 		printf("test testcode = %s\n", exercises_list.exerciseTest->test_code);
-		printf("test passed = %d\n", exercises_list.exerciseTest->passed);
+		//printf("test passed = %d\n", exercises_list.exerciseTest->passed);
 
 
 	const char* folder = getAppFolder();
