@@ -5,6 +5,13 @@
 #include <stdio.h>
 #include <math.h>
 
+int printDebugMsg()
+{
+    static int count = 1;
+    printf("debug number %d\n", count);
+    count++;
+}
+
 /**
 * Global variable that contains the token of the session. Is filled when login, and destroyed in logout.
 */
@@ -129,6 +136,7 @@ int registerRequest(const char *name, const char *email, const char *username, c
     sprintf(dataToSend.data, "name=%s&email=%s&username=%s&password=%s",
             name, email, username, password);
     Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, REGISTER_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
+
     if(response.data == NULL)
         return 3;
         
@@ -519,17 +527,19 @@ deallocate_parseExerciseTestsReceivedAndReturn:
 * 3 - can't connect to server.
 */
 int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id)
-{/*
+{
     if(auth_token == NULL)
         return 1;
     char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
         
     Buffer dataToSend;
-    int FIXED_SAVE_PROGRESS_MESSAGE_SIZE = 21;
+    int FIXED_SAVE_PROGRESS_MESSAGE_SIZE = 20;
     char *exercise_data_encoded = b64_encode(exercise_data.data, exercise_data.size);
-    dataToSend.size = strlen(exercise_data_encoded) + strlen(code) + FIXED_SAVE_PROGRESS_MESSAGE_SIZE;
-    dataToSend.data = malloc(sizeof(u8) * dataToSend.size);
-    sprintf(dataToSend.data, "exercise_data=%s&code=%s", exercise_data.data, code);
+    char *code_encoded = b64_encode(code, strlen(code) * sizeof(char));
+    dataToSend.size = strlen(exercise_data_encoded) + strlen(code_encoded) + FIXED_SAVE_PROGRESS_MESSAGE_SIZE;
+    dataToSend.data = malloc(sizeof(u8) * (dataToSend.size + 1));
+    sprintf(dataToSend.data, "exercise_data=%s&code=%s", exercise_data_encoded, code_encoded);
+    
     char *request_address = malloc(sizeof(char) * (strlen(SAVE_PROGRESS_PATH) + 1 + log10(exercise_id) + 1 + 4));
     sprintf(request_address, "%s/%d/save", SAVE_PROGRESS_PATH, exercise_id);
 
@@ -559,7 +569,7 @@ int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id)
     free(response.data);
     cJSON_free(monitor_json);
     cJSON_free(ret_code_obj);
-    return ret_code;*/
+    return ret_code;
 }
 
 
@@ -626,10 +636,6 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
             ret_code = 2;
             goto deallocate_memory;
         }
-
-        //TODO em principio é para tirar
-        /*ticExercise->number_of_exercise_tests = cJSON_GetArraySize(tests_obj);
-        ticExercise->exerciseTest = malloc(sizeof(ExerciseTest) * ticExercise->number_of_exercise_tests);*/
 
         cJSON *test;
         size_t i = 0;
