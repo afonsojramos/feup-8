@@ -27,4 +27,4 @@ Route::post('logout', 'API\UserController@logout');
 Route::get('exercises/all', 'API\ExerciseController@getAllExercises');
 Route::get('exercises/{exercise_id}', 'API\ExerciseController@getExerciseDetails');
 Route::post('exercises/{exercise_id}/save', 'API\ExerciseController@saveExerciseProgress');
-Route::post('exercises/{exercise_id}/test', 'API\ExerciseController@testStudentCodeForExercise');
+Route::get('exercises/{exercise_id}/test', 'API\ExerciseController@testStudentCodeForExercise');
