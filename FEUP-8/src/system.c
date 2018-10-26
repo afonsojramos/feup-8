@@ -5,6 +5,7 @@
 #include "base64_enc_dec.h"
 #include "web_comunication_api.h"
 #include "unit_tests.h"
+#include "ticapi.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -1548,6 +1549,45 @@ static void emsStart(s32 argc, char **argv, const char* folder)
 
 s32 main(s32 argc, char **argv)
 {
+	//login request
+	//printf("loginRequest - %d\n", loginRequest("stuff", "stuff"));
+
+
+	//getExercisesListRequest
+	/*
+	ExerciseSimplified *exercises_list;
+	unsigned int number_of_ex;
+	printf("getExercisesListRequest - %d\n", getExercisesListRequest(&exercises_list, &number_of_ex));
+	unsigned int i = 0;
+	printf("number of ex: %d\n", number_of_ex);
+	for (i = 0; i < number_of_ex; i++)
+	{
+		printf("exercises_list[%d].id = %d\n", i, exercises_list[i].id);
+		printf("exercises_list[%d].title = %s\n", i, exercises_list[i].title);
+		printf("exercises_list[%d].progress = %d\n", i, exercises_list[i].progress);
+		
+	}
+	*/
+
+
+	//getExerciseDetailsRequest
+
+	tic_exercise exercises_list;
+	printf("getExerciseDetailsRequest - %d\n", getExerciseDetailsRequest(1, &exercises_list));
+	printf("stufff\n");
+		printf("dfgdfgdfg\n");
+
+		printf("title = %s\n", exercises_list.title);
+		printf("creator_name = %s\n", exercises_list.creator_name);
+		printf("img_base64 = %s\n", exercises_list.img_base64);
+		printf("description = %s\n", exercises_list.description);
+		printf("title = %s\n", exercises_list.title);
+		printf("test id = %d\n", exercises_list.exerciseTest->id);
+		printf("test title = %s\n", exercises_list.exerciseTest->title);
+		printf("test hint = %s\n", exercises_list.exerciseTest->hint);
+		printf("test testcode = %s\n", exercises_list.exerciseTest->test_code);
+		printf("test passed = %d\n", exercises_list.exerciseTest->passed);
+
 
 	const char* folder = getAppFolder();
 

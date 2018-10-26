@@ -339,7 +339,7 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
     char *request_address = malloc(sizeof(char) * (strlen(GET_EXERCISE_DETAILS_PATH) + 1 + (log10(exercise_id) + 1)));
     sprintf(request_address, "%s/%d", GET_EXERCISE_DETAILS_PATH, exercise_id);
     Buffer response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
-    
+    free(request_address);
     printf("response data: %s\n", response.data);
     if(response.data == NULL)
         return 3;
@@ -352,6 +352,7 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
             fprintf(stderr, "Error before: %s\n", error_ptr);
         }
         free(response.data);
+        free(error_ptr);
         cJSON_free(monitor_json);
         return 2;
     }
@@ -368,8 +369,6 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
           
         
         cJSON *exercise_element;
-        size_t i = 0;
-
         cJSON_ArrayForEach(exercise_element, exercise_obj)
         {
             cJSON *title_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "title");
@@ -406,8 +405,7 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
             cJSON_free(description_obj);
             cJSON_free(img_base64_obj);
             cJSON_free(progress_obj);
-
-            i++;
+            cJSON_free(exercise_obj);     
         }
 
     }
@@ -490,7 +488,6 @@ int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercis
             goto deallocate_parseExerciseTestsReceived;
         }
         (*exerciseTestArray)[i].test_code = code_decoded;
-        cJSON_free(test_code_obj);
 
 deallocate_parseExerciseTestsReceived:
         cJSON_free(id_obj);
