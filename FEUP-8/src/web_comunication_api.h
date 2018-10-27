@@ -17,6 +17,13 @@
 #define EXECUTE_TEST_PATH "/api/exercises"
 #define CONNECTION_TIMEOUT_MS 5000
 
+//Return codes
+#define SUCCESS 0
+#define WRONG_CREDENTIALS 1
+#define FORBIDDEN 1
+#define SERVER_ERROR 2
+#define CANT_CONNECT_TO_SERVER 3
+
 typedef struct 
 {
 	int id;
