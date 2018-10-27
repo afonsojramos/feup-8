@@ -629,7 +629,7 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
     ret_code = ret_code_obj->valueint;
     if(ret_code == 0)
     {
-        cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "tests");
+        cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "tests_results");
         if(tests_obj == NULL)
         {
             cJSON_free(tests_obj);
