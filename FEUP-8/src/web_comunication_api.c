@@ -641,6 +641,8 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
         cJSON_ArrayForEach(test, tests_obj)
         {
             cJSON *id_obj = cJSON_GetObjectItemCaseSensitive(test, "id");
+            cJSON *result_obj = cJSON_GetObjectItemCaseSensitive(test, "result");
+
             if(id_obj == NULL || id_obj->valuestring == NULL)
                 return 2;
             int id = atoi(id_obj->valuestring);
@@ -653,7 +655,6 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
                 goto deallocate_memory;
             }
 
-            cJSON *result_obj = cJSON_GetObjectItemCaseSensitive(test, "result");
             if(result_obj == NULL || result_obj->valuestring == NULL)
             {
                 cJSON_free(result_obj);
@@ -670,7 +671,6 @@ printDebugMsg();
                 if(exerciseTestArray[i].id == id)
                     exerciseTestArray[i].passed = passed;
             }
-            ticExercise->creator_name = getStringCopy(result_obj->valuestring);
             cJSON_free(result_obj);
 printDebugMsg();;
         }
