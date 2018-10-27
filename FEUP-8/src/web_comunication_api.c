@@ -72,7 +72,7 @@ int loginRequest(const char *username, const char *password)
     sprintf(dataToSend.data, "username=%s&password=%s", username, password);
     Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGIN_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
     if(response.data == NULL)
-        return 3;
+        return CANT_CONNECT_TO_SERVER;
     
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
@@ -85,21 +85,21 @@ int loginRequest(const char *username, const char *password)
         free(dataToSend.data);
         free(response.data);
         cJSON_free(monitor_json);
-        return 2;
+        return SERVER_ERROR;
     }
 
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
     if(ret_code_obj == NULL)
-        return 2;
+        return SERVER_ERROR;
     int ret_code = ret_code_obj->valueint;
-    if (ret_code == 0)
+    if (ret_code == SUCCESS)
     {
         cJSON *auth_token_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "auth_token");
         if(auth_token_obj == NULL)
-            return 2;
+            return SERVER_ERROR;
         char *auth_token_str = auth_token_obj->valuestring;
         if(auth_token_str == NULL)
-            return 2;
+            return SERVER_ERROR;
         auth_token = getStringCopy(auth_token_str);
         cJSON_free(auth_token_obj);
     }
@@ -128,6 +128,7 @@ int loginRequest(const char *username, const char *password)
 */
 int registerRequest(const char *name, const char *email, const char *username, const char *password)
 {
+    //TODO support para receber auth_token aquando de register
     Buffer dataToSend;
     int FIXED_REGISTER_MESSAGE_SIZE = 32;
     dataToSend.size = strlen(name) + strlen(email) + strlen(username) + strlen(password) + FIXED_REGISTER_MESSAGE_SIZE;
@@ -137,7 +138,7 @@ int registerRequest(const char *name, const char *email, const char *username, c
     Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, REGISTER_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
 
     if(response.data == NULL)
-        return 3;
+        return CANT_CONNECT_TO_SERVER;
         
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
@@ -150,20 +151,21 @@ int registerRequest(const char *name, const char *email, const char *username, c
         free(dataToSend.data);
         free(response.data);
         cJSON_free(monitor_json);
-        return 2;
+        return SERVER_ERROR;
     }
 
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
     if(ret_code_obj == NULL)
-        return 2;
+        return SERVER_ERROR;
     int ret_code = ret_code_obj->valueint;
-    if (ret_code == 0)
+    if (ret_code == SUCCESS)
     {
         cJSON *auth_token_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "auth_token");
         if(auth_token_obj == NULL)
-            return 2;
+            return SERVER_ERROR;
         char *auth_token_str = auth_token_obj->valuestring;
         auth_token = getStringCopy(auth_token_str);
+        printf("auth_token: %s\n", auth_token);
         cJSON_free(auth_token_obj);
     }
 
@@ -172,6 +174,7 @@ int registerRequest(const char *name, const char *email, const char *username, c
     cJSON_free(monitor_json);
     cJSON_free(ret_code_obj);
 
+        printf("auth_token: %s\n", auth_token);
     return ret_code; //can display a message saying what hapenned and return acordingly
 }
 
@@ -187,11 +190,11 @@ int registerRequest(const char *name, const char *email, const char *username, c
 int logoutRequest()
 {
     if(auth_token == NULL)
-        return 1;
+        return FORBIDDEN;
     char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
     Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGOUT_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     if(response.data == NULL)
-        return 3;
+        return CANT_CONNECT_TO_SERVER;
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
     {
@@ -202,11 +205,11 @@ int logoutRequest()
         }
         free(response.data);
         cJSON_free(monitor_json);
-        return 2;
+        return SERVER_ERROR;
     }
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
     if(ret_code_obj == NULL)
-        return 2;
+        return SERVER_ERROR;
     int ret_code = ret_code_obj->valueint;
     free(response.data);
     cJSON_free(monitor_json);
@@ -235,7 +238,7 @@ int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number
 
     Buffer response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, GET_EXERCISES_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     if(response.data == NULL)
-        return 3;
+        return CANT_CONNECT_TO_SERVER;
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
     {
@@ -246,17 +249,17 @@ int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number
         }
         free(response.data);
         cJSON_free(monitor_json);
-        return 2;
+        return SERVER_ERROR;
     }
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
     if(ret_code_obj == NULL)
-        return 2;
+        return SERVER_ERROR;
     int ret_code = ret_code_obj->valueint;
-    if (ret_code == 0)
+    if (ret_code == SUCCESS)
     {
         cJSON *exercises = cJSON_GetObjectItemCaseSensitive(monitor_json, "exercises");
         if(exercises == NULL)
-            return 2;
+            return SERVER_ERROR;
         cJSON *exercise;
         *number_of_exercises = cJSON_GetArraySize(exercises);
         *exercises_list = malloc(sizeof(ExerciseSimplified) *  (*number_of_exercises));
@@ -266,10 +269,10 @@ int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number
         {
             cJSON *id_obj = cJSON_GetObjectItemCaseSensitive(exercise, "id");
             if(id_obj == NULL)
-                return 2;
+                return SERVER_ERROR;
             cJSON *title_obj = cJSON_GetObjectItemCaseSensitive(exercise, "title");
             if(title_obj == NULL)
-                return 2;
+                return SERVER_ERROR;
             cJSON *progress_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "progress"); //progress can be NULL in case user not logged in
             if (!cJSON_IsString(id_obj))            
             {
@@ -282,7 +285,7 @@ int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number
                 cJSON_free(id_obj);
                 cJSON_free(title_obj);
                 cJSON_free(progress_obj);
-                return 2;
+                return SERVER_ERROR;
             }
             int id = atoi(id_obj->valuestring);
             if (id == 0)
@@ -295,7 +298,7 @@ int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number
                 cJSON_free(exercise);
                 cJSON_free(id_obj);
                 cJSON_free(title_obj);
-                return 2;
+                return SERVER_ERROR;
             }
             char *title_str = title_obj->valuestring;
             (*exercises_list)[i].id = id;
@@ -348,7 +351,7 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
     Buffer response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     free(request_address);
     if(response.data == NULL)
-        return 3;
+        return CANT_CONNECT_TO_SERVER;
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
     {
@@ -360,18 +363,18 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
         free(response.data);
         free(error_ptr);
         cJSON_free(monitor_json);
-        return 2;
+        return SERVER_ERROR;
     }
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
     if(ret_code_obj == NULL)
-        return 2;
+        return SERVER_ERROR;
     int ret_code = ret_code_obj->valueint;
-    if (ret_code == 0)
+    if (ret_code == SUCCESS)
     {
         exercise->id = exercise_id;
         cJSON *exercise_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "exercise");
         if(exercise_obj == NULL)
-            return 2;
+            return SERVER_ERROR;
           
         
         cJSON *exercise_element;
@@ -379,22 +382,22 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
         {
             cJSON *title_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "title");
             if(title_obj == NULL || title_obj->valuestring == NULL)
-                return 2;
+                return SERVER_ERROR;
             exercise->title = getStringCopy(title_obj->valuestring);
 
             cJSON *creator_name_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "creator_name");
             if(creator_name_obj == NULL)
-                return 2;
+                return SERVER_ERROR;
             exercise->creator_name = getStringCopy(creator_name_obj->valuestring);
 
             cJSON *description_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "description");
             if(description_obj == NULL)
-                return 2;
+                return SERVER_ERROR;
             exercise->description = getStringCopy(description_obj->valuestring);
 
             cJSON *img_base64_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "image_base64");
             if(img_base64_obj == NULL)
-                return 2;
+                return SERVER_ERROR;
             exercise->img_base64 = getStringCopy(img_base64_obj->valuestring);
 
             cJSON *progress_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "progress");
@@ -404,7 +407,7 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
                 exercise->progress = atoi(progress_obj->valuestring);
 
             if(parseExerciseTestsReceived(monitor_json, exercise) == 2)
-                return 2;
+                return SERVER_ERROR;
         
             cJSON_free(title_obj);
             cJSON_free(creator_name_obj);
@@ -433,13 +436,14 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
 */
 int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercise)
 {
-    int ret_code = 0;
+    //TODO: alterar para nova forma como vêm os testes segundo api
+    int ret_code = SUCCESS;
     ExerciseTest **exerciseTestArray = &(ticExercise->exerciseTest);
     cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "tests");
     if(tests_obj == NULL)
     {
         cJSON_free(tests_obj);
-        return 2;
+        return SERVER_ERROR;
     }
     ticExercise->number_of_exercise_tests = cJSON_GetArraySize(tests_obj);
     *exerciseTestArray = malloc(sizeof(ExerciseTest) * ticExercise->number_of_exercise_tests);
@@ -455,34 +459,34 @@ int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercis
 
         if(id_obj == NULL || id_obj->valuestring == NULL)
         {
-            ret_code = 2;
+            ret_code = SERVER_ERROR;
             goto deallocate_parseExerciseTestsReceived;
         }
         int id = atoi(id_obj->valuestring);
         if(id == 0)
         {
-            ret_code = 2;
+            ret_code = SERVER_ERROR;
             goto deallocate_parseExerciseTestsReceived;
         }
         (*exerciseTestArray)[i].id = id;
         
         if(title_obj == NULL || title_obj->valuestring == NULL)
         {
-            ret_code = 2;
+            ret_code = SERVER_ERROR;
             goto deallocate_parseExerciseTestsReceived;
         }
         (*exerciseTestArray)[i].title = title_obj->valuestring;
         
         if(hint_obj == NULL|| hint_obj->valuestring == NULL)
         {
-            ret_code = 2;
+            ret_code = SERVER_ERROR;
             goto deallocate_parseExerciseTestsReceived;
         }
         (*exerciseTestArray)[i].hint = hint_obj->valuestring;
 
         if(test_code_obj == NULL|| test_code_obj->valuestring == NULL)
         {
-            ret_code = 2;
+            ret_code = SERVER_ERROR;
             goto deallocate_parseExerciseTestsReceived;
         }
         size_t code_decoded_size = b64_decoded_size(test_code_obj->valuestring);
@@ -490,7 +494,7 @@ int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercis
 	    if (b64_decode(test_code_obj->valuestring, code_decoded, code_decoded_size) != 1)
 		{
             free(code_decoded);
-            ret_code = 2;
+            ret_code = SERVER_ERROR;
             goto deallocate_parseExerciseTestsReceived;
         }
         (*exerciseTestArray)[i].test_code = code_decoded;
@@ -501,7 +505,7 @@ deallocate_parseExerciseTestsReceived:
         cJSON_free(hint_obj);
         cJSON_free(test_code_obj);
 
-        if (ret_code == 2)
+        if (ret_code == SERVER_ERROR)
             goto deallocate_parseExerciseTestsReceivedAndReturn;
         i++;
     }
@@ -527,7 +531,7 @@ deallocate_parseExerciseTestsReceivedAndReturn:
 int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id)
 {
     if(auth_token == NULL)
-        return 1;
+        return FORBIDDEN;
     char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
         
     Buffer dataToSend;
@@ -543,7 +547,7 @@ int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id)
 
     Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     if(response.data == NULL)
-        return 3;
+        return CANT_CONNECT_TO_SERVER;
     
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
@@ -556,12 +560,12 @@ int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id)
         free(dataToSend.data);
         free(response.data);
         cJSON_free(monitor_json);
-        return 2;
+        return SERVER_ERROR;
     }
 
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
     if(ret_code_obj == NULL)
-        return 2;
+        return SERVER_ERROR;
     int ret_code = ret_code_obj->valueint;
     free(dataToSend.data);
     free(response.data);
@@ -589,21 +593,21 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
 
     int ret_code;
     Buffer dataToSend;
-    int FIXED_EXECUTE_TEST_MESSAGE_SIZE = 5;
+    int FIXED_EXECUTE_TEST_MESSAGE_SIZE = 6;
     dataToSend.size = strlen(code) + FIXED_EXECUTE_TEST_MESSAGE_SIZE;
-    dataToSend.data = malloc(sizeof(u8) * (dataToSend.size + 1));
+    dataToSend.data = malloc(sizeof(u8) * dataToSend.size);
     sprintf(dataToSend.data, "code=%s", code);
     char *request_address = malloc(sizeof(char) * (strlen(EXECUTE_TEST_PATH) + 1 + (log10(exerciseId) + 1) + 1 + 4));
     sprintf(request_address, "%s/%d/test", EXECUTE_TEST_PATH, exerciseId);
 
-    Buffer response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     if(response.data == NULL)
     {
         free(dataToSend.data);
         free(response.data);
-        return 3;
+        return CANT_CONNECT_TO_SERVER;
     }
-    printf("\n\nresponse.data: %s\n\n", response.data);
+    
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
     {
@@ -615,53 +619,53 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
         free(dataToSend.data);
         free(response.data);
         cJSON_free(monitor_json);
-        return 2;
+        return SERVER_ERROR;
     }
 
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
     if(ret_code_obj == NULL)
     {
-        ret_code = 2;
+        ret_code = SERVER_ERROR;
         goto deallocate_memory;
     }
     ret_code = ret_code_obj->valueint;
-    if(ret_code == 0)
+    if(ret_code == SUCCESS)
     {
-        cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "tests_results");
+        cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "tests");
         if(tests_obj == NULL)
         {
             cJSON_free(tests_obj);
-            ret_code = 2;
+            ret_code = SERVER_ERROR;
             goto deallocate_memory;
         }
 
         cJSON *test;
+        size_t i = 0;
         cJSON_ArrayForEach(test, tests_obj)
         {
             cJSON *id_obj = cJSON_GetObjectItemCaseSensitive(test, "id");
-            cJSON *result_obj = cJSON_GetObjectItemCaseSensitive(test, "result");
-
             if(id_obj == NULL || id_obj->valuestring == NULL)
-                return 2;
+                return SERVER_ERROR;
             int id = atoi(id_obj->valuestring);
             cJSON_free(id_obj);
             if(id == 0)
             {
                 cJSON_free(tests_obj);
                 cJSON_free(test);
-                ret_code = 2;
+                ret_code = SERVER_ERROR;
                 goto deallocate_memory;
             }
 
-            if(result_obj == NULL || result_obj->valuestring == NULL)
+            cJSON *result_obj = cJSON_GetObjectItemCaseSensitive(test, "result");
+            if(result_obj == NULL|| result_obj->valuestring == NULL)
             {
                 cJSON_free(result_obj);
                 cJSON_free(tests_obj);
                 cJSON_free(test);
-                ret_code = 2;
+                ret_code = SERVER_ERROR;
                 goto deallocate_memory;
             }
-printDebugMsg();
+
             bool passed = strcmp(result_obj->valuestring, "OK") == 0 ? true : false;
             ExerciseTest *exerciseTestArray = ticExercise->exerciseTest;
             for(size_t i = 0; i < ticExercise->number_of_exercise_tests; i++)
@@ -669,8 +673,10 @@ printDebugMsg();
                 if(exerciseTestArray[i].id == id)
                     exerciseTestArray[i].passed = passed;
             }
+            ticExercise->creator_name = getStringCopy(result_obj->valuestring);
             cJSON_free(result_obj);
-printDebugMsg();;
+
+            i++;
         }
 
         cJSON_free(tests_obj);
