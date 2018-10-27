@@ -1551,12 +1551,16 @@ s32 main(s32 argc, char **argv)
 {
 	//login request
 	//printf("registerRequest - %d\n", registerRequest("stuff", "stuff@email.com", "stuff", "stuff"));
-	printf("loginRequest - %d\n", loginRequest("stuff1", "stuff1"));
-	printf("loginRequest - %d\n", loginRequest("stuff2", "stuff"));
+	
+	//printf("loginRequest - %d\n", loginRequest("stuff1", "stuff1"));
+	printf("loginRequest - %d\n", loginRequest("stuff", "stuff"));
+	//printf("logoutRequest - %d\n", logoutRequest());
+	//printf("loginRequest - %d\n", loginRequest("stuff", "stuff"));
+	//printf("registerRequest - %d\n", registerRequest("stuff", "stuvdccdfsbff@gmail.com", "stuscdffasdd", "stuff"));
 
 
 	//getExercisesListRequest
-	
+	/*
 	ExerciseSimplified *exercises_list;
 	unsigned int number_of_ex;
 	printf("getExercisesListRequest - %d\n", getExercisesListRequest(&exercises_list, &number_of_ex));
@@ -1569,7 +1573,7 @@ s32 main(s32 argc, char **argv)
 		printf("exercises_list[%d].progress = %d\n", i, exercises_list[i].progress);
 		
 	}
-	
+	*/
 
 
 	//getExerciseDetailsRequest
@@ -1590,6 +1594,20 @@ s32 main(s32 argc, char **argv)
 		printf("test testcode = %s\n", exercises_list.exerciseTest->test_code);
 		//printf("test passed = %d\n", exercises_list.exerciseTest->passed);
 	*/
+
+	//save progress
+	Buffer exercise_data;
+	{
+		exercise_data.data = "asdoiasdºasdjsan aso a asjo aioiom amioa siom asmiaos ";
+		exercise_data.size = 54;
+	}
+	char *code = "if(stuff) then asdasdas;";
+	int exercise_id = 2;
+	printf("saveProgressRequest - %d\n", saveProgressRequest(exercise_data, code, exercise_id));
+
+
+
+
 
 	const char* folder = getAppFolder();
 
