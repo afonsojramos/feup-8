@@ -13,9 +13,6 @@ use Illuminate\Http\Request;
 |
 */
 
-//TODO remove---isto vem originalmente no laravel
-/*Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();*/
 
 //User management
 Route::post('login', 'API\UserController@login');
