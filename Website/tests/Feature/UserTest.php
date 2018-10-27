@@ -36,7 +36,7 @@ class UserTests extends TestCase
     /**
      * Tests if a register without password is rejected.
      */
-    public function testRegisterWithoutName()
+    public function testRegisterWithoutPassword()
     {
         $response = $this->call('POST', '/api/register', ['username' => 'user1', 'name' => 'name', 
             'email' => 'email']);
@@ -49,7 +49,7 @@ class UserTests extends TestCase
     /**
      * Tests if a register without username is rejected.
      */
-    public function testRegisterWithoutName()
+    public function testRegisterWithoutUserName()
     {
         $response = $this->call('POST', '/api/register', ['password' => 'password', 'name' => 'name', 
             'email' => 'email']);
