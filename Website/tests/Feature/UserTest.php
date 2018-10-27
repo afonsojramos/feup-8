@@ -70,7 +70,7 @@ class UserTests extends TestCase
     }
 
     /**
-     * Tests if a repeated register is rejected. The username or email are already in the db.
+     * Tests if a repeated register is rejected. (It should fail because the username or email are already in the db).
      */
     public function testRegisterRepeated()
     {
