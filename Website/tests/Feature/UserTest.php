@@ -14,7 +14,7 @@ class UserTests extends TestCase
     {
         $input = ['username' => 'user1', 'password' => 'password', 
         'name' => 'name'];
-        testRegister($input, 1, false, 1);
+        $this->genericTestRegister($input, 1, false, 1);
     }
 
     /**
@@ -24,7 +24,7 @@ class UserTests extends TestCase
     {
         $input = ['username' => 'user1', 'password' => 'password', 
         'email' => 'email'];
-        testRegister($input, 1, false, 1);
+        $this->genericTestRegister($input, 1, false, 1);
     }
 
     /**
@@ -34,7 +34,7 @@ class UserTests extends TestCase
     {
         $input = ['username' => 'user1', 'name' => 'name', 
         'email' => 'email'];
-        testRegister($input, 1, false, 1);
+        $this->genericTestRegister($input, 1, false, 1);
     }   
     
     /**
@@ -44,7 +44,7 @@ class UserTests extends TestCase
     {
         $input = ['password' => 'password', 'name' => 'name', 
         'email' => 'email'];
-        testRegister($input, 1, false, 1);
+        $this->genericTestRegister($input, 1, false, 1);
     }     
 
     /**
@@ -54,7 +54,7 @@ class UserTests extends TestCase
     {
         $input = ['username' => 'user1', 'password' => 'password', 
         'name' => 'name', 'email' => 'email'];
-        testRegister($input, 0, true, 2);
+        $this->genericTestRegister($input, 0, true, 2);
     }
 
     /**
@@ -62,7 +62,7 @@ class UserTests extends TestCase
      * It should be called with data that either causes success or not and the expected returns accordingly.
      * It is used to test success and failure avoiding code duplication.
      */
-    public function testRegister($input, $expected_response_code, $should_succeed, $numberOfElementsReceived)
+    public function genericTestRegister($input, $expected_response_code, $should_succeed, $numberOfElementsReceived)
     {
         $response = $this->call('POST', '/api/register', $input);
         $response->assertStatus(200);
@@ -104,7 +104,7 @@ class UserTests extends TestCase
     public function testLoginFailForWrongPassword()
     {
         $input = ['username' => 'user1', 'password' => 'passwordWrong'];
-        testLogin($input, 1, false, 1);
+        $this->genericTestLogin($input, 1, false, 1);
     }
 
     /**
@@ -113,7 +113,7 @@ class UserTests extends TestCase
     public function testLoginFailForInexistentUsername()
     {
         $input = ['username' => 'userNotExistent', 'password' => 'password'];
-        testLogin($input, 1, false, 1);
+        $this->genericTestLogin($input, 1, false, 1);
     }
 
     /**
@@ -122,7 +122,7 @@ class UserTests extends TestCase
     public function testLoginCorrectly()
     {
         $input = ['username' => 'user1', 'password' => '$2y$10$vOp6qnGv9Ae/0NdmD/D7fudXzoU6CltbYSSrIqK2/ARmTUBgzo2gK'];
-        testLogin($input, 0, true, 2);
+        $this->genericTestLogin($input, 0, true, 2);
     }
 
     /**
@@ -130,7 +130,7 @@ class UserTests extends TestCase
      * It should be called with data that either causes success or not and the expected returns accordingly.
      * It is used to test success and failure avoiding code duplication.
      * */
-    public function testLogin($input, $expected_response_code, $should_succeed, $numberOfElementsReceived)
+    public function genericTestLogin($input, $expected_response_code, $should_succeed, $numberOfElementsReceived)
     {
         $response = $this->call('POST', '/api/login', $input);
         $response->assertStatus(200);
