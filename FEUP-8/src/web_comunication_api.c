@@ -589,21 +589,21 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
 
     int ret_code;
     Buffer dataToSend;
-    int FIXED_EXECUTE_TEST_MESSAGE_SIZE = 6;
+    int FIXED_EXECUTE_TEST_MESSAGE_SIZE = 5;
     dataToSend.size = strlen(code) + FIXED_EXECUTE_TEST_MESSAGE_SIZE;
-    dataToSend.data = malloc(sizeof(u8) * dataToSend.size);
+    dataToSend.data = malloc(sizeof(u8) * (dataToSend.size + 1));
     sprintf(dataToSend.data, "code=%s", code);
     char *request_address = malloc(sizeof(char) * (strlen(EXECUTE_TEST_PATH) + 1 + (log10(exerciseId) + 1) + 1 + 4));
     sprintf(request_address, "%s/%d/test", EXECUTE_TEST_PATH, exerciseId);
 
-    Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    Buffer response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     if(response.data == NULL)
     {
         free(dataToSend.data);
         free(response.data);
         return 3;
     }
-    
+    printf("\n\nresponse.data: %s\n\n", response.data);
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
     {
@@ -636,7 +636,6 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
         }
 
         cJSON *test;
-        size_t i = 0;
         cJSON_ArrayForEach(test, tests_obj)
         {
             cJSON *id_obj = cJSON_GetObjectItemCaseSensitive(test, "id");
@@ -653,7 +652,7 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
             }
 
             cJSON *result_obj = cJSON_GetObjectItemCaseSensitive(test, "result");
-            if(result_obj == NULL|| result_obj->valuestring == NULL)
+            if(result_obj == NULL || result_obj->valuestring == NULL)
             {
                 cJSON_free(result_obj);
                 cJSON_free(tests_obj);
@@ -661,7 +660,7 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
                 ret_code = 2;
                 goto deallocate_memory;
             }
-
+printDebugMsg();
             bool passed = strcmp(result_obj->valuestring, "OK") == 0 ? true : false;
             ExerciseTest *exerciseTestArray = ticExercise->exerciseTest;
             for(size_t i = 0; i < ticExercise->number_of_exercise_tests; i++)
@@ -671,8 +670,7 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
             }
             ticExercise->creator_name = getStringCopy(result_obj->valuestring);
             cJSON_free(result_obj);
-
-            i++;
+printDebugMsg();;
         }
 
         cJSON_free(tests_obj);
