@@ -62,7 +62,7 @@ class UserTests extends TestCase
     /**
      * Tests if a successfull register can be done, all the necessary parameters are given, and for the first time(not repeated username or email).
      */
-    public function testRegister()
+    public function testRegisterCorrectly()
     {
         $response = $this->call('POST', '/api/register', ['username' => 'user1', 'password' => 'password', 
             'name' => 'name', 'email' => 'email']);
