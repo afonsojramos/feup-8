@@ -159,7 +159,6 @@ class ExerciseController extends Controller
         } 
         catch (\Exception $e) 
         {
-            return $e;
             return response()->json(['response_code'=>2], 200);
         }
 
@@ -194,44 +193,52 @@ class ExerciseController extends Controller
 
 
      /** 
-     * This function will save the exercise progress of a student.
+     * This function will test the code of a student using the tests of the respective exercise.
      * @param $request The received request with the exercise code.
      * @param $exercise_id The id of the exercise of which student code will be tested.
      * @return the response code 0 indicating sucess. Response code 1 indicating that must be logged in to save progress. Response code 2 for other errors.
     */ 
     public function testStudentCodeForExercise(Request $request, $exercise_id)
     { 
-        
-        $public_exercise = DB::table('exercise')
-        ->select('id')
-        ->where('exercise.id', '=', $exercise_id)
-        ->where('isPrivate', false);
-
-        $possible_exercise = $public_exercise;
-
-        if(Auth::guard('api')->check())
+        try
         {
-            $userID = Auth::guard('api')->user()->id;
-
-            $private_exercise = DB::table('exercise')
-            ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
+            $public_exercise = DB::table('exercise')
             ->select('id')
             ->where('exercise.id', '=', $exercise_id)
-            ->where('isPrivate', true)
-            ->where('ExerciseStudentPermissions.student_id', $userID);
+            ->where('isPrivate', false);
 
-            $possible_exercise = $possible_exercise->union($private_exercise);
-            
+            $possible_exercise = $public_exercise;
+
+            if(Auth::guard('api')->check())
+            {
+                $userID = Auth::guard('api')->user()->id;
+
+                $private_exercise = DB::table('exercise')
+                    ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
+                    ->select('id')
+                    ->where('exercise.id', '=', $exercise_id)
+                    ->where('isPrivate', true)
+                    ->where('ExerciseStudentPermissions.student_id', $userID);
+
+                $possible_exercise = $possible_exercise->union($private_exercise);
+                
+            }
+                
+            $tests_code_array = DB::table('test')
+                ->select('test.test_code')
+                ->whereIn('exercise_id', $possible_exercise)
+                ->get();
         }
-            
-        $tests_code_array = DB::table('test')
-            ->select('test.test_code')
-            ->whereIn('exercise_id', $possible_exercise)
-            ->get();
+        catch (\Exception $e) 
+        {
+            return response()->json(['response_code'=>2], 200);
+        }
+       
+        if(count($tests_code_array) == 0)
+            return response()->json(['response_code'=>1], 200);
 
-
-        return $tests_code_array;
-         //funcTiago($request['code'], $tests_code_array);
+        //TODO: $tests_results_array = funcTiago($request['code'], $tests_code_array);
+        //TODO: return response()->json(['response_code'=>0, 'tests_results'=>$tests_results_array], 200);
     }
 
 }
