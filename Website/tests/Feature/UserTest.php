@@ -109,7 +109,7 @@ class UserTests extends TestCase
     /**
      * Tests if a successfull login can be done, all the necessary parameters are given.
      */
-    public function testLogin()
+    public function testLoginCorrectly()
     {
         $response = $this->call('POST', '/api/login', ['username' => 'user1', 'password' => '$2y$10$vOp6qnGv9Ae/0NdmD/D7fudXzoU6CltbYSSrIqK2/ARmTUBgzo2gK']);
         $response->assertStatus(200);
