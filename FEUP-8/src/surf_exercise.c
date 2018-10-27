@@ -165,6 +165,14 @@ typedef struct
 	SurfExercises* surf;
 } AddMenuItem;
 
+
+/**
+* Resets background animation.
+* @param surf stuct with all the information in surf_exercise.
+* @param movie movie to reset.
+* @param password The password to login with.
+* @param done pointer to a function to check if the movie is done or not.
+*/
 static void resetMovie(SurfExercises* surf, Movie* movie, void (*done)(SurfExercises* surf))
 {
 	surf->state = movie;
@@ -180,6 +188,13 @@ static void resetMovie(SurfExercises* surf, Movie* movie, void (*done)(SurfExerc
 	movie->done = done;
 }
 
+
+/**
+* Draws the top bar in surf_exercise mode.
+* @param surf stuct with all the information in surf_exercise.
+* @param x x value to start drawing the toolbar in the screen.
+* @param y y value to start drawing the toolbar in the screen.
+*/
 static void drawTopToolbar(SurfExercises* surf, s32 x, s32 y)
 {
 	tic_mem* tic = surf->tic;
@@ -211,6 +226,12 @@ static void drawTopToolbar(SurfExercises* surf, s32 x, s32 y)
 
 }
 
+/**
+* Draws the bottom bar in surf_exercise mode.
+* @param surf stuct with all the information in surf_exercise.
+* @param x x value to start drawing the toolbar in the screen.
+* @param y y value to start drawing the toolbar in the screen.
+*/
 static void drawBottomToolbar(SurfExercises* surf, s32 x, s32 y)
 {
 	tic_mem* tic = surf->tic;
@@ -242,8 +263,14 @@ static void drawBottomToolbar(SurfExercises* surf, s32 x, s32 y)
 
 }
 
-
-
+/**
+* Draws a rect from x,y with width w and height h
+* @param tic stuct with all the information about tic.
+* @param x initial x value to start drawing.
+* @param y initial y value to start drawing.
+* @param w with of the rect to draw.
+* @param h height of the rect to draw.
+*/
 static void drawInverseRect(tic_mem* tic, s32 x, s32 y, s32 w, s32 h)
 {
 	if(x < 0)
@@ -278,6 +305,14 @@ static void drawInverseRect(tic_mem* tic, s32 x, s32 y, s32 w, s32 h)
 	}
 }
 
+
+/**
+* Draws the bottom bar in surf_exercise mode.
+* @param surf stuct with all the information in surf_exercise.
+* @param x x value to start drawing the menu in the screen.
+* @param y y value to start drawing the menu in the screen.
+* @param bg defines if menu has background or not.
+*/
 static void drawMenu(SurfExercises* surf, s32 x, s32 y, bool bg)
 {
 	tic_mem* tic = surf->tic;
@@ -314,6 +349,10 @@ static void drawMenu(SurfExercises* surf, s32 x, s32 y, bool bg)
 	}
 }
 
+/**
+* Draws the menu background.
+* @param surf stuct with all the information in surf_exercise.
+*/
 static void drawBG(SurfExercises* surf)
 {
 	tic_mem* tic = surf->tic;
@@ -329,38 +368,31 @@ static void drawBG(SurfExercises* surf)
 				tic->api.sprite_ex(tic, &getConfig()->cart->bank0.tiles, 34, i*Size - offset, j*Size - offset, 2, 2, 0, 0, 1, tic_no_flip, tic_no_rotate);
 }
 
-static void replace(char* src, const char* what, const char* with)
-{
-	while(true)
-	{
-		char* pos = strstr(src, what);
-
-		if(pos)
-		{
-			strcpy(pos, pos + strlen(what) - strlen(with));
-			memcpy(pos, with, strlen(with));
-		}
-		else break;
-	}
-}
 
 static bool hasExt(const char* name, const char* ext)
 {
 	return strcmp(name + strlen(name) - strlen(ext), ext) == 0;
 }
 
-static void cutExt(char* name, const char* ext)
-{
-	name[strlen(name)-strlen(ext)] = '\0';
-}
 
+
+/**
+* Gets all the exercises from the web server.
+*/
 static void getAllExercises(){
   ExerciseSimplified *exercises;
   size_t number_of_exercises;
   getExercisesListRequest(&exercises, &number_of_exercises);
 }
 
-static bool addMenuItem(const char* name, const char* info, int id, int percentage,  void* ptr, bool dir)
+/**
+* Add an exercise to menu list.
+* @param name exercise name.
+* @param id eercise id.
+* @param ptr pointer to the struct AddMenuItem that contains the info to a new info
+* @param dir if the exercise is a directory or not.
+*/
+static bool addMenuItem(const char* name, int id, int percentage,  void* ptr, bool dir)
 {
 	AddMenuItem* data = (AddMenuItem*)ptr;
 
@@ -386,6 +418,10 @@ static bool addMenuItem(const char* name, const char* info, int id, int percenta
 	return data->count < MAX_CARTS;
 }
 
+/**
+* Resets menu.
+* @param surf stuct with all the information in surf_exercise.
+*/
 static void resetMenu(SurfExercises* surf)
 {
 	if(surf->menu.items)
@@ -448,9 +484,9 @@ static void initMenu(SurfExercises* surf)
 	char dir[FILENAME_MAX];
 	fsGetDir(surf->fs, dir);
 
-	addMenuItem("hello", NULL, 1, 10, &data, true);
-	addMenuItem("bye", NULL, 2, 25, &data, true);
-	addMenuItem("adios", NULL, 3, 100, &data, true);
+	addMenuItem("hello", 1, 10, &data, true);
+	addMenuItem("bye", 2, 25, &data, true);
+	addMenuItem("adios", 3, 100, &data, true);
 	surf->menu.items = data.items;
 	surf->menu.count = data.count;
 }
