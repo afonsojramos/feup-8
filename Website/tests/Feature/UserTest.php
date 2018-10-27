@@ -57,8 +57,10 @@ class UserTests extends TestCase
         testRegister($input, 0, true);
     }
 
-        /**
-     * Tests if a successfull register can be done, all the necessary parameters are given, and for the first time(not repeated username or email).
+    /**
+     * Generic method used for testing register feature.
+     * It should be called with data that either causes success or not and the expected returns accordingly.
+     * It is used to test success and failure avoiding code duplication.
      */
     public function testRegister($input, $expected_response_code, $should_succeed)
     {
@@ -109,7 +111,11 @@ class UserTests extends TestCase
         testLogin($input, 0, true);
     }
 
-    
+    /**
+     * Generic method used for testing login feature.
+     * It should be called with data that either causes success or not and the expected returns accordingly.
+     * It is used to test success and failure avoiding code duplication.
+     * */
     public function testLogin($input, $expected_response_code, $should_succeed)
     {
         $response = $this->call('POST', '/api/login', $input);
