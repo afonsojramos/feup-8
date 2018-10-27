@@ -143,8 +143,10 @@ class UserTests extends TestCase
      */
     public function testLoginCorrectly()
     {
-        $response = $this->call('POST', '/api/register', ['username' => 'user_already_in_db', 
-            'password' => 'password_already_in_db', 'name' => 'name', 'email' => 'email_already_in_db']);
+        //register user for posterior login
+        $this->call('POST', '/api/register', ['username' => 'user_already_in_db', 'password' => 'password_already_in_db', 
+            'name' => 'name', 'email' => 'email_already_in_db']);
+
         $input = ['username' => 'user_already_in_db', 'password' => 'password_already_in_db'];
         $this->genericTestLogin($input, 0, true, 2);
     }
