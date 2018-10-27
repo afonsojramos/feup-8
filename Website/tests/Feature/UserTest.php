@@ -87,11 +87,8 @@ class UserTests extends TestCase
      */
     public function testLoginFailForWrongPassword()
     {
-        $response = $this->call('POST', '/api/login', ['username' => 'user1', 'password' => 'passwordWrong']);
-        $response->assertStatus(200);
-        $response_array = $response->decodeResponseJson();
-        $this->assertEquals($response_array['response_code'], 1);
-        $this->assertFalse(array_key_exists('auth_token', $response_array));
+        $input = ['username' => 'user1', 'password' => 'passwordWrong'];
+        testLogin($input, 1, false);
     }
 
     /**
@@ -99,11 +96,8 @@ class UserTests extends TestCase
      */
     public function testLoginFailForInexistentUsername()
     {
-        $response = $this->call('POST', '/api/login', ['username' => 'userNotExistent', 'password' => 'password']);
-        $response->assertStatus(200);
-        $response_array = $response->decodeResponseJson();
-        $this->assertEquals($response_array['response_code'], 1);
-        $this->assertFalse(array_key_exists('auth_token', $response_array));
+        $input = ['username' => 'userNotExistent', 'password' => 'password'];
+        testLogin($input, 1, false);
     }
 
     /**
@@ -111,10 +105,17 @@ class UserTests extends TestCase
      */
     public function testLoginCorrectly()
     {
-        $response = $this->call('POST', '/api/login', ['username' => 'user1', 'password' => '$2y$10$vOp6qnGv9Ae/0NdmD/D7fudXzoU6CltbYSSrIqK2/ARmTUBgzo2gK']);
+        $input = ['username' => 'user1', 'password' => '$2y$10$vOp6qnGv9Ae/0NdmD/D7fudXzoU6CltbYSSrIqK2/ARmTUBgzo2gK'];
+        testLogin($input, 0, true);
+    }
+
+    
+    public function testLogin($input, $expected_response_code, $should_succeed)
+    {
+        $response = $this->call('POST', '/api/login', $input);
         $response->assertStatus(200);
         $response_array = $response->decodeResponseJson();
-        $this->assertEquals($response_array['response_code'], 0);
-        $this->assertTrue(array_key_exists('auth_token', $response_array));
+        $this->assertEquals($response_array['response_code'], $expected_response_code);
+        $this->assertEquals(array_key_exists('auth_token', $response_array), $should_succeed);
     }
 }
