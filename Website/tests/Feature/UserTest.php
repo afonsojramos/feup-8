@@ -12,12 +12,9 @@ class UserTests extends TestCase
      */
     public function testRegisterWithoutEmail()
     {
-        $response = $this->call('POST', '/api/register', ['username' => 'user1', 'password' => 'password', 
-            'name' => 'name']);
-        $response->assertStatus(200);
-        $response_array = $response->decodeResponseJson();
-        $this->assertEquals($response_array['response_code'], 1);
-        $this->assertFalse(array_key_exists('auth_token', $response_array));
+        $input = ['username' => 'user1', 'password' => 'password', 
+        'name' => 'name'];
+        testRegister($input, 1, false);
     }
 
     /**
@@ -25,12 +22,9 @@ class UserTests extends TestCase
      */
     public function testRegisterWithoutName()
     {
-        $response = $this->call('POST', '/api/register', ['username' => 'user1', 'password' => 'password', 
-            'email' => 'email']);
-        $response->assertStatus(200);
-        $response_array = $response->decodeResponseJson();
-        $this->assertEquals($response_array['response_code'], 1);
-        $this->assertFalse(array_key_exists('auth_token', $response_array));
+        $input = ['username' => 'user1', 'password' => 'password', 
+        'email' => 'email'];
+        testRegister($input, 1, false);
     }
 
     /**
@@ -38,12 +32,9 @@ class UserTests extends TestCase
      */
     public function testRegisterWithoutPassword()
     {
-        $response = $this->call('POST', '/api/register', ['username' => 'user1', 'name' => 'name', 
-            'email' => 'email']);
-        $response->assertStatus(200);
-        $response_array = $response->decodeResponseJson();
-        $this->assertEquals($response_array['response_code'], 1);
-        $this->assertFalse(array_key_exists('auth_token', $response_array));
+        $input = ['username' => 'user1', 'name' => 'name', 
+        'email' => 'email'];
+        testRegister($input, 1, false);
     }   
     
     /**
@@ -51,12 +42,9 @@ class UserTests extends TestCase
      */
     public function testRegisterWithoutUserName()
     {
-        $response = $this->call('POST', '/api/register', ['password' => 'password', 'name' => 'name', 
-            'email' => 'email']);
-        $response->assertStatus(200);
-        $response_array = $response->decodeResponseJson();
-        $this->assertEquals($response_array['response_code'], 1);
-        $this->assertFalse(array_key_exists('auth_token', $response_array));
+        $input = ['password' => 'password', 'name' => 'name', 
+        'email' => 'email'];
+        testRegister($input, 1, false);
     }     
 
     /**
@@ -64,12 +52,21 @@ class UserTests extends TestCase
      */
     public function testRegisterCorrectly()
     {
-        $response = $this->call('POST', '/api/register', ['username' => 'user1', 'password' => 'password', 
-            'name' => 'name', 'email' => 'email']);
+        $input = ['username' => 'user1', 'password' => 'password', 
+        'name' => 'name', 'email' => 'email'];
+        testRegister($input, 0, true);
+    }
+
+        /**
+     * Tests if a successfull register can be done, all the necessary parameters are given, and for the first time(not repeated username or email).
+     */
+    public function testRegister($input, $expected_response_code, $should_succeed)
+    {
+        $response = $this->call('POST', '/api/register', $input);
         $response->assertStatus(200);
         $response_array = $response->decodeResponseJson();
-        $this->assertEquals($response_array['response_code'], 0);
-        $this->assertTrue(array_key_exists('auth_token', $response_array));
+        $this->assertEquals($response_array['response_code'], $expected_response_code);
+        $this->assertEquals(array_key_exists('auth_token', $response_array), $should_succeed);
     }
 
     /**
