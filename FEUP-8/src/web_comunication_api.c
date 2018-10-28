@@ -65,7 +65,7 @@ static char* getStringCopy(const char *original)
 */
 int loginRequest(const char *username, const char *password)
 {
-    return loginRequestSend(username, *password, false, NULL);
+    return loginRequestSend(username, password, false, NULL);
 }
 
 
@@ -75,9 +75,10 @@ int loginRequestSend(const char *username, const char *password, bool testing, c
     int FIXED_LOGIN_MESSAGE_SIZE = 19;
     dataToSend.size = strlen(username) + strlen(password) + FIXED_LOGIN_MESSAGE_SIZE;
     dataToSend.data = malloc(sizeof(u8) * (dataToSend.size + 1));
+    printf("stuff\n");
     sprintf(dataToSend.data, "username=%s&password=%s", username, password);
     Buffer response;
-    if (testing)
+    if (!testing)
         response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGIN_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
     else
     {
@@ -141,7 +142,7 @@ int loginRequestSend(const char *username, const char *password, bool testing, c
 */
 int registerRequest(const char *name, const char *email, const char *username, const char *password)
 {
-    return registerRequestSend(name, *email, *username, *password, false, NULL);
+    return registerRequestSend(name, email, username, password, false, NULL);
 }
 
 
@@ -154,8 +155,14 @@ int registerRequestSend(const char *name, const char *email, const char *usernam
     dataToSend.data = malloc(sizeof(u8) * (dataToSend.size + 1));
     sprintf(dataToSend.data, "name=%s&email=%s&username=%s&password=%s",
             name, email, username, password);
-    Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, REGISTER_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
-
+    Buffer response;
+    if (!testing)
+        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, REGISTER_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
+    else
+    {
+        response.data = mock_response_data;
+        response.size = strlen(mock_response_data);
+    }
     if(response.data == NULL)
         return CANT_CONNECT_TO_SERVER;
         
@@ -211,14 +218,19 @@ int logoutRequest()
     return logoutRequestSend(false, NULL);
 }
 
-
-
 int logoutRequestSend(bool testing, char *mock_response_data)
 {
     if(auth_token == NULL)
         return FORBIDDEN;
     char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
-    Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGOUT_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    Buffer response;
+    if (!testing)
+        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGOUT_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    else
+    {
+        response.data = mock_response_data;
+        response.size = strlen(mock_response_data);
+    }
     if(response.data == NULL)
         return CANT_CONNECT_TO_SERVER;
     cJSON *monitor_json = cJSON_Parse(response.data);
@@ -258,7 +270,7 @@ int logoutRequestSend(bool testing, char *mock_response_data)
 */
 int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number_of_exercises)
 {
-    return getExercisesListRequestSender(exercises_list, number_of_exercises, false, NULL);
+    return getExercisesListRequestSend(exercises_list, number_of_exercises, false, NULL);
 }
 
 
@@ -385,7 +397,15 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
 
     char *request_address = malloc(sizeof(char) * (strlen(GET_EXERCISE_DETAILS_PATH) + 1 + (log10(exercise_id) + 1)));
     sprintf(request_address, "%s/%d", GET_EXERCISE_DETAILS_PATH, exercise_id);
-    Buffer response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    Buffer response;
+    if (!testing)
+        response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    else
+    {
+        response.data = mock_response_data;
+        response.size = strlen(mock_response_data);
+    }
+    
     free(request_address);
     if(response.data == NULL)
         return CANT_CONNECT_TO_SERVER;
@@ -587,7 +607,15 @@ int saveProgressRequestSend(Buffer exercise_data, char *code, int exercise_id, b
     char *request_address = malloc(sizeof(char) * (strlen(SAVE_PROGRESS_PATH) + 1 + log10(exercise_id) + 1 + 4));
     sprintf(request_address, "%s/%d/save", SAVE_PROGRESS_PATH, exercise_id);
 
-    Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    Buffer response;
+    if (!testing)
+        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    else
+    {
+        response.data = mock_response_data;
+        response.size = strlen(mock_response_data);
+    }
+    
     if(response.data == NULL)
         return CANT_CONNECT_TO_SERVER;
     

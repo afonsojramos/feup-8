@@ -1551,7 +1551,7 @@ s32 main(s32 argc, char **argv)
 {
 	//login request
 	//printf("registerRequest - %d\n", registerRequest("stuff", "stuff@email.com", "stuff", "stuff"));
-	
+
 	//printf("loginRequest - %d\n", loginRequest("stuff1", "stuff1"));
 	printf("loginRequest - %d\n", loginRequest("stuff", "stuff"));
 	//printf("logoutRequest - %d\n", logoutRequest());
