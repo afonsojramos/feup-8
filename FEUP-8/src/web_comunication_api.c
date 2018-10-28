@@ -84,7 +84,7 @@ int loginRequestSend(const char *username, const char *password, bool testing, c
     {
         response.data = mock_response_data;
         response.size = strlen(mock_response_data);
-        memcpy(mock_response_data, dataToSend.data, strlen(dataToSend) + 1);
+        memcpy(mock_response_data, dataToSend.data, strlen(dataToSend.data) + 1);
     }
     if(response.data == NULL)
         return CANT_CONNECT_TO_SERVER;
