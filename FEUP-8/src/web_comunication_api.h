@@ -18,7 +18,6 @@
 #define CONNECTION_TIMEOUT_MS 5000
 
 
-typedef struct
 //Return codes
 #define SUCCESS 0
 #define WRONG_CREDENTIALS 1
