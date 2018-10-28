@@ -7,10 +7,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UserTests extends TestCase
 {
-    use RefreshDatabase;
-
-
     /* Register tests
+    
     /**
      * Generic method used for testing register feature.
      * It should be called with data that either causes success or not and the expected returns accordingly.
@@ -77,34 +75,29 @@ class UserTests extends TestCase
     }
 
      /**
-     * Tests if a repeated register is rejected. (It should fail because the username are already in the db).
+     * Tests if a repeated register is rejected. (It should fail because the username is already in the db).
      */
     public function testRegisterRepeatedUsername()
     {
-        $input_1 = ['username' => 'user_register_repeat', 'password' => 'password_register_repeat', 
-            'name' => 'name_register_repeat', 'email' => 'email_register_repeat'];
-        $input_2 = ['username' => 'user_register_repeat', 'password' => 'password_register_repeat', 
-            'name' => 'name_register_repeat', 'email' => 'email_register_different'];
-        testRegister($input, 0, true, 2);
+        $input = ['username' => 'user_already_in_db', 'password' => 'password', 
+            'name' => 'name', 'email' => 'email'];
         testRegister($input, 1, false, 1);
     }
 
     /**
-     * Tests if a repeated register for email is rejected. (It should fail because the email are already in the db).
+     * Tests if a repeated register for email is rejected. (It should fail because the email is already in the db).
      */
     public function testRegisterRepeatedEmail()
     {
-        $input_1 = ['username' => 'user_register_repeat', 'password' => 'password_register_repeat', 
-            'name' => 'name_register_repeat', 'email' => 'email_register_repeat'];
-        $input_2 = ['username' => 'user_register_different', 'password' => 'password_register_repeat', 
-            'name' => 'name_register_repeat', 'email' => 'email_register_repeat'];
-        testRegister($input, 0, true, 2);
+        $input = ['username' => 'username', 'password' => 'password', 
+            'name' => 'name', 'email' => 'email_already_in_db'];
         testRegister($input, 1, false, 1);
     }
 
 
 
     /* Login tests
+
     /**
      * Generic method used for testing login feature.
      * It should be called with data that either causes success or not and the expected returns accordingly.
@@ -143,10 +136,6 @@ class UserTests extends TestCase
      */
     public function testLoginCorrectly()
     {
-        //register user for posterior login
-        $this->call('POST', '/api/register', ['username' => 'user_already_in_db', 'password' => 'password_already_in_db', 
-            'name' => 'name', 'email' => 'email_already_in_db']);
-
         $input = ['username' => 'user_already_in_db', 'password' => 'password_already_in_db'];
         $this->genericTestLogin($input, 0, true, 2);
     }
@@ -154,6 +143,7 @@ class UserTests extends TestCase
     
 
     // Logout Tests
+
     /**
      * Generic method used for testing logout feature.
      * It should be called with data that either causes success or not and the expected returns accordingly.
