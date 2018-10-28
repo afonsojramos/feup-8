@@ -23,6 +23,7 @@
 #pragma once
 
 #include "tic.h"
+#include "net.h"
 
 typedef struct { u8 index; tic_flip flip; tic_rotate rotate; } RemapResult;
 typedef void(*RemapFunc)(void*, s32 x, s32 y, RemapResult* result);
@@ -172,8 +173,11 @@ typedef struct
 
 typedef struct 
 {
-    char *correct_code_base64;
-    char *test_code_base64;
+	int id;
+	char* title;
+	char* hint; //optional, empty string if none
+    char* test_code;
+	bool passed;
 } ExerciseTest;
 
 typedef struct
@@ -184,7 +188,9 @@ typedef struct
     char *creator_name;
     char *img_base64;
     char *description;
-    ExerciseTest exerciseTest;
+	Buffer feup8_file;
+    ExerciseTest *exerciseTest;
+	unsigned int number_of_exercise_tests;
 } tic_exercise;
 
 struct tic_mem
