@@ -173,7 +173,7 @@ class ExerciseTest extends TestCase
      */
     public function testGetPublicExerciseDetails()
     {
-        $response = $this->call('GET', '/api/exercise/2', $input);
+        $response = $this->call('GET', '/api/exercise/2');
         $response->assertStatus(200);
         $response_array = $response->decodeResponseJson();
         $this->assertEquals($response_array['response_code'], 0);

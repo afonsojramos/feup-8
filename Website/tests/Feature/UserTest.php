@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 class UserTests extends TestCase
 {
     /* Register tests
-    
+
     /**
      * Generic method used for testing register feature.
      * It should be called with data that either causes success or not and the expected returns accordingly.
@@ -81,7 +81,7 @@ class UserTests extends TestCase
     {
         $input = ['username' => 'user_already_in_db', 'password' => 'password', 
             'name' => 'name', 'email' => 'email'];
-        testRegister($input, 1, false, 1);
+        $this->genericTestRegister($input, 1, false, 1);
     }
 
     /**
@@ -91,7 +91,7 @@ class UserTests extends TestCase
     {
         $input = ['username' => 'username', 'password' => 'password', 
             'name' => 'name', 'email' => 'email_already_in_db'];
-        testRegister($input, 1, false, 1);
+        $this->genericTestRegister($input, 1, false, 1);
     }
 
 
