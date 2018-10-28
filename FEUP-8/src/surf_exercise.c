@@ -442,31 +442,11 @@ static void resetMenu(SurfExercises* surf)
 	surf->menu.anim = 0;
 }
 
-static void* requestCover(SurfExercises* surf, const char* hash, s32* size)
-{
-	char cachePath[FILENAME_MAX] = {0};
-	sprintf(cachePath, TIC_CACHE "%s.gif", hash);
 
-	{
-		void* data = fsLoadRootFile(surf->fs, cachePath, size);
-
-		if(data)
-			return data;
-	}
-
-	char path[FILENAME_MAX] = {0};
-	sprintf(path, "/cart/%s/cover.gif", hash);
-	void* data = getSystem()->getUrlRequest(path, size);
-
-	if(data)
-	{
-		fsSaveRootFile(surf->fs, cachePath, data, *size, false);
-	}
-
-	return data;
-}
-
-
+/**
+* Initalizes menu.
+* @param surf stuct with all the information in surf_exercise.
+*/
 static void initMenu(SurfExercises* surf)
 {
 	resetMenu(surf);
@@ -491,7 +471,10 @@ static void initMenu(SurfExercises* surf)
 	surf->menu.count = data.count;
 }
 
-
+/**
+* proesses the background animation.
+* @param surf stuct with all the information in surf_exercise.
+*/
 static void processAnim(SurfExercises* surf)
 {
 	enum{Frames = MENU_HEIGHT};
@@ -549,7 +532,10 @@ static void processAnim(SurfExercises* surf)
 	}
 }
 
-
+/**
+* proesses the keys pressed by the user.
+* @param surf stuct with all the information in surf_exercise.
+*/
 static void processGamepad(SurfExercises* surf)
 {
 	tic_mem* tic = surf->tic;
@@ -590,6 +576,10 @@ static void processGamepad(SurfExercises* surf)
 
 }
 
+/**
+* function that is called automatically to render the surf_exercise.
+* @param surf stuct with all the information in surf_exercise.
+*/
 static void tick(SurfExercises* surf)
 {
 	if(!surf->init)
@@ -630,6 +620,10 @@ static void tick(SurfExercises* surf)
 	}
 }
 
+/**
+* resumes the surf_exercise mode previous state of the background animation.
+* @param surf stuct with all the information in surf_exercise.
+*/
 static void resume(SurfExercises* surf)
 {
 	resetMovie(surf, &MenuModeShowState, NULL);
