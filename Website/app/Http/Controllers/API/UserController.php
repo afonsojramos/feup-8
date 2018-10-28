@@ -13,57 +13,37 @@ use DB;
 class UserController extends Controller 
 {
 
-    public $successStatus = 200;
+    public static $successStatus = 200;
 
     /** 
-     * login api 
-     * 
-     * @return \Illuminate\Http\Response 
-     */ 
-    public function login(Request $request)
+     * This methods allows to login a user. 
+     * The username and password will be checked for existing in the database, and if match.
+     * @param $request The post request with the username and password data.
+     * @return JSON response with response code (0-success, 1-username/password dont match). 
+    */  
+    public static function login(Request $request)
     { 
-        $username = $request->input('username');
-        $password = $request->input('password');
-        if (empty($username) || empty($password))
-            return response()->json(['response_code'=> 1], 200);
-        try 
-        {
-            $user = \App\User::where('username', $username)->first();
-        } 
-        catch (\Illuminate\Database\QueryException $e) 
-        {
-            return $e;
-            return response()->json(['response_code'=> 1], 200);
-        }
-        if ($user == null)
-            return response()->json(['response_code'=> 1], 200);
-        else if ($user == "null")
-            return response()->json(['response_code'=> 1], 200);
-        
-            if (Auth::attempt(['username' => $username, 'password' => $password])) {
-                echo "The user is active, not suspended, and exists.";
-            }
+        $credentials = $request->only('username', 'password');
 
-        $hashed_password = $user->password;
-        if (Hash::check($password, $hashed_password)) 
+        if (Auth::attempt($credentials)) 
         {
             $user = Auth::user(); 
-            $response['auth_token'] =  $user->createToken('MyApp')->accessToken; 
-            $response['response_code'] =  0; 
-            return response()->json($response, $this->successStatus); 
-        } 
+            $response['response_code'] = 0; 
+            $response['auth_token'] = $user->createToken('MyApp')->accessToken; 
+            return response()->json($response, UserController::$successStatus); 
+        }
         else
             return response()->json(['response_code'=> 1], 200);
     }
-/** 
+    
+    /** 
      * This methods allows to register a user in the database. 
-     * The username will be checked for non existing yet, and both username and password asre requeired 
-     * @param $request The post request with the username and password data.
+     * All request parameters (name, username, email and password) are required.
+     * @param $request The post request with the name, username, email and password data.
      * @return JSON response with response code (0-success, 1-username/password dont match, 2-server error). 
-     */ 
+    */ 
     public function register(Request $request) 
     { 
-       
         $validator = Validator::make($request->all(), [ 
             'username' => 'required',
             'name' => 'required', 
@@ -71,32 +51,42 @@ class UserController extends Controller
             'email' => 'required',
         ]);
         if ($validator->fails()) 
-        { 
             return response()->json(['response_code'=>1], 200);            
-        }
-        $input = $request->all(); 
-        //return User::create($input['username'], $input['password'], $input['name'], $input['email']);
-        //return  DB::table('users')->select('*')->where('username', '=', $input['username'])->get();
-        if(User::checkUserExists($input['username']))
-            return response()->json(['response_code'=>1], $this->successStatus);
-        if(!User::create($input['username'], $input['password'], $input['name'], $input['email']))
-        {
-            return response()->json(['response_code'=>2], $this->successStatus); 
-        }
 
-        return response()->json(['response_code'=>0], $this->successStatus);  
+        $input = $request->all(); 
+        if(User::checkUserExists($input['username']))
+            return response()->json(['response_code'=>1], UserController::$successStatus);
+        if(!User::create($input['username'], $input['password'], $input['name'], $input['email']))
+            return response()->json(['response_code'=>2], UserController::$successStatus); 
+
+        return UserController::login($request); 
     }
 
-
-     /** 
+    /** 
      * Logout's the user currently logged in.
-     * @return the response code 0 indicating sucess.
-     */ 
+     * @return the response code (0 indicating sucess, 1 not logged in, 2 server error)
+    */ 
     public function logout() 
     {
-        if (Auth::check())
-            Auth::logout();
-        return response()->json(['auth_token'=>0], $this->successStatus); 
+        if (!Auth::guard('api')->check()) //not logged in
+            return response()->json(['response_code' => 1], 200);
+
+        if (!Auth::guard('api')->user()->token()->revoke())
+            return response()->json(['response_code' => 2], 200);
+
+        return response()->json(['response_code' => 0], UserController::$successStatus); 
+    }
+
+    /** 
+     * Get's  the current logged in user.
+     * @return the id of the logged in user, 0 if noone logged in.
+    */
+    public static function getCurrentlyLoggedInUserId()
+    {
+        if (Auth::guard('api')->check())
+            return Auth::guard('api')->id();
+        else
+            return 0;
     }
 
 }
