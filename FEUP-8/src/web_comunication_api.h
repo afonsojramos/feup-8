@@ -34,12 +34,18 @@ typedef struct
 char *getAdditionalHeaderStringWithAuthToken();
 static char* getStringCopy(const char *original);
 int loginRequest(const char *username, const char *password);
+int loginRequestSend(const char *username, const char *password, bool testing, char *mock_response_data);
 int logoutRequest();
+int logoutRequestSend(bool testing, char *mock_response_data);
 int registerRequest(const char *name, const char *email, const char *username, const char *password);
-int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *numberOfExercises);
+int registerRequestSend(const char *name, const char *email, const char *username, const char *password, bool testing, char *mock_response_data);
+int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number_of_exercises);
+int getExercisesListRequestSend(ExerciseSimplified *exercises_list[], size_t *numberOfExercises, bool testing, char *mock_response_data);
 int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise);
+int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool testing, char *mock_response_data);
 int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercise);
 int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id);
+int saveProgressRequestSend(Buffer exercise_data, char *code, int exercise_id, bool testing, char *mock_response_data);
 int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise *ticExercise);
 
 

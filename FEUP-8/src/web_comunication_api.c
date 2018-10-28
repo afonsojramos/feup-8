@@ -65,12 +65,25 @@ static char* getStringCopy(const char *original)
 */
 int loginRequest(const char *username, const char *password)
 {
+    return loginRequestSend(username, *password, false, NULL);
+}
+
+
+int loginRequestSend(const char *username, const char *password, bool testing, char *mock_response_data)
+{
     Buffer dataToSend;
     int FIXED_LOGIN_MESSAGE_SIZE = 19;
     dataToSend.size = strlen(username) + strlen(password) + FIXED_LOGIN_MESSAGE_SIZE;
     dataToSend.data = malloc(sizeof(u8) * (dataToSend.size + 1));
     sprintf(dataToSend.data, "username=%s&password=%s", username, password);
-    Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGIN_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
+    Buffer response;
+    if (testing)
+        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGIN_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
+    else
+    {
+        response.data = mock_response_data;
+        response.size = strlen(mock_response_data);
+    }
     if(response.data == NULL)
         return CANT_CONNECT_TO_SERVER;
     
@@ -127,6 +140,12 @@ int loginRequest(const char *username, const char *password)
 * Example: name=Student X&email=up201683756@fe.up.pt&username=up201683756&password=studentblabla
 */
 int registerRequest(const char *name, const char *email, const char *username, const char *password)
+{
+    return registerRequestSend(name, *email, *username, *password, false, NULL);
+}
+
+
+int registerRequestSend(const char *name, const char *email, const char *username, const char *password, bool testing, char *mock_response_data)
 {
     //TODO support para receber auth_token aquando de register
     Buffer dataToSend;
@@ -189,6 +208,13 @@ int registerRequest(const char *name, const char *email, const char *username, c
 */
 int logoutRequest()
 {
+    return logoutRequestSend(false, NULL);
+}
+
+
+
+int logoutRequestSend(bool testing, char *mock_response_data)
+{
     if(auth_token == NULL)
         return FORBIDDEN;
     char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
@@ -231,6 +257,12 @@ int logoutRequest()
 * 3 - can't connect to server.
 */
 int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number_of_exercises)
+{
+    return getExercisesListRequestSender(exercises_list, number_of_exercises, false, NULL);
+}
+
+
+int getExercisesListRequestSend(ExerciseSimplified *exercises_list[], size_t *number_of_exercises, bool testing, char *mock_response_data)
 {
     char *additionalHeaderString = NULL;
     if(auth_token != NULL)
@@ -341,6 +373,11 @@ int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number
 * 3 - can't connect to server.
 */
 int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
+{
+    return getExerciseDetailsRequestSend(exercise_id, exercise, false, NULL);
+}
+
+int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool testing, char *mock_response_data)
 {   
     char *additionalHeaderString = NULL;
     if(auth_token != NULL) //if logged in, the web server will receive the auth token in order to check if user can receive that exercise data.
@@ -529,6 +566,11 @@ deallocate_parseExerciseTestsReceivedAndReturn:
 * 3 - can't connect to server.
 */
 int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id)
+{
+    return saveProgressRequestSend(exercise_data, code, exercise_id, false, NULL);
+}
+
+int saveProgressRequestSend(Buffer exercise_data, char *code, int exercise_id, bool testing, char *mock_response_data)
 {
     if(auth_token == NULL)
         return FORBIDDEN;
