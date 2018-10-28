@@ -232,6 +232,7 @@ int logoutRequestSend(bool testing, char *mock_response_data)
     {
         response.data = mock_response_data;
         response.size = strlen(mock_response_data);
+        memcpy(mock_response_data, dataToSend.data, strlen(dataToSend.data) + 1);
     }
     if(response.data == NULL)
         return CANT_CONNECT_TO_SERVER;
