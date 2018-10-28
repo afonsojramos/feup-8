@@ -377,15 +377,6 @@ static bool hasExt(const char* name, const char* ext)
 
 
 /**
-* Gets all the exercises from the web server.
-*/
-static void getAllExercises(){
-  ExerciseSimplified *exercises;
-  size_t number_of_exercises;
-  getExercisesListRequest(&exercises, &number_of_exercises);
-}
-
-/**
 * Add an exercise to menu list.
 * @param name exercise name.
 * @param id eercise id.
@@ -416,6 +407,22 @@ static bool addMenuItem(const char* name, int id, int percentage,  void* ptr, bo
 	}
 
 	return data->count < MAX_CARTS;
+}
+
+/**
+* Gets all the exercises from the web server.
+* @param ptr pointer with all the items on the menu
+*/
+static void getAllExercises(void* ptr){
+	AddMenuItem* data = (AddMenuItem*)ptr;
+  ExerciseSimplified *exercises;
+  size_t number_of_exercises;
+  getExercisesListRequest(&exercises, &number_of_exercises);
+
+	for(size_t i=0; i< number_of_exercises; i++){
+		addMenuItem(exercises->title,exercises->id,exercises->progress,data,true);
+		data + sizeof(ExerciseSimplified);
+	}
 }
 
 /**
@@ -463,10 +470,7 @@ static void initMenu(SurfExercises* surf)
 
 	char dir[FILENAME_MAX];
 	fsGetDir(surf->fs, dir);
-
-	addMenuItem("hello", 1, 10, &data, true);
-	addMenuItem("bye", 2, 25, &data, true);
-	addMenuItem("adios", 3, 100, &data, true);
+	getAllExercises(&data);
 	surf->menu.items = data.items;
 	surf->menu.count = data.count;
 }
