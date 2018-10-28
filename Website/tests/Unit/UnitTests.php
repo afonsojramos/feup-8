@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use App\LuaUnitParser;
+use App\LuaUnitExecutor;
 
 /**
   * All unit tests should go here
@@ -48,5 +49,38 @@ ok     3	TestTiti.test3
         $expectedOutput = str_replace("\n", "", $expectedOutput);
         $actualOutput = $parser->parse($input);
         $this->assertEquals($actualOutput, $expectedOutput);
+    }
+
+    public function testExec()
+    {
+        include "tests/Unit/students_tests.php";
+
+        $studentCode = file_get_contents("tests/Unit/student_res.lua");
+        $testCases = $testsArray;
+        $thread = new LuaUnitExecutor($studentCode, $testCases);
+
+        //tests for exec
+        $actualRes = $thread->execute("tests/Unit/lua_example_syntax.lua", false)[0];
+        $this->assertEquals($actualRes, -1);
+
+        $actualRes = $thread->execute("tests/Unit/lua_example_pass.lua", false)[0];
+        $this->assertEquals($actualRes, 0);
+
+        $actualRes = $thread->execute("tests/Unit/lua_example_fail.lua", false)[0];
+        $this->assertTrue($actualRes > 0);
+
+        $actualRes = $thread->execute("tests/Unit/lua_example_cycle.lua", false)[0];
+        $this->assertEquals($actualRes, -2);
+
+        //tests for the whole class (building file + execution)
+        $res = $thread->run();
+        $this->assertEquals($res[0], 0);
+
+        //test with infinite cycle
+        $studentCode = file_get_contents("tests/Unit/student_res_cycle.lua");
+        $testCases = $testsArray;
+        $thread = new LuaUnitExecutor($studentCode, $testCases);
+        $res = $thread->run();
+        $this->assertEquals($res[0], -2);
     }
 }
