@@ -568,8 +568,9 @@ static void processGamepad(SurfExercises* surf)
 		{
 			ExerciseSimplified* item = &surf->menu.items[surf->menu.pos];
 			//TODO: load do exercise
-			surf->console->onConsoleLoadExerciseCommand(surf->console, (int)item->id);
-		//	item->dir ? changeDirectory(surf, item->name) : loadCart(surf);
+			char id[3];
+			sprintf(id,"%d",item->id);
+			surf->console->onConsoleLoadExerciseCommand(surf->console, id);
 		}
 
 	}
@@ -629,6 +630,10 @@ static void resume(SurfExercises* surf)
 	resetMovie(surf, &MenuModeShowState, NULL);
 }
 
+/**
+* function that is called automatically to render the surf_exercise.
+* @param surf stuct with all the information in surf_exercise.
+*/
 void initSurfExercises(SurfExercises* surf, tic_mem* tic, struct Console* console)
 {
 	*surf = (SurfExercises)
