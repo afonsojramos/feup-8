@@ -15,7 +15,7 @@ int printDebugMsg()
 /**
 * Global variable that contains the token of the session. Is filled when login, and destroyed in logout.
 */
-static char *auth_token = NULL;
+char *auth_token = NULL;
 
 /**
 * Creates a string with the additional header parameters where auth_token is placed according to laravel.
@@ -84,6 +84,7 @@ int loginRequestSend(const char *username, const char *password, bool testing, c
     {
         response.data = mock_response_data;
         response.size = strlen(mock_response_data);
+        memcpy(mock_response_data, dataToSend.data, strlen(dataToSend) + 1);
     }
     if(response.data == NULL)
         return CANT_CONNECT_TO_SERVER;
