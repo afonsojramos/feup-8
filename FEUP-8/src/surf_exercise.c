@@ -420,7 +420,7 @@ static void getAllExercises(void* ptr){
   getExercisesListRequest(&exercises, &number_of_exercises);
 //	printf("NUMERO:%d",number_of_exercises);
 	for(size_t i=0; i< number_of_exercises; i++){
-		addMenuItem(exercises->title,exercises->id,exercises->progress,data,true);
+		addMenuItem(exercises[i].title,exercises[i].id,exercises[i].progress,data,true);
 		exercises + sizeof(ExerciseSimplified);
 	}
 }
