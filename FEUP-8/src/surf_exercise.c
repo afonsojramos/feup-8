@@ -413,12 +413,15 @@ static bool addMenuItem(const char* name, int id, int percentage,  void* ptr, bo
 * Gets all the exercises from the web server.
 * @param ptr pointer with all the items on the menu
 */
-static void getAllExercises(void* ptr){
+static void getAllExercises(SurfExercises* surf, void* ptr){
 	AddMenuItem* data = (AddMenuItem*)ptr;
   ExerciseSimplified *exercises;
   size_t number_of_exercises;
-  getExercisesListRequest(&exercises, &number_of_exercises);
-//	printf("NUMERO:%d",number_of_exercises);
+if( getExercisesListRequest(&exercises, &number_of_exercises)!=0){
+		printf("ERROR CONNECTING TO SERVER");
+		return;
+}
+;
 	for(size_t i=0; i< number_of_exercises; i++){
 		addMenuItem(exercises[i].title,exercises[i].id,exercises[i].progress,data,true);
 		exercises + sizeof(ExerciseSimplified);
@@ -470,7 +473,7 @@ static void initMenu(SurfExercises* surf)
 
 	char dir[FILENAME_MAX];
 	fsGetDir(surf->fs, dir);
-	getAllExercises(&data);
+	getAllExercises(surf,&data);
 	surf->menu.items = data.items;
 	surf->menu.count = data.count;
 }
