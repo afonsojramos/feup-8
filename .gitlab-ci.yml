@@ -1,0 +1,59 @@
+image: lantaros/ldso-feup-8:feup-8
+image: lantaros/ldso-feup-8:website
+
+services:
+    - docker:dind   
+  
+stages:
+    - build
+    - test
+    - deploy
+    
+build:website:
+    image: lantaros/ldso-feup-8:website
+    stage: build
+    artifacts:
+        untracked: true
+    script:
+        - cd Website
+        - composer install
+        
+build:feup-8:
+    image: lantaros/ldso-feup-8:feup-8
+    stage: build
+    artifacts:
+        untracked: true
+    script:
+        - cd FEUP-8
+        - cmake .
+        - make -j4
+
+test:website:
+    image: lantaros/ldso-feup-8:website
+    stage: test
+    dependencies: 
+        - build:website
+    script:
+        - cd Website
+        - vendor/bin/phpunit
+        
+test:feup-8:
+    image: lantaros/ldso-feup-8:feup-8
+    stage: test
+    dependencies: 
+        - build:feup-8
+    script:
+        - cd FEUP-8/bin
+        - ./tic80 -test
+
+deploy:website:
+    image: lantaros/ldso-feup-8:website
+    stage: deploy
+    script:
+        - cd Website
+    environment:
+        name: production
+    when: manual
+    only:
+        - master
+    

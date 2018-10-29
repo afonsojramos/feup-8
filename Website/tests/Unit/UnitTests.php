@@ -62,7 +62,7 @@ ok     3	TestTiti.test3
         //tests for exec
         $actualRes = $thread->execute("tests/Unit/lua_example_syntax.lua", false)[0];
         $this->assertEquals($actualRes, -1);
-
+ 
         $actualRes = $thread->execute("tests/Unit/lua_example_pass.lua", false)[0];
         $this->assertEquals($actualRes, 0);
 
@@ -82,5 +82,6 @@ ok     3	TestTiti.test3
         $thread = new LuaUnitExecutor($studentCode, $testCases);
         $res = $thread->run();
         $this->assertEquals($res[0], -2);
+
     }
 }

@@ -1,6 +1,5 @@
 version: '3'
 
 services:
-
     feup-8:
         build: .
