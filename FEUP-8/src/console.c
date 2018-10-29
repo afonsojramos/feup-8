@@ -2307,7 +2307,7 @@ static void onConsoleLoadExerciseCommand(Console* console, const char* param)
 	if(param && strlen(param))
 	{
 		if (getExerciseDetailsRequest(atoi(param), &tic->exe) == 0)
-		gotoSurfExercises();
+			gotoExercises();
 	}
 	else printBack(console, "\nexercise identifier is missing");
 
