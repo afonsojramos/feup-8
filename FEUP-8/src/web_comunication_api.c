@@ -421,7 +421,7 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
             fprintf(stderr, "Error before: %s\n", error_ptr);
         }
         free(response.data);
-        free(error_ptr);
+        free((char*)error_ptr);
         cJSON_free(monitor_json);
         return SERVER_ERROR;
     }
