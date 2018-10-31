@@ -574,7 +574,6 @@ static void processGamepad(SurfExercises* surf)
 		if(tic->api.btnp(tic, A, -1, -1))
 		{
 			ExerciseSimplified* item = &surf->menu.items[surf->menu.pos];
-			//TODO: load do exercise
 			char id[3];
 			sprintf(id,"%d",item->id);
 			surf->console->onConsoleLoadExerciseCommand(surf->console, id);

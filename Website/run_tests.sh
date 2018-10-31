@@ -1,6 +1,6 @@
+APP_ENV=testing php artisan migrate:refresh
+APP_ENV=testing php artisan passport:install
 cd database
-rm database_test.sqlite
-touch database_test.sqlite
+sqlite3 database_tests.sqlite < database_tests_data.sql
 cd ..
-APP_ENV=testing php artisan migrate
-./vendor/bin/phpunit
+APP_ENV=testing ./vendor/bin/phpunit
