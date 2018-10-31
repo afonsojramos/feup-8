@@ -71,7 +71,6 @@ class ExerciseController extends Controller
         try 
         {
             $exercise = DB::table('exercise')
-                ->join('test', 'exercise.id', '=', 'test.exercise_id')
                 ->join('users', 'exercise.creator_id', '=', 'users.id')
                 ->select('exercise.title', 'exercise.description', 'exercise.image_path as image_base64',
                 'users.name as creator_name', '0 as progress', ' as feup8_file')
@@ -144,7 +143,7 @@ class ExerciseController extends Controller
         $progress = 10;
         try 
         {
-            if(ExerciseController::checkExerciseStudentExists($exercise_id))
+            if(ExerciseController::checkExerciseStudentExists($exercise_id, Auth::guard('api')->user()->id))
             {
                 DB::table('exerciseStudent')
                     ->where('exercise_id', '=', $exercise_id)
@@ -171,21 +170,21 @@ class ExerciseController extends Controller
      * @param exercise_id The id of the exercise to be checked
      * @return bool true if exists, false otherwise
     */ 
-    public static function checkExerciseStudentExists($exercise_id)
+    public static function checkExerciseStudentExists($exercise_id, $user_id)
     { 
         try 
         {
             $exercise_student = DB::table('exerciseStudent')
                 ->select('*')
                 ->where('exercise_id', '=', $exercise_id)
-                ->where('student_id', '=', Auth::guard('api')->user()->id)
+                ->where('student_id', '=',  $user_id)
                 ->get();
             if(count($exercise_student) != 0)
                 return true;
         } 
         catch (\Exception $e) 
         {
-            return true;
+            return false;
         }
 
         return false;

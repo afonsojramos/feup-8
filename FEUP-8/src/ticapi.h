@@ -189,7 +189,7 @@ typedef struct
     char *img_base64;
     char *description;
 	Buffer feup8_file;
-    ExerciseTest *exerciseTest;
+    ExerciseTest* exerciseTests;
 	unsigned int number_of_exercise_tests;
 } tic_exercise;
 

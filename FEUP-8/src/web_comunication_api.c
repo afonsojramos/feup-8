@@ -466,9 +466,9 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
             else
                 exercise->progress = atoi(progress_obj->valuestring);
 
-            if(parseExerciseTestsReceived(monitor_json, exercise) == 2)
+            if (parseExerciseTestsReceived(monitor_json, exercise) == 2)
                 return SERVER_ERROR;
-        
+
             cJSON_free(title_obj);
             cJSON_free(creator_name_obj);
             cJSON_free(description_obj);
@@ -498,7 +498,7 @@ int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercis
 {
     //TODO: alterar para nova forma como vêm os testes segundo api
     int ret_code = SUCCESS;
-    ExerciseTest **exerciseTestArray = &(ticExercise->exerciseTest);
+    ExerciseTest **exerciseTestArray = &(ticExercise->exerciseTests);
     cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "tests");
     if(tests_obj == NULL)
     {
@@ -569,11 +569,10 @@ deallocate_parseExerciseTestsReceived:
             goto deallocate_parseExerciseTestsReceivedAndReturn;
         i++;
     }
-
-deallocate_parseExerciseTestsReceivedAndReturn:
-    cJSON_free(tests_obj);
+    
+deallocate_parseExerciseTestsReceivedAndReturn : cJSON_free(tests_obj);
     cJSON_free(test);
- 
+
     return ret_code;
 }
 
@@ -740,7 +739,7 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
             }
 
             bool passed = strcmp(result_obj->valuestring, "OK") == 0 ? true : false;
-            ExerciseTest *exerciseTestArray = ticExercise->exerciseTest;
+            ExerciseTest *exerciseTestArray = ticExercise->exerciseTests;
             for(size_t i = 0; i < ticExercise->number_of_exercise_tests; i++)
             {
                 if(exerciseTestArray[i].id == id)
