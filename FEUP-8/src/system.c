@@ -1553,7 +1553,7 @@ s32 main(s32 argc, char **argv)
 	//printf("registerRequest - %d\n", registerRequest("stuff", "stuff@email.com", "stuff", "stuff"));
 
 	//printf("loginRequest - %d\n", loginRequest("stuff1", "stuff1"));
-	printf("loginRequest - %d\n", loginRequest("stuff", "stuff"));
+	//printf("loginRequest - %d\n", loginRequest("stuff", "stuff"));
 	//printf("logoutRequest - %d\n", logoutRequest());
 	//printf("loginRequest - %d\n", loginRequest("stuff", "stuff"));
 	//printf("registerRequest - %d\n", registerRequest("stuff", "stuvdccdfsbff@gmail.com", "stuscdffasdd", "stuff"));
@@ -1592,10 +1592,18 @@ s32 main(s32 argc, char **argv)
 		printf("test title = %s\n", exercises_list.exerciseTest->title);
 		printf("test hint = %s\n", exercises_list.exerciseTest->hint);
 		printf("test testcode = %s\n", exercises_list.exerciseTest->test_code);
+
+		printf("test id = %d\n", exercises_list.exerciseTest[1].id);
+		printf("test title = %s\n", exercises_list.exerciseTest[1].title);
+		printf("test hint = %s\n", exercises_list.exerciseTest[1].hint);
+		printf("test testcode = %s\n", exercises_list.exerciseTest[1].test_code);
+
+		
 		//printf("test passed = %d\n", exercises_list.exerciseTest->passed);
 	*/
 
 	//save progress
+	/*
 	Buffer exercise_data;
 	{
 		exercise_data.data = "asdoiasdºasdjsan aso a asjo aioiom amioa siom asmiaos ";
@@ -1604,7 +1612,7 @@ s32 main(s32 argc, char **argv)
 	char *code = "if(stuff) then asdasdas;";
 	int exercise_id = 2;
 	printf("saveProgressRequest - %d\n", saveProgressRequest(exercise_data, code, exercise_id));
-
+	*/
 
 
 
