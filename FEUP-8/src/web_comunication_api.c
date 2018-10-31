@@ -82,7 +82,7 @@ int loginRequestSend(const char *username, const char *password, bool testing, c
         response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGIN_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
     else
     {
-        response.data = mock_response_data;
+        response.data = getStringCopy(mock_response_data);
         response.size = strlen(mock_response_data);
         memcpy(mock_response_data, dataToSend.data, strlen(dataToSend.data) + 1);
     }
@@ -161,7 +161,7 @@ int registerRequestSend(const char *name, const char *email, const char *usernam
         response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, REGISTER_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
     else
     {
-        response.data = mock_response_data;
+        response.data = getStringCopy(mock_response_data);
         response.size = strlen(mock_response_data);
         memcpy(mock_response_data, dataToSend.data, strlen(dataToSend.data) + 1);
     }
@@ -193,7 +193,6 @@ int registerRequestSend(const char *name, const char *email, const char *usernam
             return SERVER_ERROR;
         char *auth_token_str = auth_token_obj->valuestring;
         auth_token = getStringCopy(auth_token_str);
-        printf("auth_token: %s\n", auth_token);
         cJSON_free(auth_token_obj);
     }
 
@@ -201,8 +200,6 @@ int registerRequestSend(const char *name, const char *email, const char *usernam
     free(response.data);
     cJSON_free(monitor_json);
     cJSON_free(ret_code_obj);
-
-        printf("auth_token: %s\n", auth_token);
     return ret_code; //can display a message saying what hapenned and return acordingly
 }
 
@@ -230,7 +227,7 @@ int logoutRequestSend(bool testing, char *mock_response_data)
         response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGOUT_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     else
     {
-        response.data = mock_response_data;
+        response.data = getStringCopy(mock_response_data);
         response.size = strlen(mock_response_data);
         memcpy(mock_response_data, additionalHeaderString, strlen(additionalHeaderString) + 1);
     }
@@ -283,7 +280,15 @@ int getExercisesListRequestSend(ExerciseSimplified *exercises_list[], size_t *nu
     if(auth_token != NULL)
         additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
 
-    Buffer response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, GET_EXERCISES_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    Buffer response;
+    if (!testing)
+        response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, GET_EXERCISES_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    else
+    {
+        response.data = getStringCopy(mock_response_data);
+        response.size = strlen(mock_response_data);
+        memcpy(mock_response_data, additionalHeaderString, strlen(additionalHeaderString) + 1);
+    }
     if(response.data == NULL)
         return CANT_CONNECT_TO_SERVER;
     cJSON *monitor_json = cJSON_Parse(response.data);
@@ -320,7 +325,7 @@ int getExercisesListRequestSend(ExerciseSimplified *exercises_list[], size_t *nu
             cJSON *title_obj = cJSON_GetObjectItemCaseSensitive(exercise, "title");
             if(title_obj == NULL)
                 return SERVER_ERROR;
-            cJSON *progress_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "progress"); //progress can be NULL in case user not logged in
+            cJSON *progress_obj = cJSON_GetObjectItemCaseSensitive(exercise, "progress"); //progress can be NULL in case user not logged in
             if (!cJSON_IsString(id_obj))            
             {
                 free(response.data);
@@ -405,8 +410,9 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
         response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     else
     {
-        response.data = mock_response_data;
+        response.data = getStringCopy(mock_response_data);
         response.size = strlen(mock_response_data);
+        memcpy(mock_response_data, additionalHeaderString, strlen(additionalHeaderString) + 1);
     }
     
     free(request_address);
@@ -614,7 +620,7 @@ int saveProgressRequestSend(Buffer exercise_data, char *code, int exercise_id, b
         response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     else
     {
-        response.data = mock_response_data;
+        response.data = getStringCopy(mock_response_data);
         response.size = strlen(mock_response_data);
     }
     
