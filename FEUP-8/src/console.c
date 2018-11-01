@@ -1466,7 +1466,7 @@ static void onConsoleSurfCommand(Console* console, const char* param)
 
 static void onConsoleExerciseCommand(Console* console, const char* param)
 {
-	gotoExercises();
+	gotoSurfExercises();
 	commandDone(console);
 }
 
@@ -2307,7 +2307,7 @@ static void onConsoleLoadExerciseCommand(Console* console, const char* param)
 	if(param && strlen(param))
 	{
 		if (getExerciseDetailsRequest(atoi(param), &tic->exe) == 0)
-		return;
+			gotoExercises();
 	}
 	else printBack(console, "\nexercise identifier is missing");
 
@@ -3030,9 +3030,11 @@ void initConsole(Console* console, tic_mem* tic, FileSystem* fs, Config* config,
 #if defined(TIC80_PRO)
 		.loadProject = loadProject,
 		.updateProject = updateProject,
+		.onConsoleLoadExerciseCommand=onConsoleLoadExerciseCommand,
 #else
 		.loadProject = NULL,
 		.updateProject = NULL,
+		.onConsoleLoadExerciseCommand=onConsoleLoadExerciseCommand,
 #endif
 		.error = error,
 		.trace = trace,

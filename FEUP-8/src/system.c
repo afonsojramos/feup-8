@@ -5,6 +5,7 @@
 #include "base64_enc_dec.h"
 #include "web_comunication_api.h"
 #include "unit_tests.h"
+#include "ticapi.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -1548,6 +1549,73 @@ static void emsStart(s32 argc, char **argv, const char* folder)
 
 s32 main(s32 argc, char **argv)
 {
+	//login request
+	//printf("registerRequest - %d\n", registerRequest("stuff", "stuff@email.com", "stuff", "stuff"));
+
+	//printf("loginRequest - %d\n", loginRequest("stuff1", "stuff1"));
+	//printf("loginRequest - %d\n", loginRequest("stuff", "stuff"));
+	//printf("logoutRequest - %d\n", logoutRequest());
+	//printf("loginRequest - %d\n", loginRequest("stuff", "stuff"));
+	//printf("registerRequest - %d\n", registerRequest("stuff", "stuvdccdfsbff@gmail.com", "stuscdffasdd", "stuff"));
+
+
+	//getExercisesListRequest
+	/*
+	ExerciseSimplified *exercises_list;
+	unsigned int number_of_ex;
+	printf("getExercisesListRequest - %d\n", getExercisesListRequest(&exercises_list, &number_of_ex));
+	unsigned int i = 0;
+	printf("number of ex: %d\n", number_of_ex);
+	for (i = 0; i < number_of_ex; i++)
+	{
+		printf("exercises_list[%d].id = %d\n", i, exercises_list[i].id);
+		printf("exercises_list[%d].title = %s\n", i, exercises_list[i].title);
+		printf("exercises_list[%d].progress = %d\n", i, exercises_list[i].progress);
+		
+	}
+	*/
+
+
+	//getExerciseDetailsRequest
+	/*
+	tic_exercise exercises_list;
+	printf("getExerciseDetailsRequest - %d\n", getExerciseDetailsRequest(2, &exercises_list));
+	printf("stufff\n");
+		printf("dfgdfgdfg\n");
+
+		printf("title = %s\n", exercises_list.title);
+		printf("creator_name = %s\n", exercises_list.creator_name);
+		printf("img_base64 = %s\n", exercises_list.img_base64);
+		printf("description = %s\n", exercises_list.description);
+		printf("title = %s\n", exercises_list.title);
+		printf("test id = %d\n", exercises_list.exerciseTest->id);
+		printf("test title = %s\n", exercises_list.exerciseTest->title);
+		printf("test hint = %s\n", exercises_list.exerciseTest->hint);
+		printf("test testcode = %s\n", exercises_list.exerciseTest->test_code);
+
+		printf("test id = %d\n", exercises_list.exerciseTest[1].id);
+		printf("test title = %s\n", exercises_list.exerciseTest[1].title);
+		printf("test hint = %s\n", exercises_list.exerciseTest[1].hint);
+		printf("test testcode = %s\n", exercises_list.exerciseTest[1].test_code);
+
+		
+		//printf("test passed = %d\n", exercises_list.exerciseTest->passed);
+	*/
+
+	//save progress
+	/*
+	Buffer exercise_data;
+	{
+		exercise_data.data = "asdoiasdºasdjsan aso a asjo aioiom amioa siom asmiaos ";
+		exercise_data.size = 54;
+	}
+	char *code = "if(stuff) then asdasdas;";
+	int exercise_id = 2;
+	printf("saveProgressRequest - %d\n", saveProgressRequest(exercise_data, code, exercise_id));
+	*/
+
+
+
 
 	const char* folder = getAppFolder();
 

@@ -10,7 +10,7 @@
          stopOnFailure="false">
     <testsuites>
         <testsuite name="Unit">
-            <directory suffix="Test.php">./tests/Unit</directory>
+            <directory suffix="Tests.php">./tests/Unit</directory>
         </testsuite>
 
         <testsuite name="Feature">
@@ -22,6 +22,13 @@
             <directory suffix=".php">./app</directory>
         </whitelist>
     </filter>
+    <!--uncomment for coverage report
+    <logging>
+        <log type="coverage-html" target="./report" charset="UTF-8"
+            yui="true" highlight="true"
+            lowUpperBound="50" highLowerBound="80" />
+    </logging>
+    -->
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="BCRYPT_ROUNDS" value="4"/>

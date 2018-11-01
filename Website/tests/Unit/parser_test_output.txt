@@ -1,0 +1,17 @@
+{
+"TestTiti.test1_withFailure":false,
+"TestTiti.test2_withFailure":false,
+"TestTiti.test3":true,
+"TestToto.test1_withFailure":false,
+"TestToto.test2_withFailure":false,
+"TestToto.test3":true,
+"TestToto.test4":false,
+"TestToto.test5":false,
+"TestToto.test6":false,
+"TestToto.test7":false,
+"TestToto.test8a":false,
+"TestToto.test8b":false,
+"test1_withFailure":false,
+"test2_withFailure":false,
+"test3":true
+}

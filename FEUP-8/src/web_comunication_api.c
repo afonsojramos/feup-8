@@ -1,16 +1,21 @@
 #include "web_comunication_api.h"
-#include "net.h"
 #include "base64_enc_dec.h"
-#include "cJSON.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
+int printDebugMsg()
+{
+    static int count = 1;
+    printf("debug number %d\n", count);
+    count++;
+}
+
 /**
 * Global variable that contains the token of the session. Is filled when login, and destroyed in logout.
 */
-static char *auth_token = NULL;
+char *auth_token = NULL;
 
 /**
 * Creates a string with the additional header parameters where auth_token is placed according to laravel.
@@ -50,7 +55,6 @@ static char* getStringCopy(const char *original)
 * Creates login request and sends it to the web server. Returns an int code indentifying the result of the request.
 * @param username The username to login with.
 * @param password The password to login with.
-* @param password The password to login with.
 * @return An int identifying the result of the request. Int returned and respective meaning:
 * 0 - success.
 * 1 - wrong username or password.
@@ -61,14 +65,29 @@ static char* getStringCopy(const char *original)
 */
 int loginRequest(const char *username, const char *password)
 {
+    return loginRequestSend(username, password, false, NULL);
+}
+
+
+int loginRequestSend(const char *username, const char *password, bool testing, char *mock_response_data)
+{
     Buffer dataToSend;
     int FIXED_LOGIN_MESSAGE_SIZE = 19;
     dataToSend.size = strlen(username) + strlen(password) + FIXED_LOGIN_MESSAGE_SIZE;
-    dataToSend.data = malloc(sizeof(u8) * dataToSend.size);
+    dataToSend.data = malloc(sizeof(u8) * (dataToSend.size + 1));
+    printf("stuff\n");
     sprintf(dataToSend.data, "username=%s&password=%s", username, password);
-    Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGIN_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
+    Buffer response;
+    if (!testing)
+        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGIN_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
+    else
+    {
+        response.data = getStringCopy(mock_response_data);
+        response.size = strlen(mock_response_data);
+        memcpy(mock_response_data, dataToSend.data, strlen(dataToSend.data) + 1);
+    }
     if(response.data == NULL)
-        return 3;
+        return CANT_CONNECT_TO_SERVER;
     
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
@@ -81,21 +100,21 @@ int loginRequest(const char *username, const char *password)
         free(dataToSend.data);
         free(response.data);
         cJSON_free(monitor_json);
-        return 2;
+        return SERVER_ERROR;
     }
 
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
     if(ret_code_obj == NULL)
-        return 2;
+        return SERVER_ERROR;
     int ret_code = ret_code_obj->valueint;
-    if (ret_code == 0)
+    if (ret_code == SUCCESS)
     {
         cJSON *auth_token_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "auth_token");
         if(auth_token_obj == NULL)
-            return 2;
+            return SERVER_ERROR;
         char *auth_token_str = auth_token_obj->valuestring;
         if(auth_token_str == NULL)
-            return 2;
+            return SERVER_ERROR;
         auth_token = getStringCopy(auth_token_str);
         cJSON_free(auth_token_obj);
     }
@@ -110,8 +129,9 @@ int loginRequest(const char *username, const char *password)
 
 /**
 * Creates register request and sends it to the web server. Returns an int code indentifying the result of the request.
+* @param name The name to register with.
+* @param email The email to register with.
 * @param username The username to register with.
-* @param password The password to register with.
 * @param password The password to register with.
 * @param auth_token The authentication token received from server. A pointer to a (char pointer (previously allocated)) should be passed as parameter.
 * @return An int identifying the result of the request. Int returned and respective meaning:
@@ -123,15 +143,30 @@ int loginRequest(const char *username, const char *password)
 */
 int registerRequest(const char *name, const char *email, const char *username, const char *password)
 {
+    return registerRequestSend(name, email, username, password, false, NULL);
+}
+
+
+int registerRequestSend(const char *name, const char *email, const char *username, const char *password, bool testing, char *mock_response_data)
+{
+    //TODO support para receber auth_token aquando de register
     Buffer dataToSend;
     int FIXED_REGISTER_MESSAGE_SIZE = 32;
     dataToSend.size = strlen(name) + strlen(email) + strlen(username) + strlen(password) + FIXED_REGISTER_MESSAGE_SIZE;
-    dataToSend.data = malloc(sizeof(u8) * dataToSend.size);
+    dataToSend.data = malloc(sizeof(u8) * (dataToSend.size + 1));
     sprintf(dataToSend.data, "name=%s&email=%s&username=%s&password=%s",
             name, email, username, password);
-    Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, REGISTER_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
+    Buffer response;
+    if (!testing)
+        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, REGISTER_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
+    else
+    {
+        response.data = getStringCopy(mock_response_data);
+        response.size = strlen(mock_response_data);
+        memcpy(mock_response_data, dataToSend.data, strlen(dataToSend.data) + 1);
+    }
     if(response.data == NULL)
-        return 3;
+        return CANT_CONNECT_TO_SERVER;
         
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
@@ -144,18 +179,18 @@ int registerRequest(const char *name, const char *email, const char *username, c
         free(dataToSend.data);
         free(response.data);
         cJSON_free(monitor_json);
-        return 2;
+        return SERVER_ERROR;
     }
 
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
     if(ret_code_obj == NULL)
-        return 2;
+        return SERVER_ERROR;
     int ret_code = ret_code_obj->valueint;
-    if (ret_code == 0)
+    if (ret_code == SUCCESS)
     {
         cJSON *auth_token_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "auth_token");
         if(auth_token_obj == NULL)
-            return 2;
+            return SERVER_ERROR;
         char *auth_token_str = auth_token_obj->valuestring;
         auth_token = getStringCopy(auth_token_str);
         cJSON_free(auth_token_obj);
@@ -165,7 +200,6 @@ int registerRequest(const char *name, const char *email, const char *username, c
     free(response.data);
     cJSON_free(monitor_json);
     cJSON_free(ret_code_obj);
-
     return ret_code; //can display a message saying what hapenned and return acordingly
 }
 
@@ -180,13 +214,25 @@ int registerRequest(const char *name, const char *email, const char *username, c
 */
 int logoutRequest()
 {
-    //auth_token = NULL; //reset auth_token
+    return logoutRequestSend(false, NULL);
+}
+
+int logoutRequestSend(bool testing, char *mock_response_data)
+{
     if(auth_token == NULL)
-        return 1;
+        return FORBIDDEN;
     char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
-    Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGOUT_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    Buffer response;
+    if (!testing)
+        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGOUT_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    else
+    {
+        response.data = getStringCopy(mock_response_data);
+        response.size = strlen(mock_response_data);
+        memcpy(mock_response_data, additionalHeaderString, strlen(additionalHeaderString) + 1);
+    }
     if(response.data == NULL)
-        return 3;
+        return CANT_CONNECT_TO_SERVER;
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
     {
@@ -197,24 +243,26 @@ int logoutRequest()
         }
         free(response.data);
         cJSON_free(monitor_json);
-        return 2;
+        return SERVER_ERROR;
     }
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
     if(ret_code_obj == NULL)
-        return 2;
+        return SERVER_ERROR;
     int ret_code = ret_code_obj->valueint;
     free(response.data);
     cJSON_free(monitor_json);
     cJSON_free(ret_code_obj);
     free(auth_token);
 
+    auth_token = NULL; //reset auth_token
     return ret_code; //can display a message saying what hapenned and return acordingly
 }
 
 
 /**
-* Creates a list of all exercises received from the web server . Returns an int code indentifying the result of the request.
-* @param exercises_list The exercises list received from server. A pointer to a (char pointer (previously allocated)) should be passed as parameter.
+* Sends a request to list all exercises. Returns a list of all exercises received from the web server. Returns an int code indentifying the result of the request.
+* @param exercises_list The exercises list received from server. A pointer to a (char size_t variable type (previously allocated)) should be passed as parameter.
+* @param number_of_exercises The number of exercises received from server (returns by reference). A pointer to a size_t variable type (previously allocated) should be passed.
 * @return An int identifying the result of the request. Int returned and respective meaning:
 * 0 - success.
 * 2 - server error.
@@ -222,14 +270,27 @@ int logoutRequest()
 */
 int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number_of_exercises)
 {
-    //TODO: tirar auth_token
-    /*if(auth_token == NULL)
-        return 1;
-    char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();*/
+    return getExercisesListRequestSend(exercises_list, number_of_exercises, false, NULL);
+}
 
-    Buffer response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, GET_EXERCISES_PATH, NULL, NULL, CONNECTION_TIMEOUT_MS);
+
+int getExercisesListRequestSend(ExerciseSimplified *exercises_list[], size_t *number_of_exercises, bool testing, char *mock_response_data)
+{
+    char *additionalHeaderString = NULL;
+    if(auth_token != NULL)
+        additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
+
+    Buffer response;
+    if (!testing)
+        response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, GET_EXERCISES_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    else
+    {
+        response.data = getStringCopy(mock_response_data);
+        response.size = strlen(mock_response_data);
+        memcpy(mock_response_data, additionalHeaderString, strlen(additionalHeaderString) + 1);
+    }
     if(response.data == NULL)
-        return 3;
+        return CANT_CONNECT_TO_SERVER;
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
     {
@@ -240,17 +301,17 @@ int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number
         }
         free(response.data);
         cJSON_free(monitor_json);
-        return 2;
+        return SERVER_ERROR;
     }
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
     if(ret_code_obj == NULL)
-        return 2;
+        return SERVER_ERROR;
     int ret_code = ret_code_obj->valueint;
-    if (ret_code == 0)
+    if (ret_code == SUCCESS)
     {
         cJSON *exercises = cJSON_GetObjectItemCaseSensitive(monitor_json, "exercises");
         if(exercises == NULL)
-            return 2;
+            return SERVER_ERROR;
         cJSON *exercise;
         *number_of_exercises = cJSON_GetArraySize(exercises);
         *exercises_list = malloc(sizeof(ExerciseSimplified) *  (*number_of_exercises));
@@ -260,11 +321,11 @@ int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number
         {
             cJSON *id_obj = cJSON_GetObjectItemCaseSensitive(exercise, "id");
             if(id_obj == NULL)
-                return 2;
+                return SERVER_ERROR;
             cJSON *title_obj = cJSON_GetObjectItemCaseSensitive(exercise, "title");
             if(title_obj == NULL)
-                return 2;
-            cJSON *progress_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "progress"); //progress can be NULL in case user not logged in
+                return SERVER_ERROR;
+            cJSON *progress_obj = cJSON_GetObjectItemCaseSensitive(exercise, "progress"); //progress can be NULL in case user not logged in
             if (!cJSON_IsString(id_obj))            
             {
                 free(response.data);
@@ -276,7 +337,7 @@ int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number
                 cJSON_free(id_obj);
                 cJSON_free(title_obj);
                 cJSON_free(progress_obj);
-                return 2;
+                return SERVER_ERROR;
             }
             int id = atoi(id_obj->valuestring);
             if (id == 0)
@@ -289,7 +350,7 @@ int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number
                 cJSON_free(exercise);
                 cJSON_free(id_obj);
                 cJSON_free(title_obj);
-                return 2;
+                return SERVER_ERROR;
             }
             char *title_str = title_obj->valuestring;
             (*exercises_list)[i].id = id;
@@ -324,23 +385,39 @@ int getExercisesListRequest(ExerciseSimplified *exercises_list[], size_t *number
 /**
 * Creates an exercise struct based on the received exercise from the web server. Returns an int code indentifying the result of the request.
 * @param exercise_id The id of the exercise to load from server.
-* @param exercise The exercise received from server. A double pointer to a Exercise should be passed as parameter, in order to allocate memory for it inside.
+* @param exercise The exercise received from server (returns by reference). A pointer to a (tic_exercise struct (previously allocated)) should be passed as parameter.
 * @return An int identifying the result of the request. Int returned and respective meaning:
 * 0 - success.
+* 1 - access denied.
 * 2 - server error.
 * 3 - can't connect to server.
 */
 int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
+{
+    return getExerciseDetailsRequestSend(exercise_id, exercise, false, NULL);
+}
+
+int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool testing, char *mock_response_data)
 {   
-    //TODO: tirar auth_token
-  /*  if(auth_token == NULL)
-        return NULL;
-    char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();*/
-    char *request_address = malloc(sizeof(char) * (strlen(GET_EXERCISE_DETAILS_PATH) + log10(exercise_id) + 1 + 1));
+    char *additionalHeaderString = NULL;
+    if(auth_token != NULL) //if logged in, the web server will receive the auth token in order to check if user can receive that exercise data.
+        additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
+
+    char *request_address = malloc(sizeof(char) * (strlen(GET_EXERCISE_DETAILS_PATH) + 1 + (log10(exercise_id) + 1)));
     sprintf(request_address, "%s/%d", GET_EXERCISE_DETAILS_PATH, exercise_id);
-    Buffer response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, NULL, NULL, CONNECTION_TIMEOUT_MS);
+    Buffer response;
+    if (!testing)
+        response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    else
+    {
+        response.data = getStringCopy(mock_response_data);
+        response.size = strlen(mock_response_data);
+        memcpy(mock_response_data, additionalHeaderString, strlen(additionalHeaderString) + 1);
+    }
+    
+    free(request_address);
     if(response.data == NULL)
-        return 3;
+        return CANT_CONNECT_TO_SERVER;
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
     {
@@ -350,44 +427,43 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
             fprintf(stderr, "Error before: %s\n", error_ptr);
         }
         free(response.data);
+        free((char*)error_ptr);
         cJSON_free(monitor_json);
-        return 2;
+        return SERVER_ERROR;
     }
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
     if(ret_code_obj == NULL)
-        return 2;
+        return SERVER_ERROR;
     int ret_code = ret_code_obj->valueint;
-    if (ret_code == 0)
+    if (ret_code == SUCCESS)
     {
         exercise->id = exercise_id;
-       cJSON *exercise_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "exercise");
+        cJSON *exercise_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "exercise");
         if(exercise_obj == NULL)
-            return 2;
+            return SERVER_ERROR;
           
         
         cJSON *exercise_element;
-        size_t i = 0;
-
         cJSON_ArrayForEach(exercise_element, exercise_obj)
         {
-             cJSON *title_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "title");
+            cJSON *title_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "title");
             if(title_obj == NULL || title_obj->valuestring == NULL)
-            return 2;
+                return SERVER_ERROR;
             exercise->title = getStringCopy(title_obj->valuestring);
 
             cJSON *creator_name_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "creator_name");
             if(creator_name_obj == NULL)
-                return 2;
+                return SERVER_ERROR;
             exercise->creator_name = getStringCopy(creator_name_obj->valuestring);
 
             cJSON *description_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "description");
             if(description_obj == NULL)
-                return 2;
+                return SERVER_ERROR;
             exercise->description = getStringCopy(description_obj->valuestring);
 
             cJSON *img_base64_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "image_base64");
             if(img_base64_obj == NULL)
-                return 2;
+                return SERVER_ERROR;
             exercise->img_base64 = getStringCopy(img_base64_obj->valuestring);
 
             cJSON *progress_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "progress");
@@ -396,26 +472,16 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
             else
                 exercise->progress = atoi(progress_obj->valuestring);
 
-            cJSON *correct_code_base64_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "correct_code_base64");
-            if(correct_code_base64_obj == NULL)
-                return 2;
-            exercise->exerciseTest.correct_code_base64 = getStringCopy(correct_code_base64_obj->valuestring);
+            if (parseExerciseTestsReceived(monitor_json, exercise) == 2)
+                return SERVER_ERROR;
 
-            cJSON *test_code_base64_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "test_code_base64");
-            if(test_code_base64_obj == NULL)
-                return 2;
-            exercise->exerciseTest.test_code_base64 = getStringCopy(test_code_base64_obj->valuestring);
-
-                    
-            cJSON_free(correct_code_base64_obj);
-            cJSON_free(test_code_base64_obj);
             cJSON_free(title_obj);
             cJSON_free(creator_name_obj);
             cJSON_free(description_obj);
             cJSON_free(img_base64_obj);
             cJSON_free(progress_obj);
-
-            i++;
+            cJSON_free(exercise_obj);
+        
         }
 
     }
@@ -427,7 +493,97 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
 }
 
 /**
-* Creates save exercise progress request and sends it to the web server. Returns an int code indentifying the result of the request.
+* Parses the exercises tests that come in JSON and puts them in the exerciseTestArray of ExerciseTest struct. Returns an int code identifying the result of the parse.
+* @param exercise_element A cJSON element representing the exercise tests info related.
+* @param exerciseTestArray A ExerciseTest instance for putting the exercise tests info. Double pointer to be allocated inside, when the number of tests is known.
+* @return An int identifying the result of the request. Int returned and respective meaning:
+* 0 - success.
+* 2 - parsing error.
+*/
+int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercise)
+{
+    //TODO: alterar para nova forma como vêm os testes segundo api
+    int ret_code = SUCCESS;
+    ExerciseTest **exerciseTestArray = &(ticExercise->exerciseTests);
+    cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "tests");
+    if(tests_obj == NULL)
+    {
+        cJSON_free(tests_obj);
+        return SERVER_ERROR;
+    }
+    ticExercise->number_of_exercise_tests = cJSON_GetArraySize(tests_obj);
+    *exerciseTestArray = malloc(sizeof(ExerciseTest) * ticExercise->number_of_exercise_tests);
+
+    cJSON *test;
+    size_t i = 0;
+    cJSON_ArrayForEach(test, tests_obj)
+    {
+        cJSON *id_obj = cJSON_GetObjectItemCaseSensitive(test, "id");
+        cJSON *title_obj = cJSON_GetObjectItemCaseSensitive(test, "title");
+        cJSON *hint_obj = cJSON_GetObjectItemCaseSensitive(test, "hint");
+        cJSON *test_code_obj = cJSON_GetObjectItemCaseSensitive(test, "test_code");
+
+        if(id_obj == NULL || id_obj->valuestring == NULL)
+        {
+            ret_code = SERVER_ERROR;
+            goto deallocate_parseExerciseTestsReceived;
+        }
+        int id = atoi(id_obj->valuestring);
+        if(id == 0)
+        {
+            ret_code = SERVER_ERROR;
+            goto deallocate_parseExerciseTestsReceived;
+        }
+        (*exerciseTestArray)[i].id = id;
+        
+        if(title_obj == NULL || title_obj->valuestring == NULL)
+        {
+            ret_code = SERVER_ERROR;
+            goto deallocate_parseExerciseTestsReceived;
+        }
+        (*exerciseTestArray)[i].title = title_obj->valuestring;
+        
+        if(hint_obj == NULL|| hint_obj->valuestring == NULL)
+        {
+            ret_code = SERVER_ERROR;
+            goto deallocate_parseExerciseTestsReceived;
+        }
+        (*exerciseTestArray)[i].hint = hint_obj->valuestring;
+
+        if(test_code_obj == NULL|| test_code_obj->valuestring == NULL)
+        {
+            ret_code = SERVER_ERROR;
+            goto deallocate_parseExerciseTestsReceived;
+        }
+        size_t code_decoded_size = b64_decoded_size(test_code_obj->valuestring);
+	    char *code_decoded = malloc(sizeof(char) * code_decoded_size);
+	    if (b64_decode(test_code_obj->valuestring, code_decoded, code_decoded_size) != 1)
+		{
+            free(code_decoded);
+            ret_code = SERVER_ERROR;
+            goto deallocate_parseExerciseTestsReceived;
+        }
+        (*exerciseTestArray)[i].test_code = code_decoded;
+
+deallocate_parseExerciseTestsReceived:
+        cJSON_free(id_obj);
+        cJSON_free(title_obj);
+        cJSON_free(hint_obj);
+        cJSON_free(test_code_obj);
+
+        if (ret_code == SERVER_ERROR)
+            goto deallocate_parseExerciseTestsReceivedAndReturn;
+        i++;
+    }
+    
+deallocate_parseExerciseTestsReceivedAndReturn : cJSON_free(tests_obj);
+    cJSON_free(test);
+
+    return ret_code;
+}
+
+/**
+* Creates save exercise progress request and sends it to the web server. Returns an int code identifying the result of the request.
 * @param exercise_data The data of the exercise to save (binary data).
 * @param progress An int representing the current progress on the exercise.
 * @param exercise_id An int representing the id of the exercise of which to save the progress.
@@ -437,24 +593,39 @@ int getExerciseDetailsRequest(int exercise_id, tic_exercise *exercise)
 * 2 - server error.
 * 3 - can't connect to server.
 */
-int saveProgressRequest(Buffer exercise_data, int progress, int exercise_id)
+int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id)
+{
+    return saveProgressRequestSend(exercise_data, code, exercise_id, false, NULL);
+}
+
+int saveProgressRequestSend(Buffer exercise_data, char *code, int exercise_id, bool testing, char *mock_response_data)
 {
     if(auth_token == NULL)
-        return 1;
+        return FORBIDDEN;
     char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
         
     Buffer dataToSend;
-    int FIXED_SAVE_PROGRESS_MESSAGE_SIZE = 24;
+    int FIXED_SAVE_PROGRESS_MESSAGE_SIZE = 20;
     char *exercise_data_encoded = b64_encode(exercise_data.data, exercise_data.size);
-    dataToSend.size = strlen(exercise_data_encoded) + log10(progress) + 1 + FIXED_SAVE_PROGRESS_MESSAGE_SIZE;
-    dataToSend.data = malloc(sizeof(u8) * dataToSend.size);
-    sprintf(dataToSend.data, "exercise_data=%s&progress=%d", exercise_data.data, progress);
+    char *code_encoded = b64_encode(code, strlen(code) * sizeof(char));
+    dataToSend.size = strlen(exercise_data_encoded) + strlen(code_encoded) + FIXED_SAVE_PROGRESS_MESSAGE_SIZE;
+    dataToSend.data = malloc(sizeof(u8) * (dataToSend.size + 1));
+    sprintf(dataToSend.data, "exercise_data=%s&code=%s", exercise_data_encoded, code_encoded);
+    
     char *request_address = malloc(sizeof(char) * (strlen(SAVE_PROGRESS_PATH) + 1 + log10(exercise_id) + 1 + 4));
     sprintf(request_address, "%s/%d/save", SAVE_PROGRESS_PATH, exercise_id);
 
-    Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    Buffer response;
+    if (!testing)
+        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    else
+    {
+        response.data = getStringCopy(mock_response_data);
+        response.size = strlen(mock_response_data);
+    }
+    
     if(response.data == NULL)
-        return 3;
+        return CANT_CONNECT_TO_SERVER;
     
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
@@ -467,16 +638,134 @@ int saveProgressRequest(Buffer exercise_data, int progress, int exercise_id)
         free(dataToSend.data);
         free(response.data);
         cJSON_free(monitor_json);
-        return 2;
+        return SERVER_ERROR;
     }
 
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
     if(ret_code_obj == NULL)
-        return 2;
+        return SERVER_ERROR;
     int ret_code = ret_code_obj->valueint;
     free(dataToSend.data);
     free(response.data);
     cJSON_free(monitor_json);
     cJSON_free(ret_code_obj);
+    return ret_code;
+}
+
+
+/**
+* Creates test code on server request and sends it to the web server. Returns an int code identifying the result of the request.
+* @param exercise_id An int representing the id of the exercise of which student code tries to resolve.
+* @param code A string with student typed code to be tested.
+* @param ticExercise The struct representing the exercise that will be filled with the result from the tests.
+* @return An int identifying the result of the request. Int returned and respective meaning:
+* 0 - success.
+* 2 - server error.
+* 3 - can't connect to server.
+*/
+int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise *ticExercise)
+{
+    char *additionalHeaderString = NULL;
+    if(auth_token != NULL) //if logged in, the web server will receive the auth token in order to sava the most recent progress of the user based on the code tested.
+        additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
+
+    int ret_code;
+    Buffer dataToSend;
+    int FIXED_EXECUTE_TEST_MESSAGE_SIZE = 6;
+    dataToSend.size = strlen(code) + FIXED_EXECUTE_TEST_MESSAGE_SIZE;
+    dataToSend.data = malloc(sizeof(u8) * dataToSend.size);
+    sprintf(dataToSend.data, "code=%s", code);
+    char *request_address = malloc(sizeof(char) * (strlen(EXECUTE_TEST_PATH) + 1 + (log10(exerciseId) + 1) + 1 + 4));
+    sprintf(request_address, "%s/%d/test", EXECUTE_TEST_PATH, exerciseId);
+
+    Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    if(response.data == NULL)
+    {
+        free(dataToSend.data);
+        free(response.data);
+        return CANT_CONNECT_TO_SERVER;
+    }
+    
+    cJSON *monitor_json = cJSON_Parse(response.data);
+    if (monitor_json == NULL)
+    {
+        const char *error_ptr = cJSON_GetErrorPtr();
+        if (error_ptr != NULL)
+        {
+            fprintf(stderr, "Error before: %s\n", error_ptr);
+        }
+        free(dataToSend.data);
+        free(response.data);
+        cJSON_free(monitor_json);
+        return SERVER_ERROR;
+    }
+
+    cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
+    if(ret_code_obj == NULL)
+    {
+        ret_code = SERVER_ERROR;
+        goto deallocate_memory;
+    }
+    ret_code = ret_code_obj->valueint;
+    if(ret_code == SUCCESS)
+    {
+        cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "tests");
+        if(tests_obj == NULL)
+        {
+            cJSON_free(tests_obj);
+            ret_code = SERVER_ERROR;
+            goto deallocate_memory;
+        }
+
+        cJSON *test;
+        size_t i = 0;
+        cJSON_ArrayForEach(test, tests_obj)
+        {
+            cJSON *id_obj = cJSON_GetObjectItemCaseSensitive(test, "id");
+            if(id_obj == NULL || id_obj->valuestring == NULL)
+                return SERVER_ERROR;
+            int id = atoi(id_obj->valuestring);
+            cJSON_free(id_obj);
+            if(id == 0)
+            {
+                cJSON_free(tests_obj);
+                cJSON_free(test);
+                ret_code = SERVER_ERROR;
+                goto deallocate_memory;
+            }
+
+            cJSON *result_obj = cJSON_GetObjectItemCaseSensitive(test, "result");
+            if(result_obj == NULL|| result_obj->valuestring == NULL)
+            {
+                cJSON_free(result_obj);
+                cJSON_free(tests_obj);
+                cJSON_free(test);
+                ret_code = SERVER_ERROR;
+                goto deallocate_memory;
+            }
+
+            bool passed = strcmp(result_obj->valuestring, "OK") == 0 ? true : false;
+            ExerciseTest *exerciseTestArray = ticExercise->exerciseTests;
+            for(size_t i = 0; i < ticExercise->number_of_exercise_tests; i++)
+            {
+                if(exerciseTestArray[i].id == id)
+                    exerciseTestArray[i].passed = passed;
+            }
+            ticExercise->creator_name = getStringCopy(result_obj->valuestring);
+            cJSON_free(result_obj);
+
+            i++;
+        }
+
+        cJSON_free(tests_obj);
+        cJSON_free(test);
+    }
+
+deallocate_memory:
+    free(dataToSend.data);
+    free(response.data);
+    cJSON_free(monitor_json);
+    cJSON_free(ret_code_obj);
+    
     return ret_code;
 }

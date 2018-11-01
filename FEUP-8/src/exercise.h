@@ -27,28 +27,35 @@
 
 typedef struct Exercise Exercise;
 
-typedef struct UnitTest UnitTest;
-
-struct UnitTest
-{
-	char* title;
-	char* description;
-	char* correctCode; //Would it be better to have only the expeted output??
-} ;
-
 struct Exercise
 {
 	tic_mem* tic;
 
 	tic_exercise* exe;
 
-	struct UnitTest* unitTests; 
+	struct UnitTest *unitTests;
+
+	u8 testIndex : SFX_COUNT_BITS;
 
 	enum
 	{
 		EXERCISE_OVERVIEW_TAB,
 		EXERCISE_TESTS_TAB,
 	} tab;
+
+	tic_rect rect;
+
+	struct
+	{
+		s32 x;
+		s32 y;
+
+		tic_point start;
+
+		bool active;
+		bool gesture;
+
+	} scroll;
 
 	struct History* history;
 

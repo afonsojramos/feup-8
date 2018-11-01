@@ -37,6 +37,7 @@
 #include "dialog.h"
 #include "menu.h"
 #include "surf.h"
+#include "surf_exercise.h"
 
 #include "fs.h"
 
@@ -171,6 +172,7 @@ static struct
 		Dialog* dialog;
 		Menu* menu;
 		Surf* surf;
+		SurfExercises * surf2;
 	};
 
 	FileSystem* fs;
@@ -444,7 +446,13 @@ void showTooltip(const char* text)
 
 static void drawExtrabar(tic_mem* tic)
 {
-	enum {Size = 7};
+	if (impl.mode == TIC_EXERCISE_MODE)  // ADDED_LINES
+		return;
+
+	enum
+	{
+		Size = 7
+	};
 
 	s32 x = (COUNT_OF(Modes) + 1) * Size + 17 * TIC_FONT_WIDTH;
 	s32 y = 0;
@@ -778,7 +786,7 @@ void drawToolbar(tic_mem* tic, u8 color, bool bg)
 		"MAP EDITOR",
 		"SFX EDITOR",
 		"MUSIC EDITOR",
-		"EXERCISE",
+		"EXERCISE", //ADDED_LINE
 	};
 
 #if defined (TIC80_PRO)
@@ -835,8 +843,8 @@ void setStudioEvent(StudioEvent event)
 			music->event(music, event);
 		}
 		break;
-	//Init the exercises mode
-	case TIC_EXERCISE_MODE:
+	//Init the exercises mode  ADDED_LINES
+	case TIC_EXERCISE_MODE:  
 		{
 			Exercise* exercise = impl.editor[impl.bank.index.exercise].exercise;
 			exercise->event(exercise, event);
@@ -921,10 +929,21 @@ static void initSurfMode()
 	initSurf(impl.surf, impl.studio.tic, impl.console);
 }
 
+static void initSurfExercisesMode()
+ {
+	 initSurfExercises(impl.surf2, impl.studio.tic, impl.console);
+ }
+
 void gotoSurf()
 {
 	initSurfMode();
 	setStudioMode(TIC_SURF_MODE);
+}
+
+void gotoSurfExercises()
+{
+	initSurfExercisesMode();
+	setStudioMode(TIC_SURF_EXERCISE_MODE);
 }
 
 void gotoCode()
@@ -1002,6 +1021,7 @@ void setStudioMode(EditorMode mode)
 		case TIC_WORLD_MODE: initWorldMap(); break;
 		case TIC_RUN_MODE: initRunMode(); break;
 		case TIC_SURF_MODE: impl.surf->resume(impl.surf); break;
+		case TIC_SURF_EXERCISE_MODE: impl.surf2->resume(impl.surf2); break;
 		default: break;
 		}
 
@@ -1135,7 +1155,7 @@ static void initModules()
 		initMap(impl.editor[i].map, impl.studio.tic, &tic->cart.banks[i].map);
 		initSfx(impl.editor[i].sfx, impl.studio.tic, &tic->cart.banks[i].sfx);
 		initMusic(impl.editor[i].music, impl.studio.tic, &tic->cart.banks[i].music);
-		initExercise(impl.editor[i].exercise, impl.studio.tic, &tic->exe);
+		initExercise(impl.editor[i].exercise, impl.studio.tic, &tic->exe); //ADDED_LINE
 	}
 
 	initWorldMap();
@@ -1610,6 +1630,11 @@ static void renderStudio()
 			sfx = &impl.config->cart.bank0.sfx;
 			music = &impl.config->cart.bank0.music;
 			break;
+			TIC_SURF_EXERCISE_MODE:
+			sfx = &impl.config->cart.bank0.sfx;
+			music = &impl.config->cart.bank0.music;
+			break;
+
 		default:
 			sfx = &impl.studio.tic->cart.banks[impl.bank.index.sfx].sfx;
 			music = &impl.studio.tic->cart.banks[impl.bank.index.music].music;
@@ -1653,17 +1678,18 @@ static void renderStudio()
 			music->tick(music);
 		}
 		break;
-	case TIC_EXERCISE_MODE:
-	{
-		Exercise* exercise = impl.editor[impl.bank.index.exercise].exercise;
-		exercise->tick(exercise);
-	}
-	break;
+	case TIC_EXERCISE_MODE: //ADDED_LINES
+		{
+			Exercise* exercise = impl.editor[impl.bank.index.exercise].exercise;
+			exercise->tick(exercise);
+		}
+		break;
 
 	case TIC_WORLD_MODE:	impl.world->tick(impl.world); break;
 	case TIC_DIALOG_MODE:	impl.dialog->tick(impl.dialog); break;
 	case TIC_MENU_MODE:		impl.menu->tick(impl.menu); break;
 	case TIC_SURF_MODE:		impl.surf->tick(impl.surf); break;
+	case TIC_SURF_EXERCISE_MODE: 	impl.surf2->tick(impl.surf2); break;
 	default: break;
 	}
 
@@ -1835,7 +1861,7 @@ static void studioClose()
 			free(impl.editor[i].map);
 			free(impl.editor[i].sfx);
 			free(impl.editor[i].music);
-			free(impl.editor[i].exercise);
+			free(impl.editor[i].exercise); //ADDED_LINE
 		}
 
 		free(impl.start);
@@ -1846,6 +1872,7 @@ static void studioClose()
 		free(impl.dialog);
 		free(impl.menu);
 		free(impl.surf);
+		free(impl.surf2);
 	}
 
 	if(impl.tic80local)
@@ -1880,7 +1907,7 @@ Studio* studioInit(s32 argc, char **argv, s32 samplerate, const char* folder, Sy
 			impl.editor[i].map 		= calloc(1, sizeof(Map));
 			impl.editor[i].sfx 		= calloc(1, sizeof(Sfx));
 			impl.editor[i].music 	= calloc(1, sizeof(Music));
-			impl.editor[i].exercise = calloc(1, sizeof(Exercise));
+			impl.editor[i].exercise = calloc(1, sizeof(Exercise));  // ADDED_LINE
 
 		}
 
@@ -1892,6 +1919,7 @@ Studio* studioInit(s32 argc, char **argv, s32 samplerate, const char* folder, Sy
 		impl.dialog 	= calloc(1, sizeof(Dialog));
 		impl.menu 		= calloc(1, sizeof(Menu));
 		impl.surf 		= calloc(1, sizeof(Surf));
+		impl.surf2 		= calloc(1, sizeof(SurfExercises));
 	}
 
 	fsMakeDir(impl.fs, TIC_LOCAL);
