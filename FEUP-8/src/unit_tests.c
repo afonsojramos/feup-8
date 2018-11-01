@@ -198,7 +198,7 @@ void testGetExerciseDetailsRequest()
 
     //build correct exercise
     tic_exercise exercise_correct;
-    exercise_correct.exerciseTest = malloc(sizeof(ExerciseTest));
+    exercise_correct.exerciseTests = malloc(sizeof(ExerciseTest));
 
     //fil in exercise details
     exercise_correct.title = "ac mattis semper,";
@@ -209,10 +209,10 @@ void testGetExerciseDetailsRequest()
     //exercise_correct.feup8_file = "";
     
     //fill in test details
-    exercise_correct.exerciseTest->id = 2;
-    exercise_correct.exerciseTest->title = "consequat purus. Maecenas";
-    exercise_correct.exerciseTest->test_code = "sdf zdf gdfg fsdgvstfdvsertvsdtfvvdtf sertvsertv6w3v54";
-    exercise_correct.exerciseTest->hint = "at lacus. Quisque purus sapien,";
+    exercise_correct.exerciseTests->id = 2;
+    exercise_correct.exerciseTests->title = "consequat purus. Maecenas";
+    exercise_correct.exerciseTests->test_code = "sdf zdf gdfg fsdgvstfdvsertvsdtfvvdtf sertvsertv6w3v54";
+    exercise_correct.exerciseTests->hint = "at lacus. Quisque purus sapien,";
     
     //test if the exercise and exercise tests were filled correctly
     ASSERT_STRING_EQUALS(exercise_correct.title, exercise.title);
@@ -220,10 +220,10 @@ void testGetExerciseDetailsRequest()
     ASSERT_STRING_EQUALS(exercise_correct.description, exercise.description);
     ASSERT_EQUALS(exercise_correct.progress, exercise.progress);
     
-    ASSERT_EQUALS(exercise_correct.exerciseTest->id, exercise.exerciseTest->id);
-    ASSERT_STRING_EQUALS(exercise_correct.exerciseTest->title, exercise.exerciseTest->title);
-    ASSERT_STRING_EQUALS(exercise_correct.exerciseTest->test_code, exercise.exerciseTest->test_code);
-    ASSERT_STRING_EQUALS(exercise_correct.exerciseTest->hint, exercise.exerciseTest->hint);
+    ASSERT_EQUALS(exercise_correct.exerciseTests->id, exercise.exerciseTests->id);
+    ASSERT_STRING_EQUALS(exercise_correct.exerciseTests->title, exercise.exerciseTests->title);
+    ASSERT_STRING_EQUALS(exercise_correct.exerciseTests->test_code, exercise.exerciseTests->test_code);
+    ASSERT_STRING_EQUALS(exercise_correct.exerciseTests->hint, exercise.exerciseTests->hint);
     
     //wrong password
     auth_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjY0MjA4NmVlY2QxNDEwODk1MDU0MzliNWZjNzM3NTFhZTU1ZTdkNzg0Y2Q0OTdkMTNiOWJjNDcwN2Q1NmNlMDVkYTRkNzI0M2ZmYWFiNDcwIn0.eyJhdWQiOiIxIiwianRpIjoiNjQyMDg2ZWVjZDE0MTA4OTUwNTQzOWI1ZmM3Mzc1MWFlNTVlN2Q3ODRjZDQ5N2QxM2I5YmM0NzA3ZDU2Y2UwNWRhNGQ3MjQzZmZhYWI0NzAiLCJpYXQiOjE1NDA3NDQwMDAsIm5iZiI6MTU0MDc0NDAwMCwiZXhwIjoxNTcyMjgwMDAwLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Uto9ype4cBVvbdztPT5pO_GsMouBgPH8MN-AX5O9AxlxjQ9H6xjstrOJMxMhsd1d6ni6aUcZAMtCiX2VjopxaRncEIcSTeLLduNjXedarkNa7_7xmzFPr8dfj20w9-4bRJ5fxzRkJj8qFFpaV21YYZghCyKJs8b0Wbhs77X1xAh7oVv2VWH5h_7o7dzc49ueRpXFPLcZukgCxpMBeTKnH7oN-v7GckGcvJiTJmdLt6moKAUCxjgpqGml8Tkyzc7PaKCYwA7PQ0UVBWFtBJQz85vRnpLmm7froF95Ra0eQulbrgeLvARaJ76U37Ht_mUz3trlmRsWBHoAlexx5QlWCdjWtYMw5Y1i-BtYWZdnHwSOGDkprQKU-ZB-hNlVFCrNIbSnhuaPqifzo82PjfKrYNffl5l2-DoquNTvga7Vr62WWKwQAEMuVW_YyfPslBb_FBowIXcYwwv-HYDz9xq6MWtbePH8-ju-pDO-T4TAdvPGf0d-mG9DdpQVZhGGZl7yh0riB4tCbYLm_VAtcuEfqgDgI1eZeoVyDWosJ34wXfIFTXn4ptEYMwQLhXmEIoFGcgc_S1pp1VtEMxk42BfTlgRUnqVmjtBYLQxgv8FQAd92jug-R5_FKFulAX9AaRt_sZcJULr2DnCHQmm_AoTJVb0xSBZYW_3WKPYDSMXSw_A";
