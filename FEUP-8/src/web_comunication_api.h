@@ -25,6 +25,11 @@
 #define SERVER_ERROR 2
 #define CANT_CONNECT_TO_SERVER 3
 
+//Tests codes
+#define EXECUTION_TIMEOUT -2
+#define SYNTACTIC_ERRORS -1
+#define CODE_APPROVED 0
+
 typedef struct 
 {
 		int id;

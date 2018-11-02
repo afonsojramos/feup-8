@@ -1,7 +1,7 @@
 BEGIN TRANSACTION;
 
-INSERT INTO `users` (`id`, `username`, `name`, `password`, `email`, `isTeacher`) VALUES (1,"user_already_in_db","name", "$2y$10$CIMNPzE21s7KpyAoRuPL6OVnSq.4UE5XVJxvUsaExxpRCZJO3s8Iy", "email_already_in_db", 0);
-INSERT INTO `users` (`id`, `username`, `name`, `password`, `email`, `isTeacher`) VALUES (2,"user_already_in_db2","name2", "$2y$10$JoTJGO0oLxjSixsuEFhU7uP/yMBfb0O3BerkiFl9.R/f873kXMxE.", "email_already_in_db2", 0);
+INSERT INTO `users` (`id`, `username`, `name`, `password`, `email`, `isTeacher`) VALUES (1,"user_already_in_db","name", "password_already_in_db", "email_already_in_db", 0);
+INSERT INTO `users` (`id`, `username`, `name`, `password`, `email`, `isTeacher`) VALUES (2,"user_already_in_db2","name2", "password_already_in_db2", "email_already_in_db2", 0);
 
 
 INSERT INTO `Exercise` (`id`,`title`,`description`,`image_path`,`creator_id`,`isPrivate`) VALUES (1,"Exercise1Title","Exercise1Description","Exercise1ImageBase64",1,0);

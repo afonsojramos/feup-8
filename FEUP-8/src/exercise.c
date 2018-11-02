@@ -52,10 +52,13 @@ static void drawCode(Exercise *exercise, char *text, u8 color, s32 xStart, s32 x
 
 		if (x >= -TIC_FONT_WIDTH && x < xEnd && y >= -TIC_FONT_HEIGHT && y < TIC80_HEIGHT)
 		{
+
 			exercise->tic->api.draw_char(exercise->tic, symbol, x + 1, y + 1, color, false);
+
+			//code->tic->api.draw_char(code->tic, symbol, x, y, *colorPointer, code->altFont);
 		}
 
-		if (symbol == '\n' || ((x + 2) >= xEnd))
+		if (symbol == '\n' || (x + 1) >= xEnd)
 		{
 			x = xStart;
 			y += STUDIO_TEXT_HEIGHT;
@@ -94,10 +97,11 @@ static void drawCodeScroll(Exercise *exercise, char *text, u8 color, s32 x, s32 
 
 		if (x >= -TIC_FONT_WIDTH && x < xEnd && y >= -TIC_FONT_HEIGHT && y < yEnd && y >= yStart)
 		{
+
 			exercise->tic->api.draw_char(exercise->tic, symbol, x + 1, y + 1, color, false);
 		}
 
-		if (symbol == '\n' || ((x + 2) >= xEnd))
+		if (symbol == '\n' || (x + 1) >= xEnd)
 		{
 			x = xStart;
 			y += STUDIO_TEXT_HEIGHT;
@@ -237,12 +241,6 @@ static void drawOverviewLayout(Exercise *exercise)
 {
 	exercise->tic->api.clear(exercise->tic, (tic_color_dark_red));
 
-	if (exercise->tic->exe.title == NULL)
-	{
-		drawCode(exercise, "No Exercise Loaded!", tic_color_red, TIC80_WIDTH / 4, TIC80_WIDTH / 4, TIC80_HEIGHT / 3, TIC80_WIDTH);
-		return;
-	}
-
 	int titleLength = TIC80_WIDTH / 12 + strlen("-- title: ") * TIC_FONT_WIDTH;
 	int authorLength = TIC80_WIDTH / 12 + strlen("-- author: ") * TIC_FONT_WIDTH;
 
@@ -285,7 +283,7 @@ static void drawOverviewLayout(Exercise *exercise)
 */
 static void runTests(Exercise *exercise)
 {
-	//sendCodeToServerAndGetTestsResults(exercise->tic->exe.id, exercise->tic->cart.code.data,exercise);
+	//exercise->tic->api.exercise(exercise->tic, exercise->track, -1, -1, true);
 }
 
 /** 
@@ -407,19 +405,15 @@ static void drawSwitch(Exercise *exercise, s32 x, s32 y, const char *label, s32 
 
 		tic_rect rect = {x, y, TIC_FONT_WIDTH, TIC_FONT_HEIGHT};
 
-		if (exercise->tic->exe.number_of_exercise_tests > 1)
+		if (checkMousePos(&rect))
 		{
-			if (checkMousePos(&rect))
-			{
-				setCursor(tic_cursor_hand);
+			setCursor(tic_cursor_hand);
 
-				if (checkMouseClick(&rect, tic_mouse_left))
-					set(exercise, -1);
-			}
-
-			drawBitIcon(rect.x, rect.y, LeftArrow, (tic_color_dark_gray));
+			if (checkMouseClick(&rect, tic_mouse_left))
+				set(exercise, -1);
 		}
 
+		drawBitIcon(rect.x, rect.y, LeftArrow, (tic_color_dark_gray));
 	}
 
 	{
@@ -433,19 +427,15 @@ static void drawSwitch(Exercise *exercise, s32 x, s32 y, const char *label, s32 
 
 		tic_rect rect = {x, y, TIC_FONT_WIDTH, TIC_FONT_HEIGHT};
 
-		if (exercise->tic->exe.number_of_exercise_tests > 1)
+		if (checkMousePos(&rect))
 		{
-			if (checkMousePos(&rect))
-			{
-				setCursor(tic_cursor_hand);
+			setCursor(tic_cursor_hand);
 
-				if (checkMouseClick(&rect, tic_mouse_left))
-					set(exercise, +1);
-			}
-
-			drawBitIcon(rect.x, rect.y, RightArrow, (tic_color_dark_gray));
+			if (checkMouseClick(&rect, tic_mouse_left))
+				set(exercise, +1);
 		}
-			
+
+		drawBitIcon(rect.x, rect.y, RightArrow, (tic_color_dark_gray));
 	}
 }
 
@@ -457,9 +447,9 @@ static void drawSwitch(Exercise *exercise, s32 x, s32 y, const char *label, s32 
 */
 static void setIndex(Exercise *exercise, s32 delta)
 {
-	if (exercise->testIndex < exercise->tic->exe.number_of_exercise_tests && exercise->testIndex > 1)
+	if (exercise->testIndex < (sizeof(exercise->unitTests) / 2) && exercise->testIndex > 1)
 		exercise->testIndex += delta;
-	else if (exercise->testIndex == exercise->tic->exe.number_of_exercise_tests && delta < 0)
+	else if (exercise->testIndex == (sizeof(exercise->unitTests) / 2) && delta < 0)
 		exercise->testIndex += delta;
 	else if (exercise->testIndex == 1 && delta > 0)
 		exercise->testIndex += delta;
@@ -488,14 +478,15 @@ static void drawTestsPanel(Exercise *exercise, s32 x, s32 y)
 * @param exercise a pointer to the exercise loaded
 * @param test a pointer to the unit test to be displayed
 */
-static void drawTestBox(Exercise *exercise, ExerciseTest *test)
+static void drawTestBox(Exercise *exercise, UnitTest *test)
 {
 	exercise->tic->api.rect(exercise->tic, 14, 30, (TIC80_WIDTH - 27), (TIC80_HEIGHT - 50), (tic_color_white));
 
 	exercise->tic->api.fixed_text(exercise->tic, test->title, 16, 35, (tic_color_black), false);
+	exercise->tic->api.fixed_text(exercise->tic, test->description, 16, 45, (tic_color_gray), false);
 
-	if (strlen(test->test_code) < 500)
-		drawCode(exercise, test->test_code, tic_color_blue, 16, 16, 45, (TIC80_WIDTH - 27));
+	if (strlen(test->correctCode) < 500)
+		drawCode(exercise, test->correctCode, tic_color_blue, 16, 16, 55, TIC80_WIDTH);
 	else
 	{
 		tic80_input *input = &exercise->tic->ram.input;
@@ -509,33 +500,29 @@ static void drawTestBox(Exercise *exercise, ExerciseTest *test)
 			s32 delta = input->mouse.scrolly > 0 ? -Scroll : Scroll;
 			exercise->scroll.y += delta;
 
-			normalizeScroll(exercise, test->test_code);
+			normalizeScroll(exercise, test->correctCode);
 		}
 
-		processMouse(exercise, test->test_code);
+		processMouse(exercise, test->correctCode);
 
-		drawCodeScroll(exercise, test->test_code, tic_color_blue, 16, 45, (TIC80_WIDTH - 27), (TIC80_HEIGHT - 25));
+		drawCodeScroll(exercise, test->correctCode, tic_color_blue, 16, 55, TIC80_WIDTH, TIC80_HEIGHT - 25);
 	}
 }
 
 /**
-* Draws the tests layout when the tests tab is selected
+* draw the tests layout when the tests tab is selected
 *
 * @param exercise a pointer to the exercise loaded
 */
 static void drawTestsLayout(Exercise *exercise)
 {
-	exercise->tic->api.clear(exercise->tic, (tic_color_gray));
+	tic_mem *tic = exercise->tic;
 
-	if (exercise->tic->exe.title == NULL)
-	{
-		drawCode(exercise, "No Exercise Loaded!", tic_color_dark_blue, TIC80_WIDTH / 4, TIC80_WIDTH / 4, TIC80_HEIGHT / 3, TIC80_WIDTH);
-		return;
-	}
-	
+	tic->api.clear(tic, (tic_color_gray));
+
 	drawTestsPanel(exercise, (TIC80_WIDTH / 2 - 25), 10);
 
-	ExerciseTest *test = &(exercise->tic->exe.exerciseTests[exercise->testIndex - 1]);
+	UnitTest *test = &(exercise->unitTests[exercise->testIndex - 1]);
 	drawTestBox(exercise, test);
 }
 
@@ -659,9 +646,61 @@ void initExercise(Exercise *exercise, tic_mem *tic, tic_exercise *exe)
 		.tic = tic,
 		.tick = tick,
 		.exe = exe,
+		.unitTests = malloc(4 * sizeof(UnitTest)), //Mock
 		.tab = EXERCISE_OVERVIEW_TAB,
 		//.history = history_create(tic->exe.title , sizeof(tic->exe)),
 		.testIndex = 1,
 		.scroll = {0, 0, {0, 0}, false},
+	};
+
+	/*
+	* Mock 
+	*/
+
+	char *name;
+	char *author;
+	char *description;
+	name = malloc(64);
+	author = malloc(64);
+	description = malloc(20000);
+	memcpy(name, "exercicio de teste", sizeof("exercicio de teste"));
+	memcpy(author, "professor Jorge", sizeof("professor Jorge"));
+	memcpy(description, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nPhasellus scelerisque, dolor in varius ullamcorper, massa metus maximus lorem, sed fermentum justo velit viverra dui. \nVestibulum nec lacus ac felis eleifend cursus sit amet vel nulla. \nFusce eget mi sed neque pulvinar sollicitudin non id justo. Donec facilisis eget ex ac auctor. Suspendisse in metus vel tortor eleifend blandit nec vitae eros. \nPellentesque rutrum commodo fermentum. \nNunc vehicula eleifend neque ac convallis. Nunc elementum tincidunt risus. Aenean augue lectus, molestie eget enim sed, suscipit cursus eros. \nMorbi a egestas arcu. Aliquam sem orci, sodales ac posuere vitae, eleifend eget urna.\nNullam sit amet sollicitudin libero. \nVestibulum sem enim, pretium a lobortis quis, mattis in nibh. Phasellus non pretium magna, id venenatis neque. Nulla accumsan eleifend consequat. Donec eu leo tortor. \nQuisque posuere elit ornare, malesuada nulla at, fermentum enim. \nSed tellus felis, dignissim nec feugiat ac, suscipit et diam.\nMorbi ac augue eu purus vestibulum ultrices. \nNullam vel magna at justo ullamcorper vulputate. \nPhasellus justo nulla, elementum sed lorem et, auctor malesuada libero. \nInteger ac erat eu eros ornare ultricies. Cras mattis quis risus id egestas. Phasellus porttitor diam sit amet ante ullamcorper, eu rhoncus massa mattis. Aliquam a sollicitudin diam. Pellentesque congue mauris nec nisl mattis, eu venenatis enim tincidunt. In blandit ut sem et faucibus. \nCras ut eros faucibus, finibus leo eget, placerat mi. Aliquam erat volutpat. \nMorbi pretium vehicula iaculis. ",
+		   sizeof("Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nPhasellus scelerisque, dolor in varius ullamcorper, massa metus maximus lorem, sed fermentum justo velit viverra dui. \nVestibulum nec lacus ac felis eleifend cursus sit amet vel nulla. \nFusce eget mi sed neque pulvinar sollicitudin non id justo. Donec facilisis eget ex ac auctor. Suspendisse in metus vel tortor eleifend blandit nec vitae eros. \nPellentesque rutrum commodo fermentum. \nNunc vehicula eleifend neque ac convallis. Nunc elementum tincidunt risus. Aenean augue lectus, molestie eget enim sed, suscipit cursus eros. \nMorbi a egestas arcu. Aliquam sem orci, sodales ac posuere vitae, eleifend eget urna.\nNullam sit amet sollicitudin libero. \nVestibulum sem enim, pretium a lobortis quis, mattis in nibh. Phasellus non pretium magna, id venenatis neque. Nulla accumsan eleifend consequat. Donec eu leo tortor. \nQuisque posuere elit ornare, malesuada nulla at, fermentum enim. \nSed tellus felis, dignissim nec feugiat ac, suscipit et diam.\nMorbi ac augue eu purus vestibulum ultrices. \nNullam vel magna at justo ullamcorper vulputate. \nPhasellus justo nulla, elementum sed lorem et, auctor malesuada libero. \nInteger ac erat eu eros ornare ultricies. Cras mattis quis risus id egestas. Phasellus porttitor diam sit amet ante ullamcorper, eu rhoncus massa mattis. Aliquam a sollicitudin diam. Pellentesque congue mauris nec nisl mattis, eu venenatis enim tincidunt. In blandit ut sem et faucibus. \nCras ut eros faucibus, finibus leo eget, placerat mi. Aliquam erat volutpat. \nMorbi pretium vehicula iaculis. "));
+
+	exercise->tic->exe.title = malloc(strlen(name) + 1);
+	strcpy(exercise->tic->exe.title, name);
+	exercise->tic->exe.creator_name = malloc(strlen(author) + 1);
+	strcpy(exercise->tic->exe.creator_name, author);
+	exercise->tic->exe.description = malloc(strlen(description) + 1);
+	strcpy(exercise->tic->exe.description, description);
+
+	free(name);
+	free(author);
+	free(description);
+
+	//DELETE
+	exercise->unitTests[0] = (UnitTest){
+		.title = "Test 1",
+		.description = "Description test 1",
+		.correctCode = "function testAddPositive()\n\tluaunit.assertEquals(add(1, 1), 2)\nend",
+	};
+
+	exercise->unitTests[1] = (UnitTest){
+		.title = "Test 2",
+		.description = "Description test 2",
+		.correctCode = "function testAddZero()\n\tluaunit.assertEquals(add(1, 0), 0)\n\tluaunit.assertEquals(add(0, 5), 0)\n\tluaunit.assertEquals(add(0, 0), 0)\nend",
+	};
+
+	exercise->unitTests[2] = (UnitTest){
+		.title = "Test 3",
+		.description = "Description test 3",
+		.correctCode = "lorem ipsum sid dolore..... 3",
+	};
+
+	exercise->unitTests[3] = (UnitTest){
+		.title = "Test 4",
+		.description = "Description test 4",
+		.correctCode = "function testAddZero()\n\tluaunit.assertEquals(add(1, 0), 0)\n\tluaunit.assertEquals(add(0, 5), 0)\n\tluaunit.assertEquals(add(0, 0), 0)\n\tluaunit.assertEquals(add(1, 0), 0)\n\tluaunit.assertEquals(add(0, 5), 0)\n\tluaunit.assertEquals(add(0, 0), 0)\n\tluaunit.assertEquals(add(1, 0), 0)\n\tluaunit.assertEquals(add(0, 5), 0)\n\tluaunit.assertEquals(add(0, 0), 0)\n\n\tluaunit.assertEquals(add(1, 0), 0)\n\tluaunit.assertEquals(add(0, 5), 0)\n\tluaunit.assertEquals(add(0, 0), 0)\n\n\tluaunit.assertEquals(add(1, 0), 0)\n\tluaunit.assertEquals(add(0, 5), 0)\n\tluaunit.assertEquals(add(0, 0), 0)\nend",
 	};
 }
