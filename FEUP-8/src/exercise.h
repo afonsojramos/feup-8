@@ -27,13 +27,22 @@
 
 typedef struct Exercise Exercise;
 
+typedef struct UnitTest UnitTest;
+
+struct UnitTest
+{
+	char* title;
+	char* description;
+	char* correctCode; //Would it be better to have only the expected output??
+} ;
+
 struct Exercise
 {
 	tic_mem* tic;
 
 	tic_exercise* exe;
 
-	struct UnitTest *unitTests;
+	struct UnitTest* unitTests;
 
 	u8 testIndex : SFX_COUNT_BITS;
 
