@@ -1,6 +1,3 @@
-image: lantaros/ldso-feup-8:feup-8
-image: lantaros/ldso-feup-8:website
-
 services:
     - docker:dind   
   
@@ -10,7 +7,7 @@ stages:
     - deploy
     
 build:website:
-    image: lantaros/ldso-feup-8:website
+    image: registry.gitlab.com/ldso18-19/t5g2:website
     stage: build
     artifacts:
         untracked: true
@@ -19,7 +16,7 @@ build:website:
         - composer install
         
 build:feup-8:
-    image: lantaros/ldso-feup-8:feup-8
+    image: registry.gitlab.com/ldso18-19/t5g2:feup-8
     stage: build
     artifacts:
         untracked: true
@@ -29,16 +26,22 @@ build:feup-8:
         - make -j4
 
 test:website:
-    image: lantaros/ldso-feup-8:website
+    image: registry.gitlab.com/ldso18-19/t5g2:website
     stage: test
     dependencies: 
         - build:website
     script:
         - cd Website
-        - vendor/bin/phpunit
+        - touch database/database_tests.sqlite
+        - APP_ENV=testing php artisan migrate:refresh
+        - APP_ENV=testing php artisan passport:install
+        - cd database
+        - sqlite3 database_tests.sqlite < database_tests_data.sql
+        - cd ..
+        - APP_ENV=testing ./vendor/bin/phpunit
         
 test:feup-8:
-    image: lantaros/ldso-feup-8:feup-8
+    image: registry.gitlab.com/ldso18-19/t5g2:feup-8
     stage: test
     dependencies: 
         - build:feup-8
@@ -47,7 +50,7 @@ test:feup-8:
         - ./tic80 -test
 
 deploy:website:
-    image: lantaros/ldso-feup-8:website
+    image: registry.gitlab.com/ldso18-19/t5g2:website
     stage: deploy
     script:
         - cd Website

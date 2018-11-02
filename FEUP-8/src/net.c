@@ -142,7 +142,7 @@ Buffer sendHttpGetRequest(const char* address, int port, const char* path, Buffe
 	char message[messageSize];
 	memset(message, 0, sizeof message);
 	sprintf(message, "GET %s?%s HTTP/1.1\r\nHost: %s\r\n%s\r\n", path, dataToSend->data, address, additionalHeaderString);
-
+	printf("message: %s\n", message);
 	return sendHttpRequest(address, port, path, message, messageSize, timeout);
 }
 
