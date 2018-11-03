@@ -164,8 +164,8 @@ class ExerciseTest extends TestCase
             "feup8_file"=>""));
         $this->assertEquals($excepted_array_exercise_details_received, $response_array['exercise']);
         $excepted_array_exercise_tests_received = array(
-            array("id"=>"5", "title"=>"test_sum_correct", "hint"=>"Test1HintExercise3", "test_code"=>"ZnVuY3Rpb24gdGVzdF9zdW1fY29ycmVjdCgpDQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMyw0KSAsIDcpDQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oNCwzKSAsIDcpDQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMywtNCkgLCAtMSkNCmVuZA=="),
-            array("id"=>"6", "title"=>"test_sum_correct2", "hint"=>"Test2HintExercise3", "test_code"=>"ZnVuY3Rpb24gdGVzdF9zdW1fY29ycmVjdDIoKQ0KbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDMsNCkgLCA3KQ0KbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDQsMykgLCA3KQ0KbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDMsLTQpICwgLTEpDQplbmQ="));
+            array("id"=>"5", "title"=>"test_sum_correct", "hint"=>"Test1HintExercise3", "test_code"=>"ZnVuY3Rpb24gdGVzdF9zdW1fY29ycmVjdCgpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSgzLDQpICwgNykKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDQsMykgLCA3KQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMywtNCkgLCAtMSkKZW5k"),
+            array("id"=>"6", "title"=>"test_sum_correct2", "hint"=>"Test2HintExercise3", "test_code"=>"ZnVuY3Rpb24gdGVzdF9zdW1fY29ycmVjdDIoKQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMyw0KSAsIDcpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSg0LDMpICwgNykKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDMsLTQpICwgLTEpCmVuZA=="));
         $this->assertEquals($excepted_array_exercise_tests_received, $response_array['tests']);
     }
 
@@ -191,8 +191,8 @@ class ExerciseTest extends TestCase
         ));
         $this->assertEquals($excepted_array_exercise_details_received, $response_array['exercise']);
         $excepted_array_exercise_tests_received = array(
-            array("id"=>"3", "title"=>"test_sum_failing", "hint"=>"Test1HintExercise2", "test_code"=>"ZnVuY3Rpb24gdGVzdF9zdW1fZmFpbGluZygpDQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMyw0KSAsIDgpDQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oNCwzKSAsIDkpDQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMywtNCkgLCAtNykNCmVuZA=="),
-            array("id"=>"4", "title"=>"test_sum_failing2", "hint"=>"Test2HintExercise2", "test_code"=>"ZnVuY3Rpb24gdGVzdF9zdW1fZmFpbGluZzIoKQ0KbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDMsNCkgLCA4KQ0KbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDQsMykgLCA5KQ0KbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDMsLTQpICwgLTcpDQplbmQ="));
+            array("id"=>"3", "title"=>"test_sum_failing", "hint"=>"Test1HintExercise2", "test_code"=>"ZnVuY3Rpb24gdGVzdF9zdW1fZmFpbGluZygpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSgzLDQpICwgOCkKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDQsMykgLCA5KQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMywtNCkgLCAtNykKZW5k"),
+            array("id"=>"4", "title"=>"test_sum_failing2", "hint"=>"Test2HintExercise2", "test_code"=>"ZnVuY3Rpb24gdGVzdF9zdW1fZmFpbGluZzIoKQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMyw0KSAsIDgpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSg0LDMpICwgOSkKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDMsLTQpICwgLTcpCmVuZA=="));
         $this->assertEquals($excepted_array_exercise_tests_received, $response_array['tests']);
     }
 
@@ -276,7 +276,7 @@ class ExerciseTest extends TestCase
         $number_elements_received = 3;
         $expected_response_code = 0;
         $expected_tests_global_state = 0;
-        $expected_tests_result = ["test_sum_correct"=>true, "test_sum_correct"=>true];
+        $expected_tests_results = ["test_sum_correct"=>true, "test_sum_correct"=>true];
 
         //log in with user 1 that has permissions for exercise 3 that is private
         $headers = ['Authorization' => 'Bearer ' . $this->makeLoginForUser('user_already_in_db', 'password_already_in_db')];
