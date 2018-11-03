@@ -9,12 +9,36 @@ INSERT INTO `Exercise` (`id`,`title`,`description`,`image_path`,`creator_id`,`is
 INSERT INTO `Exercise` (`id`,`title`,`description`,`image_path`,`creator_id`,`isPrivate`) VALUES (3,"Exercise3Title","Exercise3Description","Exercise3ImageBase64",1,1);
 
 
-INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (1,"Test1TestCodeExercise1","Test1TitleExercise1","Test1HintExercise1",1);
-INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (2,"Test2TestCodeExercise1","Test2TitleExercise1","Test2HintExercise1",1);
-INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (3,"Test1TestCodeExercise2","Test1TitleExercise2","Test1HintExercise2",2);
-INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (4,"Test2TestCodeExercise2","Test2TitleExercise2","Test2HintExercise2",2);
-INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (5,"Test1TestCodeExercise3","Test1TitleExercise3","Test1HintExercise3",3);
-INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (6,"Test2TestCodeExercise3","Test2TitleExercise3","Test2HintExercise3",3);
+INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (1,"function sum_correct()
+luaunit.assertEquals(sum(3,4) , 7)
+luaunit.assertEquals(sum(4,3) , 7)
+luaunit.assertEquals(sum(3,-4) , -1)
+end","sum_correct","Test1HintExercise1",1);
+INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (2,"function sum_failing()
+luaunit.assertEquals(sum(3,4) , 8)
+luaunit.assertEquals(sum(4,3) , 9)
+luaunit.assertEquals(sum(3,-4) , -7)
+end","sum_failing","Test2HintExercise1",1);
+INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (3,"function sum_failing()
+luaunit.assertEquals(sum(3,4) , 8)
+luaunit.assertEquals(sum(4,3) , 9)
+luaunit.assertEquals(sum(3,-4) , -7)
+end","sum_failing","Test1HintExercise2",2);
+INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (4,"function sum_failing2()
+luaunit.assertEquals(sum(3,4) , 8)
+luaunit.assertEquals(sum(4,3) , 9)
+luaunit.assertEquals(sum(3,-4) , -7)
+end","sum_failing2","Test2HintExercise2",2);
+INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (5,"function sum_correct()
+luaunit.assertEquals(sum(3,4) , 7)
+luaunit.assertEquals(sum(4,3) , 7)
+luaunit.assertEquals(sum(3,-4) , -1)
+end","sum_correct","Test1HintExercise3",3);
+INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (6,"function sum_correct2()
+luaunit.assertEquals(sum(3,4) , 7)
+luaunit.assertEquals(sum(4,3) , 7)
+luaunit.assertEquals(sum(3,-4) , -1)
+end","sum_correct2","Test2HintExercise3",3);
 
 
 
