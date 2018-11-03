@@ -134,7 +134,7 @@ function test2_withFailure()
     -- will fail
     assert( 'a' == 'b')
 --syntax error
-end
+endasdasd
 
 function test3()
     assert( 1 == 1)
