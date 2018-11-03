@@ -7,7 +7,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UserTests extends TestCase
 {
-    //use RefreshDatabase;
     /* Register tests
 
     /**
