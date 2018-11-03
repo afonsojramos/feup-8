@@ -82,7 +82,7 @@ class ExerciseTests extends TestCase
     public function testGetExerciseResolutionProgressBasedOnStudentCodePartialCorrect()
     {
         $exercise_id = 1;
-        $test_code =  "ZnVuY3Rpb24gc3VtKG51bTEsIG51bTIpIFxuIHJldHVybiBudW0xICsgbnVtMjsgXG4gZW5k";  //function sum(num1, num2) \n return num1 + num2; \n end
+        $test_code =  "ZnVuY3Rpb24gc3VtKG51bTEsIG51bTIpDQogICAgICAgIHJldHVybiBudW0xICsgbnVtMjsNCiAgICAgZW5k";  //function sum(num1, num2) \n return num1 + num2; \n end
         $expected_progress = 50;
         $this->genericTestGetExerciseResolutionProgressBasedOnStudentCode($exercise_id, $test_code, $expected_progress);
     }
@@ -93,7 +93,7 @@ class ExerciseTests extends TestCase
     public function testGetExerciseResolutionProgressBasedOnStudentCodeWrong()
     {
         $exercise_id = 2;
-        $test_code =  "ZnVuY3Rpb24gc3VtKG51bTEsIG51bTIpIFxuIHJldHVybiBudW0xICsgbnVtMjsgXG4gZW5k";  //function sum(num1, num2) \n return num1 + num2; \n end
+        $test_code =  "ZnVuY3Rpb24gc3VtKG51bTEsIG51bTIpDQogICAgICAgIHJldHVybiBudW0xICsgbnVtMjsNCiAgICAgZW5k";  //function sum(num1, num2) \n return num1 + num2; \n end
         $expected_progress = 0;
         $this->genericTestGetExerciseResolutionProgressBasedOnStudentCode($exercise_id, $test_code, $expected_progress);
     }
@@ -109,8 +109,8 @@ class ExerciseTests extends TestCase
     {
         $exerciseController = new ExerciseController();
         $excepted_array_exercise_tests_received = array(
-            array("test_code"=>"function sum_failing()\nluaunit.assertEquals(sum(3,4) , 8)\nluaunit.assertEquals(sum(4,3) , 9)\nluaunit.assertEquals(sum(3,-4) , -7)\nend"),
-            array("test_code"=>"function sum_failing2()\nluaunit.assertEquals(sum(3,4) , 8)\nluaunit.assertEquals(sum(4,3) , 9)\nluaunit.assertEquals(sum(3,-4) , -7)\nend"));
+            array("test_code"=>"function test_sum_failing()\nluaunit.assertEquals(sum(3,4) , 8)\nluaunit.assertEquals(sum(4,3) , 9)\nluaunit.assertEquals(sum(3,-4) , -7)\nend"),
+            array("test_code"=>"function test_sum_failing2()\nluaunit.assertEquals(sum(3,4) , 8)\nluaunit.assertEquals(sum(4,3) , 9)\nluaunit.assertEquals(sum(3,-4) , -7)\nend"));
         $this->assertEquals($exerciseController->getExerciseTestsTestCode(2, 0), 
             json_decode(json_encode($excepted_array_exercise_tests_received)));
     }
@@ -131,8 +131,8 @@ class ExerciseTests extends TestCase
     {
         $exerciseController = new ExerciseController();
         $excepted_array_exercise_tests_received = array(
-            array("test_code"=>"function sum_correct()\nluaunit.assertEquals(sum(3,4) , 7)\nluaunit.assertEquals(sum(4,3) , 7)\nluaunit.assertEquals(sum(3,-4) , -1)\nend"),
-            array("test_code"=>"function sum_failing()\nluaunit.assertEquals(sum(3,4) , 8)\nluaunit.assertEquals(sum(4,3) , 9)\nluaunit.assertEquals(sum(3,-4) , -7)\nend"));
+            array("test_code"=>"function test_sum_correct()\nluaunit.assertEquals(sum(3,4) , 7)\nluaunit.assertEquals(sum(4,3) , 7)\nluaunit.assertEquals(sum(3,-4) , -1)\nend"),
+            array("test_code"=>"function test_sum_failing()\nluaunit.assertEquals(sum(3,4) , 8)\nluaunit.assertEquals(sum(4,3) , 9)\nluaunit.assertEquals(sum(3,-4) , -7)\nend"));
         $this->assertEquals($exerciseController->getExerciseTestsTestCode(1, 1), 
             json_decode(json_encode($excepted_array_exercise_tests_received)));
     }
@@ -159,8 +159,8 @@ class ExerciseTests extends TestCase
     {
         $code = "function sum(num1, num2) \n return num1 + num2; \n end";
         $unit_tests_code_array = [
-            "function sum_correct()\nluaunit.assertEquals(sum(3,4) , 7)\nluaunit.assertEquals(sum(4,3) , 7)\nluaunit.assertEquals(sum(3,-4) , -1)\nend",
-            "function sum_correct2()\nluaunit.assertEquals(sum(3,4) , 7)\nluaunit.assertEquals(sum(4,3) , 7)\nluaunit.assertEquals(sum(3,-4) , -1)\nend"];
+            "function test_sum_correct()\nluaunit.assertEquals(sum(3,4) , 7)\nluaunit.assertEquals(sum(4,3) , 7)\nluaunit.assertEquals(sum(3,-4) , -1)\nend",
+            "function test_sum_correct2()\nluaunit.assertEquals(sum(3,4) , 7)\nluaunit.assertEquals(sum(4,3) , 7)\nluaunit.assertEquals(sum(3,-4) , -1)\nend"];
         $expected_return_code = 0;
         $this->genericTestExerciseCodeUsingLuaUnitExecutor($code, $unit_tests_code_array, $expected_return_code);
     }
@@ -172,8 +172,8 @@ class ExerciseTests extends TestCase
     {
         $code = "function sum(num1, num2) \n return num1 - num2; \n end";
         $unit_tests_code_array = [
-            "function sum_correct()\nluaunit.assertEquals(sum(3,4) , 7)\nluaunit.assertEquals(sum(4,3) , 7)\nluaunit.assertEquals(sum(3,-4) , -1)\nend",
-            "function sum_correct2()\nluaunit.assertEquals(sum(3,4) , 7)\nluaunit.assertEquals(sum(4,3) , 7)\nluaunit.assertEquals(sum(3,-4) , -1)\nend"];
+            "function test_sum_correct()\nluaunit.assertEquals(sum(3,4) , 7)\nluaunit.assertEquals(sum(4,3) , 7)\nluaunit.assertEquals(sum(3,-4) , -1)\nend",
+            "function test_sum_correct2()\nluaunit.assertEquals(sum(3,4) , 7)\nluaunit.assertEquals(sum(4,3) , 7)\nluaunit.assertEquals(sum(3,-4) , -1)\nend"];
         $expected_return_code = 2;
         $this->genericTestExerciseCodeUsingLuaUnitExecutor($code, $unit_tests_code_array, $expected_return_code);
     }
@@ -185,8 +185,8 @@ class ExerciseTests extends TestCase
     {
         $code = "djlkdjglkdsjgldsljgjsdlk"; //code with syntatic errors
         $unit_tests_code_array = [
-            "function sum_correct()\nluaunit.assertEquals(sum(3,4) , 7)\nluaunit.assertEquals(sum(4,3) , 7)\nluaunit.assertEquals(sum(3,-4) , -1)\nend",
-            "function sum_correct2()\nluaunit.assertEquals(sum(3,4) , 7)\nluaunit.assertEquals(sum(4,3) , 7)\nluaunit.assertEquals(sum(3,-4) , -1)\nend"];
+            "function test_sum_correct()\nluaunit.assertEquals(sum(3,4) , 7)\nluaunit.assertEquals(sum(4,3) , 7)\nluaunit.assertEquals(sum(3,-4) , -1)\nend",
+            "function test_sum_correct2()\nluaunit.assertEquals(sum(3,4) , 7)\nluaunit.assertEquals(sum(4,3) , 7)\nluaunit.assertEquals(sum(3,-4) , -1)\nend"];
         $expected_return_code = -1;
         $this->genericTestExerciseCodeUsingLuaUnitExecutor($code, $unit_tests_code_array, $expected_return_code);
     }
