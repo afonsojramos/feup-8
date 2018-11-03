@@ -276,7 +276,7 @@ class ExerciseTest extends TestCase
         $number_elements_received = 3;
         $expected_response_code = 0;
         $expected_tests_global_state = 0;
-        $expected_tests_results = ["test_sum_correct"=>true, "test_sum_correct"=>true];
+        $expected_tests_results = ["test_sum_correct"=>true, "test_sum_correct2"=>true];
 
         //log in with user 1 that has permissions for exercise 3 that is private
         $headers = ['Authorization' => 'Bearer ' . $this->makeLoginForUser('user_already_in_db', 'password_already_in_db')];
