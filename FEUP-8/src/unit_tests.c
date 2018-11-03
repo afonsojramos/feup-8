@@ -186,12 +186,12 @@ void testGetExerciseDetailsRequest()
     //correct login
     int exercise_id = 26;
     char *mock_response_data = 
-    "{    \"response_code\": 0,    \"exercise\": [        {            \"title\": \"ac mattis semper,\",            \"description\": \"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sed tortor. Integer aliquam adipiscing lacus. Ut nec urna et arcu imperdiet ullamcorper. Duis at lacus. Quisque purus sapien, gravida non, sollicitudin a, malesuada id, erat. Etiam\",            \"image_base64\": \"2.png\",            \"creator_name\": \"Utilizador Um\",            \"progress\": \"10\",            \"feup8_file\": \"cvb\"        }    ],    \"tests\": [        {            \"id\": \"2\",            \"title\": \"consequat purus. Maecenas\",            \"test_code\": \"c2RmIHpkZiBnZGZnIGZzZGd2c3RmZHZzZXJ0dnNkdGZ2dmR0ZiBzZXJ0dnNlcnR2NnczdjU0\",            \"hint\": \"at lacus. Quisque purus sapien,\"        }    ]    };    ";
+    "{    \"response_code\": 0,    \"exercise\": [        {            \"title\": \"ac mattis semper,\",            \"description\": \"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sed tortor. Integer aliquam adipiscing lacus. Ut nec urna et arcu imperdiet ullamcorper. Duis at lacus. Quisque purus sapien, gravida non, sollicitudin a, malesuada id, erat. Etiam\",            \"image_base64\": \"2.png\",            \"creator_name\": \"Utilizador Um\",            \"progress\": \"10\",            \"feup8_file\": \"c2R0aCB0c2h0c2VyeTR3dGFiMzQ2cTUzNHkgNjR1cyA1NnNyNHU=\"        }    ],    \"tests\": [        {            \"id\": \"2\",            \"title\": \"consequat purus. Maecenas\",            \"test_code\": \"c2RmIHpkZiBnZGZnIGZzZGd2c3RmZHZzZXJ0dnNkdGZ2dmR0ZiBzZXJ0dnNlcnR2NnczdjU0\",            \"hint\": \"at lacus. Quisque purus sapien,\"        }    ]    };    ";
     char *mock_response_data_ = malloc(5000);
     memcpy(mock_response_data_, mock_response_data, strlen(mock_response_data) + 1);
     tic_exercise exercise;
     int ret = getExerciseDetailsRequestSend(exercise_id, &exercise, true, mock_response_data_);
-    char *data_sent_to_server = mock_response_data_;printf("ret: %d\n", ret);
+    char *data_sent_to_server = mock_response_data_;
     ASSERT_STRING_EQUALS(data_sent_to_server, "Accept: application/json\r\nAuthorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjY0MjA4NmVlY2QxNDEwODk1MDU0MzliNWZjNzM3NTFhZTU1ZTdkNzg0Y2Q0OTdkMTNiOWJjNDcwN2Q1NmNlMDVkYTRkNzI0M2ZmYWFiNDcwIn0.eyJhdWQiOiIxIiwianRpIjoiNjQyMDg2ZWVjZDE0MTA4OTUwNTQzOWI1ZmM3Mzc1MWFlNTVlN2Q3ODRjZDQ5N2QxM2I5YmM0NzA3ZDU2Y2UwNWRhNGQ3MjQzZmZhYWI0NzAiLCJpYXQiOjE1NDA3NDQwMDAsIm5iZiI6MTU0MDc0NDAwMCwiZXhwIjoxNTcyMjgwMDAwLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Uto9ype4cBVvbdztPT5pO_GsMouBgPH8MN-AX5O9AxlxjQ9H6xjstrOJMxMhsd1d6ni6aUcZAMtCiX2VjopxaRncEIcSTeLLduNjXedarkNa7_7xmzFPr8dfj20w9-4bRJ5fxzRkJj8qFFpaV21YYZghCyKJs8b0Wbhs77X1xAh7oVv2VWH5h_7o7dzc49ueRpXFPLcZukgCxpMBeTKnH7oN-v7GckGcvJiTJmdLt6moKAUCxjgpqGml8Tkyzc7PaKCYwA7PQ0UVBWFtBJQz85vRnpLmm7froF95Ra0eQulbrgeLvARaJ76U37Ht_mUz3trlmRsWBHoAlexx5QlWCdjWtYMw5Y1i-BtYWZdnHwSOGDkprQKU-ZB-hNlVFCrNIbSnhuaPqifzo82PjfKrYNffl5l2-DoquNTvga7Vr62WWKwQAEMuVW_YyfPslBb_FBowIXcYwwv-HYDz9xq6MWtbePH8-ju-pDO-T4TAdvPGf0d-mG9DdpQVZhGGZl7yh0riB4tCbYLm_VAtcuEfqgDgI1eZeoVyDWosJ34wXfIFTXn4ptEYMwQLhXmEIoFGcgc_S1pp1VtEMxk42BfTlgRUnqVmjtBYLQxgv8FQAd92jug-R5_FKFulAX9AaRt_sZcJULr2DnCHQmm_AoTJVb0xSBZYW_3WKPYDSMXSw_A\r\n");
     ASSERT_STRING_EQUALS(auth_token, "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjY0MjA4NmVlY2QxNDEwODk1MDU0MzliNWZjNzM3NTFhZTU1ZTdkNzg0Y2Q0OTdkMTNiOWJjNDcwN2Q1NmNlMDVkYTRkNzI0M2ZmYWFiNDcwIn0.eyJhdWQiOiIxIiwianRpIjoiNjQyMDg2ZWVjZDE0MTA4OTUwNTQzOWI1ZmM3Mzc1MWFlNTVlN2Q3ODRjZDQ5N2QxM2I5YmM0NzA3ZDU2Y2UwNWRhNGQ3MjQzZmZhYWI0NzAiLCJpYXQiOjE1NDA3NDQwMDAsIm5iZiI6MTU0MDc0NDAwMCwiZXhwIjoxNTcyMjgwMDAwLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Uto9ype4cBVvbdztPT5pO_GsMouBgPH8MN-AX5O9AxlxjQ9H6xjstrOJMxMhsd1d6ni6aUcZAMtCiX2VjopxaRncEIcSTeLLduNjXedarkNa7_7xmzFPr8dfj20w9-4bRJ5fxzRkJj8qFFpaV21YYZghCyKJs8b0Wbhs77X1xAh7oVv2VWH5h_7o7dzc49ueRpXFPLcZukgCxpMBeTKnH7oN-v7GckGcvJiTJmdLt6moKAUCxjgpqGml8Tkyzc7PaKCYwA7PQ0UVBWFtBJQz85vRnpLmm7froF95Ra0eQulbrgeLvARaJ76U37Ht_mUz3trlmRsWBHoAlexx5QlWCdjWtYMw5Y1i-BtYWZdnHwSOGDkprQKU-ZB-hNlVFCrNIbSnhuaPqifzo82PjfKrYNffl5l2-DoquNTvga7Vr62WWKwQAEMuVW_YyfPslBb_FBowIXcYwwv-HYDz9xq6MWtbePH8-ju-pDO-T4TAdvPGf0d-mG9DdpQVZhGGZl7yh0riB4tCbYLm_VAtcuEfqgDgI1eZeoVyDWosJ34wXfIFTXn4ptEYMwQLhXmEIoFGcgc_S1pp1VtEMxk42BfTlgRUnqVmjtBYLQxgv8FQAd92jug-R5_FKFulAX9AaRt_sZcJULr2DnCHQmm_AoTJVb0xSBZYW_3WKPYDSMXSw_A");
     ASSERT_EQUALS(ret, SUCCESS);
@@ -206,7 +206,9 @@ void testGetExerciseDetailsRequest()
     exercise_correct.description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sed tortor. Integer aliquam adipiscing lacus. Ut nec urna et arcu imperdiet ullamcorper. Duis at lacus. Quisque purus sapien, gravida non, sollicitudin a, malesuada id, erat. Etiam";
     //exercise_correct.img_base64 = "2.png";
     exercise_correct.progress = 10;
-    //exercise_correct.feup8_file = "";
+    exercise_correct.feup8_file.data = "sdth tshtsery4wtab346q534y 64us 56sr4u";
+    exercise_correct.feup8_file.size = 38;
+    
     
     //fill in test details
     exercise_correct.exerciseTests->id = 2;
@@ -218,7 +220,8 @@ void testGetExerciseDetailsRequest()
     ASSERT_STRING_EQUALS(exercise_correct.title, exercise.title);
     ASSERT_STRING_EQUALS(exercise_correct.creator_name, exercise.creator_name);
     ASSERT_STRING_EQUALS(exercise_correct.description, exercise.description);
-    ASSERT_EQUALS(exercise_correct.progress, exercise.progress);
+    ASSERT_STRING_EQUALS(exercise_correct.feup8_file.data, exercise.feup8_file.data);
+    ASSERT_EQUALS(exercise_correct.feup8_file.size, exercise.feup8_file.size);
     
     ASSERT_EQUALS(exercise_correct.exerciseTests->id, exercise.exerciseTests->id);
     ASSERT_STRING_EQUALS(exercise_correct.exerciseTests->title, exercise.exerciseTests->title);

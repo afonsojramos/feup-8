@@ -166,8 +166,8 @@ class ExerciseTest extends TestCase
             "feup8_file"=>""));
         $this->assertEquals($excepted_array_exercise_details_received, $response_array['exercise']);
         $excepted_array_exercise_tests_received = array(
-            array("id"=>"5", "title"=>"Test1TitleExercise3", "hint"=>"Test1HintExercise3", "test_code"=>"Test1TestCodeExercise3"),
-            array("id"=>"6", "title"=>"Test2TitleExercise3", "hint"=>"Test2HintExercise3", "test_code"=>"Test2TestCodeExercise3"));
+            array("id"=>"5", "title"=>"Test1TitleExercise3", "hint"=>"Test1HintExercise3", "test_code"=>"VGVzdDFUZXN0Q29kZUV4ZXJjaXNlMw=="),
+            array("id"=>"6", "title"=>"Test2TitleExercise3", "hint"=>"Test2HintExercise3", "test_code"=>"VGVzdDJUZXN0Q29kZUV4ZXJjaXNlMw=="));
         $this->assertEquals($excepted_array_exercise_tests_received, $response_array['tests']);
     }
 
@@ -193,8 +193,8 @@ class ExerciseTest extends TestCase
         ));
         $this->assertEquals($excepted_array_exercise_details_received, $response_array['exercise']);
         $excepted_array_exercise_tests_received = array(
-            array("id"=>"3", "title"=>"Test1TitleExercise2", "hint"=>"Test1HintExercise2", "test_code"=>"Test1TestCodeExercise2"),
-            array("id"=>"4", "title"=>"Test2TitleExercise2", "hint"=>"Test2HintExercise2", "test_code"=>"Test2TestCodeExercise2"));
+            array("id"=>"3", "title"=>"Test1TitleExercise2", "hint"=>"Test1HintExercise2", "test_code"=>"VGVzdDFUZXN0Q29kZUV4ZXJjaXNlMg=="),
+            array("id"=>"4", "title"=>"Test2TitleExercise2", "hint"=>"Test2HintExercise2", "test_code"=>"VGVzdDJUZXN0Q29kZUV4ZXJjaXNlMg=="));
         $this->assertEquals($excepted_array_exercise_tests_received, $response_array['tests']);
     }
 }
