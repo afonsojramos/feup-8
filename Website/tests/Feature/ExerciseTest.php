@@ -7,8 +7,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ExerciseTest extends TestCase
 {
-    //use RefreshDatabase;
-    
      /**
      * Generic method used for make log in to user with username and password given
      * @return auth_token The authentication token that can be used in future communication for user identification.
@@ -166,8 +164,8 @@ class ExerciseTest extends TestCase
             "feup8_file"=>""));
         $this->assertEquals($excepted_array_exercise_details_received, $response_array['exercise']);
         $excepted_array_exercise_tests_received = array(
-            array("id"=>"5", "title"=>"Test1TitleExercise3", "hint"=>"Test1HintExercise3", "test_code"=>"VGVzdDFUZXN0Q29kZUV4ZXJjaXNlMw=="),
-            array("id"=>"6", "title"=>"Test2TitleExercise3", "hint"=>"Test2HintExercise3", "test_code"=>"VGVzdDJUZXN0Q29kZUV4ZXJjaXNlMw=="));
+            array("id"=>"5", "title"=>"test_sum_correct", "hint"=>"Test1HintExercise3", "test_code"=>"ZnVuY3Rpb24gdGVzdF9zdW1fY29ycmVjdCgpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSgzLDQpICwgNykKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDQsMykgLCA3KQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMywtNCkgLCAtMSkKZW5k"),
+            array("id"=>"6", "title"=>"test_sum_correct2", "hint"=>"Test2HintExercise3", "test_code"=>"ZnVuY3Rpb24gdGVzdF9zdW1fY29ycmVjdDIoKQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMyw0KSAsIDcpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSg0LDMpICwgNykKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDMsLTQpICwgLTEpCmVuZA=="));
         $this->assertEquals($excepted_array_exercise_tests_received, $response_array['tests']);
     }
 
@@ -193,8 +191,103 @@ class ExerciseTest extends TestCase
         ));
         $this->assertEquals($excepted_array_exercise_details_received, $response_array['exercise']);
         $excepted_array_exercise_tests_received = array(
-            array("id"=>"3", "title"=>"Test1TitleExercise2", "hint"=>"Test1HintExercise2", "test_code"=>"VGVzdDFUZXN0Q29kZUV4ZXJjaXNlMg=="),
-            array("id"=>"4", "title"=>"Test2TitleExercise2", "hint"=>"Test2HintExercise2", "test_code"=>"VGVzdDJUZXN0Q29kZUV4ZXJjaXNlMg=="));
+            array("id"=>"3", "title"=>"test_sum_failing", "hint"=>"Test1HintExercise2", "test_code"=>"ZnVuY3Rpb24gdGVzdF9zdW1fZmFpbGluZygpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSgzLDQpICwgOCkKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDQsMykgLCA5KQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMywtNCkgLCAtNykKZW5k"),
+            array("id"=>"4", "title"=>"test_sum_failing2", "hint"=>"Test2HintExercise2", "test_code"=>"ZnVuY3Rpb24gdGVzdF9zdW1fZmFpbGluZzIoKQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMyw0KSAsIDgpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSg0LDMpICwgOSkKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDMsLTQpICwgLTcpCmVuZA=="));
         $this->assertEquals($excepted_array_exercise_tests_received, $response_array['tests']);
+    }
+
+
+
+     //Test handleTestStudentCode
+
+     /**
+     * Generic method used for testing handleTestStudentCode method.
+     * It should be called with data that either causes success or not and the expected returns accordingly.
+     * It is used to test success and failure avoiding code duplication.
+     */
+    public function genericTestHandleTestStudentCode($exercise_id, $number_elements_received, $expected_response_code)
+    {
+        $response = $this->call('GET', "/api/exercises/" . $exercise_id . "/test");
+        $response->assertStatus(200);
+        $response_array = $response->decodeResponseJson();
+        $this->assertEquals(count($response_array), $number_elements_received);
+        $this->assertEquals($response_array['response_code'], $expected_response_code);
+    }
+
+    /**
+     * Tests if handleTestStudentCode method returns error code 2 when mandatory code paramenter is not sent.
+     */
+    public function testHandleTestStudentCodeWithoutMandatoryCodeParameter()
+    {
+        $exercise_id = 1;
+        $number_elements_received = 1;
+        $expected_response_code = 2;
+
+        $response = $this->call('GET', "/api/exercises/" . $exercise_id . "/test");
+        $response->assertStatus(200);
+        $response_array = $response->decodeResponseJson();
+        $this->assertEquals(count($response_array), $number_elements_received);
+        $this->assertEquals($response_array['response_code'], $expected_response_code);
+    }
+
+     /**
+     * Tests if handleTestStudentCode method returns error code 1 when has no permissions to access exercise tests.
+     */
+    public function testHandleTestStudentCodeWithoutPermissionToAccessExerciseTests()
+    {
+        $exercise_id = 3;
+        $number_elements_received = 1;
+        $expected_response_code = 1;
+
+        $response = $this->call('GET', "/api/exercises/" . $exercise_id . "/test", ['code'=>"code"]);
+        $response->assertStatus(200);
+        $response_array = $response->decodeResponseJson();
+        $this->assertEquals(count($response_array), $number_elements_received);
+        $this->assertEquals($response_array['response_code'], $expected_response_code);
+    }
+
+    /**
+     * Tests if handleTestStudentCode method returns tests_global_state -1 when student code has syntatic errors.
+     */
+    public function testHandleTestStudentCodeWitPermissionToAccessExerciseTestsButCodeHasSyntacticErrors()
+    {
+        $exercise_id = 3;
+        $number_elements_received = 2;
+        $expected_response_code = 0;
+        $expected_tests_global_state = -1;
+        //log in with user 1 that has permissions for exercise 3 that is private
+        $headers = ['Authorization' => 'Bearer ' . $this->makeLoginForUser('user_already_in_db', 'password_already_in_db')];
+        $headers = $this->transformHeadersToServerVars($headers);
+
+        $response = $this->call("GET", "/api/exercises/" . $exercise_id . "/test", ['code'=>"codeWithSyntacticErrors"], [], [], $headers);
+        $response->assertStatus(200);
+        $response_array = $response->decodeResponseJson();
+        $this->assertEquals(count($response_array), $number_elements_received);
+        $this->assertEquals($response_array['response_code'], $expected_response_code);
+        $this->assertEquals($response_array['tests_global_state'], $expected_tests_global_state);
+    }
+
+    /**
+     * Tests if handleTestStudentCode method returns tests_global_state 0 and the corrsponding tests results when student code was testes correctly.
+     */
+    public function testHandleTestStudentCodeWithPermissionToAccessExerciseTestsAndNoSysntaticErrors()
+    {
+        $exercise_id = 3;
+        $number_elements_received = 3;
+        $expected_response_code = 0;
+        $expected_tests_global_state = 0;
+        $expected_tests_results = ["test_sum_correct"=>true, "test_sum_correct2"=>true];
+
+        //log in with user 1 that has permissions for exercise 3 that is private
+        $headers = ['Authorization' => 'Bearer ' . $this->makeLoginForUser('user_already_in_db', 'password_already_in_db')];
+        $headers = $this->transformHeadersToServerVars($headers);
+        //code = function sum(num1, num2) \n return num1 + num2; \n end
+        $response = $this->call("GET", "/api/exercises/" . $exercise_id . "/test", ['code'=>"ZnVuY3Rpb24gc3VtKG51bTEsIG51bTIpDQogICAgICAgIHJldHVybiBudW0xICsgbnVtMjsNCiAgICAgZW5k"], [], [], $headers); 
+        $response->assertStatus(200);
+        $response_array = $response->decodeResponseJson();
+        $this->assertEquals(count($response_array), $number_elements_received);
+        $this->assertEquals($response_array['response_code'], $expected_response_code);
+        $this->assertEquals($response_array['tests_global_state'], $expected_tests_global_state);
+        $this->assertEquals($response_array['tests_results'], $expected_tests_results);
     }
 }

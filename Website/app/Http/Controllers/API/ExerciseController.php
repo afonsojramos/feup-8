@@ -194,7 +194,7 @@ class ExerciseController extends Controller
         if(Auth::guard('api')->check())
             $logged_user_id = Auth::guard('api')->user()->id;
 
-        $unit_tests_code_array = $this->getExerciseTests($exercise_id, $logged_user_id);
+        $unit_tests_code_array = $this->getExerciseTestsTestCode($exercise_id, $logged_user_id);
         if($unit_tests_code_array === -1)
             return -2;
         $numberOfUnitTests = count($unit_tests_code_array);
@@ -241,7 +241,7 @@ class ExerciseController extends Controller
      * @param $exercise_id The id of the exercise of which tests will be retrieved.
      * @return the retrieved list of tests, -1 otherwise.
     */ 
-    public function getExerciseTests($exercise_id, $logged_user_id)
+    public function getExerciseTestsTestCode($exercise_id, $logged_user_id)
     { 
         try
         {
@@ -267,7 +267,8 @@ class ExerciseController extends Controller
             $unit_tests_code_array = DB::table('test')
                 ->select('test.test_code')
                 ->whereIn('exercise_id', $possible_exercise)
-                ->get();
+                ->get()
+                ->toArray();
             
             return $unit_tests_code_array;
         }
@@ -297,7 +298,7 @@ class ExerciseController extends Controller
      * This function will test the code of a student using the tests of the respective exercise.
      * @param $request The received request with the exercise code.
      * @param $exercise_id The id of the exercise of which student code will be tested.
-     * @return the response code 0 indicating sucess. Response code 1 indicating that must be logged in to save progress. Response code 2 for other errors.
+     * @return the response code 0 indicating sucess. Response code 1 indicating that code paramater must be in the request. Response code 2 for other errors.
     */ 
     public function handleTestStudentCode(Request $request, $exercise_id)
     { 
@@ -305,13 +306,13 @@ class ExerciseController extends Controller
             'code' => 'required',
         ]);
         if ($validator->fails()) 
-            return response()->json(['response_code'=>1], 200); 
+            return response()->json(['response_code'=>2], 200); 
 
         $logged_user_id = 0;
         if(Auth::guard('api')->check())
             $logged_user_id = Auth::guard('api')->user()->id;
 
-        $unit_tests_code_array = $this->getExerciseTests($exercise_id, $logged_user_id);
+        $unit_tests_code_array = $this->getExerciseTestsTestCode($exercise_id, $logged_user_id);
         if($unit_tests_code_array === -1)
             return response()->json(['response_code'=>2], 200);
         if(count($unit_tests_code_array) == 0)
