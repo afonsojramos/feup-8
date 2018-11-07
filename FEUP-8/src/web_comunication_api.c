@@ -501,6 +501,10 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
     cJSON_free(monitor_json);
     cJSON_free(ret_code_obj);
 
+    int NOT_EVALUATED_YET = -2;
+    setAllTestsAsValue(exercise, NOT_EVALUATED_YET); //set tests passes value as not filled yet (in this case -2)
+    exercise->tests_global_state = (NOT_EVALUATED_YET - 1); //set global state as not evaluated yet (in this case -3)
+
     return ret_code; //can display a message saying what hapenned and return acordingly
 }
 
@@ -756,6 +760,8 @@ int sendCodeToServerAndGetTestsResultsRequestSend(int exerciseId, char *code, ti
         if(ticExercise->tests_global_state == SYNTACTIC_ERRORS)
             return SYNTACTIC_ERRORS;
 
+        setAllTestsAsValue(ticExercise, false);
+
         cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "tests_results");
         if(tests_obj == NULL)
         {
@@ -779,7 +785,7 @@ int sendCodeToServerAndGetTestsResultsRequestSend(int exerciseId, char *code, ti
                 ret_code = SERVER_ERROR;
                 goto deallocate_memory;
             }
-            bool passed = cJSON_IsTrue(result_obj) == true ? true : false;
+            int passed = cJSON_IsTrue(result_obj) == true ? true : false;
             exerciseTestArray[i].passed = passed;
         }
        
@@ -794,4 +800,18 @@ deallocate_memory:
     cJSON_free(ret_code_obj);
     
     return ret_code;
+}
+
+/**
+* Sets all the exercises tests passed value as the value passed as paramater
+* @param ticExercise The struct representing the exercise that will be filled with the result from the tests.
+* @param value the value to set in exercise tests 
+*/
+void setAllTestsAsValue(tic_exercise *ticExercise, int value)
+{
+    ExerciseTest *exerciseTests = ticExercise->exerciseTests;
+    for(size_t i = 0; i < ticExercise->number_of_exercise_tests; i++)
+    {
+        exerciseTests[i].passed = value;
+    }
 }

@@ -95,9 +95,27 @@ INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (12,"Z
 INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (13,"Z2RmZ2Rmc2twb2V3aXAwb3RvaTM0MGk0ZW9yZmdsa2Rqa2dmZGo5MzM0NDkwdDM0NDU2OQ==","mollis dui,","libero. Donec consectetuer mauris id sapien. Cras",13);
 INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (14,"Z2RmZ2Rmc2twb2V3aXAwb3RvaTM0MGk0ZW9yZmdsa2Rqa2dmZGo5MzM0NDkwdDM0NDU2OQ==","eget, ipsum. Donec","quis lectus. Nullam suscipit, est",14);
 INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (15,"Z2RmZ2Rmc2twb2V3aXAwb3RvaTM0MGk0ZW9yZmdsa2Rqa2dmZGo5MzM0NDkwdDM0NDU2OQ==","est mauris,","semper pretium neque. Morbi quis",15);
-INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (16,"Z2RmZ2Rmc2twb2V3aXAwb3RvaTM0MGk0ZW9yZmdsa2Rqa2dmZGo5MzM0NDkwdDM0NDU2OQ==","est mausdris,","semper pretium neque. Morbi quis",1);
-INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (17,"Z2RmZ2Rmc2twb2V3aXAwb3RvaTM0MGk0ZW9yZmdsa2Rqa2dmZGo5MzM0NDkwdDM0NDU2OQ==","est mausADAWFSdris,","semper pretium neque. Morbi quis",1);
-
+INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES (16,"
+function test1_sum()
+    luaunit.assertEquals(sum(3,4) == 7)
+    luaunit.assertEquals(sum(4,3) == 7)
+    luaunit.assertEquals(sum(3,-4) == -1)
+    luaunit.assertEquals(sum(-4,3) == -1)
+    luaunit.assertEquals(sum(-4,-3) == -7)
+    luaunit.assertEquals(sum(-3,-4) == -7)
+end
+","can you add ? 2","semper pretium neque. Morbi quis",1);
+INSERT INTO `Test` (`id`,`test_code`,`title`,`hint`,`exercise_id`) VALUES
+(17,"
+function test1_sum()
+    luaunit.assertEquals(sum(3,4) == 7)
+    luaunit.assertEquals(sum(4,3) == 7)
+    luaunit.assertEquals(sum(3,-4) == -1)
+    luaunit.assertEquals(sum(-4,3) == -1)
+    luaunit.assertEquals(sum(-4,-3) == -7)
+    luaunit.assertEquals(sum(-3,-4) == -7)
+end
+","can you add ? 3","semper pretium neque. Morbi quis",1);
 
 
 
