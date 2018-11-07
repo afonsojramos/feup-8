@@ -1,6 +1,4 @@
-cd database
-touch database.sqlite
-cd ..
+touch database/database.sqlite
 composer install
 php artisan migrate --seed
-php artisan passport:install
+php artisan passport:install --force

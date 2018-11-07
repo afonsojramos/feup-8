@@ -177,7 +177,7 @@ typedef struct
 	char* title;
 	char* hint; //optional, empty string if none
     char* test_code;
-	bool passed;
+	int passed;
 } ExerciseTest;
 
 typedef struct

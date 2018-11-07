@@ -241,7 +241,6 @@ void testGetExerciseDetailsRequest()
     ASSERT_EQUALS(ret, FORBIDDEN);
 }
 
-
 void testSaveProgressRequest()
 {
     auth_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjY0MjA4NmVlY2QxNDEwODk1MDU0MzliNWZjNzM3NTFhZTU1ZTdkNzg0Y2Q0OTdkMTNiOWJjNDcwN2Q1NmNlMDVkYTRkNzI0M2ZmYWFiNDcwIn0.eyJhdWQiOiIxIiwianRpIjoiNjQyMDg2ZWVjZDE0MTA4OTUwNTQzOWI1ZmM3Mzc1MWFlNTVlN2Q3ODRjZDQ5N2QxM2I5YmM0NzA3ZDU2Y2UwNWRhNGQ3MjQzZmZhYWI0NzAiLCJpYXQiOjE1NDA3NDQwMDAsIm5iZiI6MTU0MDc0NDAwMCwiZXhwIjoxNTcyMjgwMDAwLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Uto9ype4cBVvbdztPT5pO_GsMouBgPH8MN-AX5O9AxlxjQ9H6xjstrOJMxMhsd1d6ni6aUcZAMtCiX2VjopxaRncEIcSTeLLduNjXedarkNa7_7xmzFPr8dfj20w9-4bRJ5fxzRkJj8qFFpaV21YYZghCyKJs8b0Wbhs77X1xAh7oVv2VWH5h_7o7dzc49ueRpXFPLcZukgCxpMBeTKnH7oN-v7GckGcvJiTJmdLt6moKAUCxjgpqGml8Tkyzc7PaKCYwA7PQ0UVBWFtBJQz85vRnpLmm7froF95Ra0eQulbrgeLvARaJ76U37Ht_mUz3trlmRsWBHoAlexx5QlWCdjWtYMw5Y1i-BtYWZdnHwSOGDkprQKU-ZB-hNlVFCrNIbSnhuaPqifzo82PjfKrYNffl5l2-DoquNTvga7Vr62WWKwQAEMuVW_YyfPslBb_FBowIXcYwwv-HYDz9xq6MWtbePH8-ju-pDO-T4TAdvPGf0d-mG9DdpQVZhGGZl7yh0riB4tCbYLm_VAtcuEfqgDgI1eZeoVyDWosJ34wXfIFTXn4ptEYMwQLhXmEIoFGcgc_S1pp1VtEMxk42BfTlgRUnqVmjtBYLQxgv8FQAd92jug-R5_FKFulAX9AaRt_sZcJULr2DnCHQmm_AoTJVb0xSBZYW_3WKPYDSMXSw_A";
@@ -424,6 +423,25 @@ void testSendCodeToServerAndGetTestsResultsRequestSend()
     ASSERT_EQUALS(ret, FORBIDDEN);
 }
 
+/**
+* This method tests if the method setAllTestsAsValue sets the value "passed" of all tests of the exercise given as parameter
+*/
+void testSetAllTestsAsValue()
+{
+    //assuming an exercise with 5 tests
+    tic_exercise ticExercise;
+    ticExercise.number_of_exercise_tests = 5;
+    ExerciseTest *exerciseTests = malloc(sizeof(ExerciseTest) * ticExercise.number_of_exercise_tests);
+    ticExercise.exerciseTests = exerciseTests;
+
+    int value = 0;
+    setAllTestsAsValue(&ticExercise, value);
+    for(int i = 0; i < ticExercise.number_of_exercise_tests; i++)
+    {
+        ASSERT_EQUALS(ticExercise.exerciseTests[i].passed, value); 
+    } 
+}
+
 
 /*End of test functions*/
 
@@ -439,5 +457,6 @@ int run_test_suite()
     RUN(testGetExerciseDetailsRequest);
     RUN(testSaveProgressRequest);
     RUN(testSendCodeToServerAndGetTestsResultsRequestSend);
+    RUN(testSetAllTestsAsValue);
     return TEST_REPORT();
 }
