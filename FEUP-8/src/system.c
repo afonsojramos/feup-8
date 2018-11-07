@@ -1549,6 +1549,10 @@ static void emsStart(s32 argc, char **argv, const char* folder)
 
 s32 main(s32 argc, char **argv)
 {
+
+
+
+
 	const char* folder = getAppFolder();
 
 	if (argc > 1 && strcmp(argv[1], "-test") == 0)

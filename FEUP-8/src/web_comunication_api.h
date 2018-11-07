@@ -53,6 +53,7 @@ int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercis
 int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id);
 int saveProgressRequestSend(Buffer exercise_data, char *code, int exercise_id, bool testing, char *mock_response_data);
 int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise *ticExercise);
+int sendCodeToServerAndGetTestsResultsRequestSend(int exerciseId, char *code, tic_exercise *ticExercise, bool testing, char *mock_response_data);
 
 
 
