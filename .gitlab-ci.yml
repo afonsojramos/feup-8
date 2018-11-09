@@ -1,11 +1,11 @@
 services:
-    - docker:dind   
-  
+    - docker:dind
+
 stages:
     - build
     - test
     - deploy
-    
+
 build:website:
     image: registry.gitlab.com/ldso18-19/t5g2:website
     stage: build
@@ -14,7 +14,7 @@ build:website:
     script:
         - cd Website
         - composer install
-        
+
 build:feup-8:
     image: registry.gitlab.com/ldso18-19/t5g2:feup-8
     stage: build
@@ -28,9 +28,11 @@ build:feup-8:
 test:website:
     image: registry.gitlab.com/ldso18-19/t5g2:website
     stage: test
-    dependencies: 
+    dependencies:
         - build:website
     script:
+        - pecl install xdebug-2.6.0
+        - docker-php-ext-enable xdebug
         - cd Website
         - touch database/database_tests.sqlite
         - APP_ENV=testing php artisan migrate:refresh
@@ -38,12 +40,27 @@ test:website:
         - cd database
         - sqlite3 database_tests.sqlite < database_tests_data.sql
         - cd ..
-        - APP_ENV=testing ./vendor/bin/phpunit
-        
+        - APP_ENV=testing ./vendor/bin/phpunit --testdox
+    artifacts:
+        paths:
+            - ./Website/report
+
+pages:
+  stage: deploy
+  dependencies:
+    - test:website
+  script:
+    - mv ./Website/report public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
+
+
 test:feup-8:
     image: registry.gitlab.com/ldso18-19/t5g2:feup-8
     stage: test
-    dependencies: 
+    dependencies:
         - build:feup-8
     script:
         - cd FEUP-8/bin
@@ -59,4 +76,3 @@ deploy:website:
     when: manual
     only:
         - master
-    
