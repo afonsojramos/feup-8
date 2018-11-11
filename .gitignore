@@ -3,3 +3,4 @@
 *.lua
 .DS_Store
 *.rnd
+*.log

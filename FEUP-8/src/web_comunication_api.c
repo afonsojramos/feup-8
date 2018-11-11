@@ -251,9 +251,14 @@ int logoutRequestSend(bool testing, char *mock_response_data)
     free(response.data);
     cJSON_free(monitor_json);
     cJSON_free(ret_code_obj);
-    free(auth_token);
+    
+    if (ret_code == SUCCESS)
+    {
+        //reset auth_token
+        free(auth_token);
+        auth_token = NULL;
+    }
 
-    auth_token = NULL; //reset auth_token
     return ret_code; //can display a message saying what hapenned and return acordingly
 }
 
