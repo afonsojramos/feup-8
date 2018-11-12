@@ -198,6 +198,128 @@ class ExerciseTest extends TestCase
 
 
 
+    //Test saveExerciseProgress
+
+     /**
+     * Generic method used for testing saveExerciseProgress method.
+     * It should be called with data that either causes success or not and the expected returns accordingly.
+     * It is used to test success and failure avoiding code duplication.
+     */
+    public function genericTestSaveExerciseProgress($exercise_id, $number_elements_received, $expected_response_code, $parametersArray)
+    {
+        $response = $this->call("POST", "/api/exercises/" . $exercise_id . "/save", $parametersArray, [], [], []);
+        $response->assertStatus(200);
+        $response_array = $response->decodeResponseJson();
+        $this->assertEquals(count($response_array), $number_elements_received);
+        $this->assertEquals($response_array['response_code'], $expected_response_code);
+    }
+
+    /**
+     * Tests if saveExerciseProgress method returns error code 2 when mandatory code paramenter is not sent.
+     */
+    public function testSaveExerciseProgressWithoutMandatoryCodeParameter()
+    {
+        $exercise_id = 3;
+        $number_elements_received = 1;
+        $expected_response_code = 2;
+        $parametersArray = ['exercise_data'=>"exercise_data"];
+        
+        $this->genericTestSaveExerciseProgress($exercise_id, $number_elements_received, $expected_response_code, $parametersArray);
+    }
+
+    /**
+     * Tests if saveExerciseProgress method returns error code 2 when mandatory exercise_data paramenter is not sent.
+     */
+    public function testSaveExerciseProgressWithoutMandatoryExerciseDataParameter()
+    {
+        $exercise_id = 3;
+        $number_elements_received = 1;
+        $expected_response_code = 2;
+        $parametersArray = ['code'=>"code"];
+        
+        $this->genericTestSaveExerciseProgress($exercise_id, $number_elements_received, $expected_response_code, $parametersArray);
+    }
+
+     /**
+     * Tests if saveExerciseProgress method returns error code 2 when mandatory paramenters are not sent.
+     */
+    public function testSaveExerciseProgressWithoutMandatoryParameters()
+    {
+        $exercise_id = 3;
+        $number_elements_received = 1;
+        $expected_response_code = 2;
+        $parametersArray = [];
+
+        $this->genericTestSaveExerciseProgress($exercise_id, $number_elements_received, $expected_response_code, $parametersArray);
+    }
+
+    /**
+     * Tests if saveExerciseProgress method returns error code 1 when user not logged in.
+     */
+    public function testSaveExerciseProgressWithoutLogIn()
+    {
+        $exercise_id = 3;
+        $number_elements_received = 1;
+        $expected_response_code = 1;
+        $parametersArray = ['code'=>"code", 'exercise_data'=>"exercise_data"];
+
+        $this->genericTestSaveExerciseProgress($exercise_id, $number_elements_received, $expected_response_code, $parametersArray);
+    }
+
+    /**
+     * Tests if saveExerciseProgress method returns error code 1 when user logged in but no permissions to access exercise.
+     */
+    public function testSaveExerciseProgressWithoutPermissionsToExercise()
+    {
+        $exercise_id = 3;
+        $number_elements_received = 1;
+        $expected_response_code = 1;
+        $parametersArray = ['code'=>"code", 'exercise_data'=>"exercise_data"];
+
+        //log in with user 2 that has no permissions to exercise 3
+        $headers = ['Authorization' => 'Bearer ' . $this->makeLoginForUser('user_already_in_db2', 'password_already_in_db2')];
+        $headers = $this->transformHeadersToServerVars($headers);
+  
+        $response = $this->call("POST", "/api/exercises/" . $exercise_id . "/save", $parametersArray, [], [], $headers);
+        $response->assertStatus(200);
+        $response_array = $response->decodeResponseJson();
+        $this->assertEquals(count($response_array), $number_elements_received);
+        $this->assertEquals($response_array['response_code'], $expected_response_code);
+    }
+
+    /**
+     * Tests if saveExerciseProgress method returns code 0 when user logged in, with permissions to access exercise and no errors.
+     */
+    public function testSaveExerciseProgressSuccessfully()
+    {
+        $exercise_id = 3;
+        $number_elements_received = 1;
+        $expected_response_code = 0;
+        $parametersArray = ['code'=>"ZnVuY3Rpb24gc3VtKG51bTEsIG51bTIpDQogICAgICAgIHJldHVybiBudW0xICsgbnVtMjsNCiAgICAgZW5k", 'exercise_data'=>"exercise_data"];
+
+        //log in with user 1 that has permissions to exercise 3
+        $headers = ['Authorization' => 'Bearer ' . $this->makeLoginForUser('user_already_in_db', 'password_already_in_db')];
+        $headers = $this->transformHeadersToServerVars($headers);
+  
+        $response = $this->call("POST", "/api/exercises/" . $exercise_id . "/save", $parametersArray, [], [], $headers);
+        $response->assertStatus(200);
+        $response_array = $response->decodeResponseJson();
+        $this->assertEquals(count($response_array), $number_elements_received);
+        $this->assertEquals($response_array['response_code'], $expected_response_code);
+    }
+
+    /**
+     * Tests if saveExerciseProgress method returns code 0 when user logged in, with permissions to access exercise and no errors. 
+     * This time already exists an exerciseStudent entry already in db, and this should averride it.
+     */
+    public function testSaveExerciseProgressSuccessfullyRepeated()
+    {
+        $this->testSaveExerciseProgressSuccessfully();
+        $this->testSaveExerciseProgressSuccessfully();
+    }
+
+
+
      //Test handleTestStudentCode
 
      /**
@@ -205,9 +327,9 @@ class ExerciseTest extends TestCase
      * It should be called with data that either causes success or not and the expected returns accordingly.
      * It is used to test success and failure avoiding code duplication.
      */
-    public function genericTestHandleTestStudentCode($exercise_id, $number_elements_received, $expected_response_code)
+    public function genericTestHandleTestStudentCode($exercise_id, $number_elements_received, $expected_response_code, $parametersArray)
     {
-        $response = $this->call('GET', "/api/exercises/" . $exercise_id . "/test");
+        $response = $this->call('GET', "/api/exercises/" . $exercise_id . "/test", $parametersArray);
         $response->assertStatus(200);
         $response_array = $response->decodeResponseJson();
         $this->assertEquals(count($response_array), $number_elements_received);
@@ -222,12 +344,9 @@ class ExerciseTest extends TestCase
         $exercise_id = 1;
         $number_elements_received = 1;
         $expected_response_code = 2;
+        $parametersArray = [];
 
-        $response = $this->call('GET', "/api/exercises/" . $exercise_id . "/test");
-        $response->assertStatus(200);
-        $response_array = $response->decodeResponseJson();
-        $this->assertEquals(count($response_array), $number_elements_received);
-        $this->assertEquals($response_array['response_code'], $expected_response_code);
+        $this->genericTestHandleTestStudentCode($exercise_id, $number_elements_received, $expected_response_code, $parametersArray);
     }
 
      /**
@@ -238,12 +357,9 @@ class ExerciseTest extends TestCase
         $exercise_id = 3;
         $number_elements_received = 1;
         $expected_response_code = 1;
+        $parametersArray = ['code'=>"code"];
 
-        $response = $this->call('GET', "/api/exercises/" . $exercise_id . "/test", ['code'=>"code"]);
-        $response->assertStatus(200);
-        $response_array = $response->decodeResponseJson();
-        $this->assertEquals(count($response_array), $number_elements_received);
-        $this->assertEquals($response_array['response_code'], $expected_response_code);
+        $this->genericTestHandleTestStudentCode($exercise_id, $number_elements_received, $expected_response_code, $parametersArray);
     }
 
     /**
