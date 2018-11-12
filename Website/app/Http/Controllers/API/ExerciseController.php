@@ -147,10 +147,10 @@ class ExerciseController extends Controller
             'exercise_data' => 'required', 
         ]);
         if ($validator->fails()) 
-            return response()->json(['response_code'=>1], 200);   
+            return response()->json(['response_code'=>2], 200);   
 
         if(!Auth::guard('api')->check())
-            return response()->json(['responde_code'=>1], 200); //must be logged in to save progress
+            return response()->json(['response_code'=>1], 200); //must be logged in to save progress
 
         $progress = $this->getExerciseResolutionProgressBasedOnStudentCode($exercise_id, $request['code']);
         if($progress == -1)
