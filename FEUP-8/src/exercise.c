@@ -292,8 +292,8 @@ static void drawExerciseDetails(Exercise *exercise){
 static char* generateTestsOutputString(Exercise *exercise)
 {
 	
-	char str[33];
-	switch (exercise->exe->tests_global_state)
+	char *str = malloc(sizeof(char) * 500);
+	switch (exercise->tic->exe.tests_global_state)
 	{
 		case -1:
 		{
@@ -307,7 +307,8 @@ static char* generateTestsOutputString(Exercise *exercise)
 		}
 		default:
 		{
-			sprintf(str, "%d/%d \nPASSED\nTESTS\n", (exercise->exe->number_of_exercise_tests - exercise->exe->tests_global_state), exercise->exe->number_of_exercise_tests);
+			int testsPassed = (exercise->tic->exe.number_of_exercise_tests - exercise->tic->exe.tests_global_state);
+			sprintf(str, "%d/%d \nPASSED\nTESTS\n",testsPassed, exercise->tic->exe.number_of_exercise_tests);
 			break;
 		}
 	}
@@ -350,7 +351,7 @@ static void drawOverviewLayout(Exercise *exercise)
 
 	drawExerciseDetails(exercise);
 
-	if(exercise->exe->tests_global_state > -3)
+	if(exercise->tic->exe.tests_global_state > -3)
 		drawGeneralTestsOutput(exercise);
 }
 
@@ -361,7 +362,8 @@ static void drawOverviewLayout(Exercise *exercise)
 */
 static void runTests(Exercise *exercise)
 {
-	sendCodeToServerAndGetTestsResults(exercise->tic->exe.id, exercise->tic->cart.code.data, exercise);
+	sendCodeToServerAndGetTestsResults(exercise->tic->exe.id, 
+		exercise->tic->cart.code.data, &(exercise->tic->exe));
 }
 
 /** 
