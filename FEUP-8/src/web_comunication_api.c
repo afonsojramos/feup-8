@@ -759,13 +759,12 @@ int sendCodeToServerAndGetTestsResultsRequestSend(int exerciseId, char *code, ti
             ret_code = SERVER_ERROR;
             goto deallocate_memory;
         }
+        setAllTestsAsValue(ticExercise, 0); //set as not passed
         ticExercise->tests_global_state = tests_global_state_obj->valueint;
         if(ticExercise->tests_global_state == EXECUTION_TIMEOUT)
             return EXECUTION_TIMEOUT;
         if(ticExercise->tests_global_state == SYNTACTIC_ERRORS)
             return SYNTACTIC_ERRORS;
-
-        setAllTestsAsValue(ticExercise, false);
 
         cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "tests_results");
         if(tests_obj == NULL)
@@ -790,7 +789,7 @@ int sendCodeToServerAndGetTestsResultsRequestSend(int exerciseId, char *code, ti
                 ret_code = SERVER_ERROR;
                 goto deallocate_memory;
             }
-            int passed = cJSON_IsTrue(result_obj) == true ? true : false;
+            int passed = cJSON_IsTrue(result_obj) == true ? 1 : 0;
             exerciseTestArray[i].passed = passed;
         }
        
