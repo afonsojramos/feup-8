@@ -8,12 +8,11 @@ class CreateExerciseStudentTable extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
     public function up()
     {
-        Schema::create('ExerciseStudent', function (Blueprint $table) {
+        Schema::create('ExerciseStudent', function (Blueprint $table)
+        {
             $table->integer('student_id');
             $table->foreign('student_id')->references('id')->on('users')->onDelete('cascade');
             $table->integer('exercise_id');
@@ -27,8 +26,6 @@ class CreateExerciseStudentTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
     public function down()
     {

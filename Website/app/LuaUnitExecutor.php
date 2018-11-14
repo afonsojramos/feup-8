@@ -15,6 +15,7 @@ class LuaUnitExecutor
     public function run()
     {
         $filename = $this->buildFile($this->code, $this->testCases);
+
         return $this->execute($filename, true);
     }
 
@@ -24,11 +25,13 @@ class LuaUnitExecutor
         $filetext = "\nlocal luaunit = require('luaunit')\n\n";
 
         //add user code
-        $filetext .= $code . "\n\n";
+        $filetext .= $code."\n\n";
 
         //add each test case
-        foreach($testCases as $case)
-            $filetext .= $case . "\n";
+        foreach ($testCases as $case)
+        {
+            $filetext .= $case."\n";
+        }
 
         //add the test suite start-up code
         $filetext .= "local runner = luaunit.LuaUnit.new()\n";
@@ -36,8 +39,8 @@ class LuaUnitExecutor
         $filetext .= "os.exit( runner:runSuite() )\n";
 
         //save in unique file
-        $filename = md5(uniqid(rand(), true)) . ".lua";
-        $file = fopen($filename, "w");
+        $filename = md5(uniqid(rand(), true)).'.lua';
+        $file = fopen($filename, 'w');
         fwrite($file, $filetext);
 
         return $filename;
@@ -46,20 +49,24 @@ class LuaUnitExecutor
     public function execute($file, $delete)
     {
         if ($this->hasSyntacticErrors($file))
-            return [-1, "Student code has one or more syntactic errors"];
+        {
+            return [-1, 'Student code has one or more syntactic errors'];
+        }
 
-        $cmd = "timeout " . $this->executionTimeout . " lua " . $file;
+        $cmd = 'timeout '.$this->executionTimeout.' lua '.$file;
         $output = [];
         $ret;
         exec($cmd, $output, $ret);
 
         if ($delete)
+        {
             unlink($file);
+        }
 
         if (empty($output))
         {
             $ret = -2;
-            $output = "Execution timed out before finishing";
+            $output = 'Execution timed out before finishing';
         }
 
         return [$ret, $output];
@@ -67,12 +74,11 @@ class LuaUnitExecutor
 
     private function hasSyntacticErrors($file)
     {
-        $cmd = "luajit -bl " . $file . " > /dev/null";
+        $cmd = 'luajit -bl '.$file.' > /dev/null';
         $output = [];
         $ret;
         exec($cmd, $output, $ret);
-        return $ret != 0;
+
+        return 0 != $ret;
     }
 }
-
-?>

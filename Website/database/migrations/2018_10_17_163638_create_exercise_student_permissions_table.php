@@ -8,12 +8,11 @@ class CreateExerciseStudentPermissionsTable extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
     public function up()
     {
-        Schema::create('ExerciseStudentPermissions', function (Blueprint $table) {
+        Schema::create('ExerciseStudentPermissions', function (Blueprint $table)
+        {
             $table->integer('student_id');
             $table->foreign('student_id')->references('id')->on('users')->onDelete('cascade');
             $table->integer('exercise_id');
@@ -25,8 +24,6 @@ class CreateExerciseStudentPermissionsTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
     public function down()
     {

@@ -43,6 +43,9 @@ test:website:
         - sqlite3 database_tests.sqlite < database_tests_data.sql
         - cd ..
         - APP_ENV=testing ./vendor/bin/phpunit --testdox
+        - wget https://cs.sensiolabs.org/download/php-cs-fixer-v2.phar -O php-cs-fixer
+        - php php-cs-fixer fix ./ -v --dry-run --stop-on-violation --using-cache=no
+        - find . -name "*.php" -not -path "./vendor/*" | xargs --max-args=1 php -l
     artifacts:
         paths:
             - ./Website/report

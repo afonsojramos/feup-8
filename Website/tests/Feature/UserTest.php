@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UserTests extends TestCase
 {
@@ -12,7 +11,7 @@ class UserTests extends TestCase
     /**
      * Generic method used for testing register feature.
      * It should be called with data that either causes success or not and the expected returns accordingly.
-     * It is used to test success and failure avoiding code duplication. 
+     * It is used to test success and failure avoiding code duplication.
      */
     public function genericTestRegister($input, $expected_response_code, $should_succeed, $numberOfElementsReceived)
     {
@@ -29,8 +28,8 @@ class UserTests extends TestCase
      */
     public function testRegisterWithoutEmail()
     {
-        $input = ['username' => 'user_register', 'password' => 'password_register', 
-            'name' => 'name_register'];
+        $input = ['username' => 'user_register', 'password' => 'password_register',
+            'name' => 'name_register', ];
         $this->genericTestRegister($input, 1, false, 1);
     }
 
@@ -39,8 +38,8 @@ class UserTests extends TestCase
      */
     public function testRegisterWithoutName()
     {
-        $input = ['username' => 'user_register', 'password' => 'password_register', 
-            'email' => 'email_register'];
+        $input = ['username' => 'user_register', 'password' => 'password_register',
+            'email' => 'email_register', ];
         $this->genericTestRegister($input, 1, false, 1);
     }
 
@@ -49,38 +48,38 @@ class UserTests extends TestCase
      */
     public function testRegisterWithoutPassword()
     {
-        $input = ['username' => 'user_register', 'name' => 'name_register', 
-            'email' => 'email_register'];
+        $input = ['username' => 'user_register', 'name' => 'name_register',
+            'email' => 'email_register', ];
         $this->genericTestRegister($input, 1, false, 1);
-    }   
-    
+    }
+
     /**
      * Tests if a register without username is rejected.
      */
     public function testRegisterWithoutUserName()
     {
-        $input = ['password' => 'password_register', 'name' => 'name_register', 
-            'email' => 'email_register'];
+        $input = ['password' => 'password_register', 'name' => 'name_register',
+            'email' => 'email_register', ];
         $this->genericTestRegister($input, 1, false, 1);
-    }     
+    }
 
     /**
      * Tests if a successfull register can be done, all the necessary parameters are given, and for the first time(not repeated username or email).
      */
     public function testRegisterCorrectly()
     {
-        $input = ['username' => 'user_register', 'password' => 'password_register', 
-            'name' => 'name_register', 'email' => 'email_register'];
+        $input = ['username' => 'user_register', 'password' => 'password_register',
+            'name' => 'name_register', 'email' => 'email_register', ];
         $this->genericTestRegister($input, 0, true, 2);
     }
 
-     /**
+    /**
      * Tests if a repeated register is rejected. (It should fail because the username is already in the db).
      */
     public function testRegisterRepeatedUsername()
     {
-        $input = ['username' => 'user_already_in_db', 'password' => 'password', 
-            'name' => 'name', 'email' => 'email'];
+        $input = ['username' => 'user_already_in_db', 'password' => 'password',
+            'name' => 'name', 'email' => 'email', ];
         $this->genericTestRegister($input, 1, false, 1);
     }
 
@@ -89,12 +88,10 @@ class UserTests extends TestCase
      */
     public function testRegisterRepeatedEmail()
     {
-        $input = ['username' => 'username', 'password' => 'password', 
-            'name' => 'name', 'email' => 'email_already_in_db'];
+        $input = ['username' => 'username', 'password' => 'password',
+            'name' => 'name', 'email' => 'email_already_in_db', ];
         $this->genericTestRegister($input, 2, false, 1);
     }
-
-
 
     /* Login tests
 
@@ -140,8 +137,6 @@ class UserTests extends TestCase
         $this->genericTestLogin($input, 0, true, 2);
     }
 
-    
-
     // Logout Tests
 
     /**
@@ -159,7 +154,7 @@ class UserTests extends TestCase
     }
 
     /**
-     * Tests if a logout is rejected if user not logged in
+     * Tests if a logout is rejected if user not logged in.
      */
     public function testLogoutWithoutBeingLoggedIn()
     {
@@ -167,7 +162,7 @@ class UserTests extends TestCase
         $headers = [];
         $this->genericTestLogout($input, $headers, 1, 1);
     }
-   
+
     /**
      * Tests if a successfull logout can be done, all the necessary parameters are given.
      */
@@ -176,7 +171,7 @@ class UserTests extends TestCase
         $login_response = $this->call('POST', '/api/login', ['username' => 'user_already_in_db', 'password' => 'password_already_in_db']);
         $login_response_array = $login_response->decodeResponseJson();
         $input = [];
-        $headers = ['Authorization' => 'Bearer ' . $login_response_array['auth_token']]; 
+        $headers = ['Authorization' => 'Bearer '.$login_response_array['auth_token']];
         $this->genericTestLogout($input, $headers, 0, 1);
     }
 }
