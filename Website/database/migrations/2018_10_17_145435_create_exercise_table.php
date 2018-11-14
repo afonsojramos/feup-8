@@ -8,12 +8,11 @@ class CreateExerciseTable extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
     public function up()
     {
-        Schema::create('Exercise', function (Blueprint $table) {
+        Schema::create('Exercise', function (Blueprint $table)
+        {
             $table->increments('id')->unique();
             $table->string('title')->unique();
             $table->string('description');
@@ -27,8 +26,6 @@ class CreateExerciseTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
     public function down()
     {
