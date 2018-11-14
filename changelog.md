@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 
-## [0.1.0] - 15-10-2018 - Sprint1
+## [0.1.0] - 15-10-2018 - Sprint 1
 ### Closed PBI's
 - Database Schema #34
 - Database SQL #32
@@ -21,7 +21,7 @@ In the end of this sprint it was only possible to list the exercises in the data
 
 
 
-## [0.2.0] - 30-10-2018 - Sprint2
+## [0.2.0] - 30-10-2018 - Sprint 2
 ### Closed PBI's
 - Execute lua scripts on server #51
 - Update Docker image #63
@@ -43,3 +43,29 @@ In the end of this sprint it was only possible to list the exercises in the data
 ### Increment description
 We started by setting up the Gitlab CI so we could have testing feedback on our code on each commit. We also set up the docker images for the client app and server. We enabled the server to be able to run lua code in order to run the tests on an exercise.
 In the end of this sprint the user was able to list the details of an exercise on the client app. Was also implemented the backend to run tests on an exercise (which implied sending the code to the server, running the tests on it and sending the results back to the client) and save their progress on an exercise to the server so that they can start from the point they finished at, the next time they login in on the same account, on any device, allowing synchronization.
+
+
+
+## [0.3.0] - 14-11-2018 - Sprint 3
+### Closed PBI's
+- Open-API Documentation #74
+- Fix bugs on tests output #75
+- Decide which FEUP-8 files should be part of the coverage #59
+- Laravel unit tests #50
+- Fix the problems left from previous sprint #73
+- Add the xdebug install options to Dockerfile #69
+- Add descriptive acceptance tests to sprint 3 PBIs #67
+- Add linter to application (C) #55
+- Add clang-format linter to C files #68 
+- API unit tests #48
+- Show test output result on interface #71
+- Read test output as a student #18
+- Unit tests on client API #64
+- Website-API new functionalities #62
+- Coverage tests for laravel #58
+
+### Increment description
+This sprint was more focused in fixes and new  related to the SCRUM process that is being followed. We have finished all unit tests to the code developed so far, as well as tested it for coverage.
+The code is now also verified by a linter in each push.
+The API developed in previous sprints is now fully documented using the Open-API swagger hub platform.
+However, we have also finished the development of the functionalities that allows a student (user of the program) to test student code on server and show tests results.
