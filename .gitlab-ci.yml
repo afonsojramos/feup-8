@@ -21,8 +21,10 @@ build:feup-8:
     artifacts:
         untracked: true
     script:
+        - apt-get install lcov -y
         - cd FEUP-8
         - cmake .
+        - make tic80_coverage
         - make -j4
 
 test:website:
@@ -45,26 +47,38 @@ test:website:
         paths:
             - ./Website/report
 
-pages:
-  stage: deploy
-  dependencies:
-    - test:website
-  script:
-    - mv ./Website/report public/
-  artifacts:
-    paths:
-      - public
-    expire_in: 30 days
-
-
 test:feup-8:
     image: registry.gitlab.com/ldso18-19/t5g2:feup-8
     stage: test
+    artifacts:
+        untracked: true
     dependencies:
         - build:feup-8
     script:
         - cd FEUP-8/bin
         - ./tic80 -test
+
+deploy:coverage_reports:
+  stage: deploy
+  dependencies:
+    - test:website
+    - test:feup-8
+  script:
+    - cd ./Website/report
+    - mv index.html coverage_website.html
+    - cd ../..
+    - cd ./FEUP-8/tic80_coverage
+    - mv index.html coverage_feup8.html
+    - cp -r . ../../Website/report
+    - cd ../..
+    - cp index.html ./Website/report
+    - ls ./Website/report
+    - mv ./Website/report public
+    - ls public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
 
 deploy:website:
     image: registry.gitlab.com/ldso18-19/t5g2:website
