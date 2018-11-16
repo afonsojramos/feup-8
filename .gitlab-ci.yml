@@ -7,7 +7,7 @@ stages:
     - deploy
 
 build:website:
-    image: registry.gitlab.com/ldso18-19/t5g2:website
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website
     stage: build
     artifacts:
         untracked: true
@@ -16,7 +16,7 @@ build:website:
         - composer install
 
 build:feup-8:
-    image: registry.gitlab.com/ldso18-19/t5g2:feup-8
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:feup-8
     stage: build
     artifacts:
         untracked: true
@@ -28,7 +28,7 @@ build:feup-8:
         - make -j4
 
 test:website:
-    image: registry.gitlab.com/ldso18-19/t5g2:website
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website
     stage: test
     dependencies:
         - build:website
@@ -51,7 +51,7 @@ test:website:
             - ./Website/report
 
 test:feup-8:
-    image: registry.gitlab.com/ldso18-19/t5g2:feup-8
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:feup-8
     stage: test
     artifacts:
         untracked: true
@@ -84,7 +84,7 @@ deploy:coverage_reports:
     expire_in: 30 days
 
 deploy:website:
-    image: registry.gitlab.com/ldso18-19/t5g2:website
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website
     stage: deploy
     script:
         - cd Website
