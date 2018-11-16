@@ -7,7 +7,7 @@ stages:
     - deploy
 
 build:website:
-    image: registry.gitlab.com/ldso18-19/t5g2:website
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website
     stage: build
     artifacts:
         untracked: true
@@ -16,7 +16,7 @@ build:website:
         - composer install
 
 build:feup-8:
-    image: registry.gitlab.com/ldso18-19/t5g2:feup-8
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:feup-8
     stage: build
     artifacts:
         untracked: true
@@ -28,7 +28,7 @@ build:feup-8:
         - make -j4
 
 test:website:
-    image: registry.gitlab.com/ldso18-19/t5g2:website
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website
     stage: test
     dependencies:
         - build:website
@@ -51,7 +51,7 @@ test:website:
             - ./Website/report
 
 test:feup-8:
-    image: registry.gitlab.com/ldso18-19/t5g2:feup-8
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:feup-8
     stage: test
     artifacts:
         untracked: true
@@ -61,7 +61,7 @@ test:feup-8:
         - cd FEUP-8/bin
         - ./tic80 -test
 
-deploy:coverage_reports:
+pages:
   stage: deploy
   dependencies:
     - test:website
@@ -75,16 +75,16 @@ deploy:coverage_reports:
     - cp -r . ../../Website/report
     - cd ../..
     - cp index.html ./Website/report
-    - ls ./Website/report
-    - mv ./Website/report public
-    - ls public/
+    - mv ./Website/report/ public/
   artifacts:
     paths:
       - public
     expire_in: 30 days
+  only:
+    - development
 
 deploy:website:
-    image: registry.gitlab.com/ldso18-19/t5g2:website
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website
     stage: deploy
     script:
         - cd Website
