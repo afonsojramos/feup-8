@@ -61,7 +61,7 @@ test:feup-8:
         - cd FEUP-8/bin
         - ./tic80 -test
 
-deploy:coverage_reports:
+pages:
   stage: deploy
   dependencies:
     - test:website
@@ -75,13 +75,14 @@ deploy:coverage_reports:
     - cp -r . ../../Website/report
     - cd ../..
     - cp index.html ./Website/report
-    - ls ./Website/report
     - mv ./Website/report public
-    - ls public/
   artifacts:
     paths:
       - public
     expire_in: 30 days
+  only:
+    - master
+    - development
 
 deploy:website:
     image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website
