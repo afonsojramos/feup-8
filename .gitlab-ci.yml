@@ -75,13 +75,12 @@ pages:
     - cp -r . ../../Website/report
     - cd ../..
     - cp index.html ./Website/report
-    - mv ./Website/report public
+    - mv ./Website/report/ public/
   artifacts:
     paths:
       - public
     expire_in: 30 days
   only:
-    - master
     - development
 
 deploy:website:
