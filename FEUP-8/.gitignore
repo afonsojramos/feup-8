@@ -122,9 +122,13 @@ build/uwp/tic/packages/
 build/windows/studio/x64/
 build/windows/sdl-gpu/x64/
 .vs/
-CMakeFiles/
+CMakeFiles/*
+CMakeFiles/tic80core.dir/3rd-party/duktape-2.2.0/src/
+!CMakeFiles/tic80core.dir/3rd-party/duktape-2.2.0/src/*.c
 lib/
 *.cmake
 CMakeCache.txt
 Makefile
 make_run.sh
+tic80_coverage
+tic80_coverage.info

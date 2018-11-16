@@ -25,6 +25,11 @@
 #define SERVER_ERROR 2
 #define CANT_CONNECT_TO_SERVER 3
 
+//Tests codes
+#define EXECUTION_TIMEOUT -2
+#define SYNTACTIC_ERRORS -1
+#define CODE_APPROVED 0
+
 typedef struct 
 {
 		int id;
@@ -48,7 +53,8 @@ int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercis
 int saveProgressRequest(Buffer exercise_data, char *code, int exercise_id);
 int saveProgressRequestSend(Buffer exercise_data, char *code, int exercise_id, bool testing, char *mock_response_data);
 int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise *ticExercise);
-
+int sendCodeToServerAndGetTestsResultsRequestSend(int exerciseId, char *code, tic_exercise *ticExercise, bool testing, char *mock_response_data);
+void setAllTestsAsValue(tic_exercise *ticExercise, int value);
 
 
 #endif

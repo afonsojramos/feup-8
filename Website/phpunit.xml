@@ -20,15 +20,20 @@
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">./app</directory>
+	    <exclude>
+    		<directory suffix=".php">./app/Exceptions</directory>
+    		<directory suffix=".php">./app/Http/Controllers/Auth</directory>
+    		<directory suffix=".php">./app/Http/Middleware</directory>
+    		<directory suffix=".php">./app/Providers</directory>
+    		<file>./app/User.php</file>
+    		<file>./app/Http/Controllers/HomeController.php</file>
+	    </exclude>
         </whitelist>
     </filter>
-    <!--uncomment for coverage report
     <logging>
-        <log type="coverage-html" target="./report" charset="UTF-8"
-            yui="true" highlight="true"
-            lowUpperBound="50" highLowerBound="80" />
+        <log type="coverage-html" target="./report"
+        lowUpperBound="50" highLowerBound="80" />
     </logging>
-    -->
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="BCRYPT_ROUNDS" value="4"/>

@@ -1,11 +1,11 @@
 services:
-    - docker:dind   
-  
+    - docker:dind
+
 stages:
     - build
     - test
     - deploy
-    
+
 build:website:
     image: registry.gitlab.com/ldso18-19/t5g2:website
     stage: build
@@ -14,23 +14,27 @@ build:website:
     script:
         - cd Website
         - composer install
-        
+
 build:feup-8:
     image: registry.gitlab.com/ldso18-19/t5g2:feup-8
     stage: build
     artifacts:
         untracked: true
     script:
+        - apt-get install lcov -y
         - cd FEUP-8
         - cmake .
+        - make tic80_coverage
         - make -j4
 
 test:website:
     image: registry.gitlab.com/ldso18-19/t5g2:website
     stage: test
-    dependencies: 
+    dependencies:
         - build:website
     script:
+        - pecl install xdebug-2.6.0
+        - docker-php-ext-enable xdebug
         - cd Website
         - touch database/database_tests.sqlite
         - APP_ENV=testing php artisan migrate:refresh
@@ -38,16 +42,46 @@ test:website:
         - cd database
         - sqlite3 database_tests.sqlite < database_tests_data.sql
         - cd ..
-        - APP_ENV=testing ./vendor/bin/phpunit
-        
+        - APP_ENV=testing ./vendor/bin/phpunit --testdox
+        - wget https://cs.sensiolabs.org/download/php-cs-fixer-v2.phar -O php-cs-fixer
+        - php php-cs-fixer fix ./ -v --dry-run --stop-on-violation --using-cache=no
+        - find . -name "*.php" -not -path "./vendor/*" | xargs --max-args=1 php -l
+    artifacts:
+        paths:
+            - ./Website/report
+
 test:feup-8:
     image: registry.gitlab.com/ldso18-19/t5g2:feup-8
     stage: test
-    dependencies: 
+    artifacts:
+        untracked: true
+    dependencies:
         - build:feup-8
     script:
         - cd FEUP-8/bin
         - ./tic80 -test
+
+deploy:coverage_reports:
+  stage: deploy
+  dependencies:
+    - test:website
+    - test:feup-8
+  script:
+    - cd ./Website/report
+    - mv index.html coverage_website.html
+    - cd ../..
+    - cd ./FEUP-8/tic80_coverage
+    - mv index.html coverage_feup8.html
+    - cp -r . ../../Website/report
+    - cd ../..
+    - cp index.html ./Website/report
+    - ls ./Website/report
+    - mv ./Website/report public
+    - ls public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 30 days
 
 deploy:website:
     image: registry.gitlab.com/ldso18-19/t5g2:website
@@ -59,4 +93,3 @@ deploy:website:
     when: manual
     only:
         - master
-    

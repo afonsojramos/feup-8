@@ -13,7 +13,6 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
     ];
 
     /**
@@ -29,8 +28,7 @@ class Handler extends ExceptionHandler
     /**
      * Report or log an exception.
      *
-     * @param  \Exception  $exception
-     * @return void
+     * @param \Exception $exception
      */
     public function report(Exception $exception)
     {
@@ -40,24 +38,25 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
+     * @param \Illuminate\Http\Request $request
+     * @param \Exception               $exception
+     *
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $exception)
     {
-        if($this->isHttpException($exception))
+        if ($this->isHttpException($exception))
         {
-            switch ($exception->getStatusCode()) 
+            switch ($exception->getStatusCode())
             {
                 // not found
                 case 404:
-                    return response()->json(['response_code'=> 2], 200);
+                    return response()->json(['response_code' => 2], 200);
                     break;
 
                 // internal error
                 case '500':
-                    return response()->json(['response_code'=> 2], 200);
+                    return response()->json(['response_code' => 2], 200);
                     break;
 
                 default:

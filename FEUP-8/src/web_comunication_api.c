@@ -75,7 +75,6 @@ int loginRequestSend(const char *username, const char *password, bool testing, c
     int FIXED_LOGIN_MESSAGE_SIZE = 19;
     dataToSend.size = strlen(username) + strlen(password) + FIXED_LOGIN_MESSAGE_SIZE;
     dataToSend.data = malloc(sizeof(u8) * (dataToSend.size + 1));
-    printf("stuff\n");
     sprintf(dataToSend.data, "username=%s&password=%s", username, password);
     Buffer response;
     if (!testing)
@@ -149,7 +148,6 @@ int registerRequest(const char *name, const char *email, const char *username, c
 
 int registerRequestSend(const char *name, const char *email, const char *username, const char *password, bool testing, char *mock_response_data)
 {
-    //TODO support para receber auth_token aquando de register
     Buffer dataToSend;
     int FIXED_REGISTER_MESSAGE_SIZE = 32;
     dataToSend.size = strlen(name) + strlen(email) + strlen(username) + strlen(password) + FIXED_REGISTER_MESSAGE_SIZE;
@@ -200,6 +198,7 @@ int registerRequestSend(const char *name, const char *email, const char *usernam
     free(response.data);
     cJSON_free(monitor_json);
     cJSON_free(ret_code_obj);
+
     return ret_code; //can display a message saying what hapenned and return acordingly
 }
 
@@ -252,9 +251,14 @@ int logoutRequestSend(bool testing, char *mock_response_data)
     free(response.data);
     cJSON_free(monitor_json);
     cJSON_free(ret_code_obj);
-    free(auth_token);
+    
+    if (ret_code == SUCCESS)
+    {
+        //reset auth_token
+        free(auth_token);
+        auth_token = NULL;
+    }
 
-    auth_token = NULL; //reset auth_token
     return ret_code; //can display a message saying what hapenned and return acordingly
 }
 
@@ -465,7 +469,20 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
             if(img_base64_obj == NULL)
                 return SERVER_ERROR;
             exercise->img_base64 = getStringCopy(img_base64_obj->valuestring);
-
+            
+            cJSON *feup8_file_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "feup8_file");
+            if(feup8_file_obj == NULL)
+                return SERVER_ERROR;
+            size_t feup8_file_size = b64_decoded_size(feup8_file_obj->valuestring);
+            char *feup8_file = malloc(sizeof(char) * feup8_file_size);
+            if (b64_decode(feup8_file_obj->valuestring, feup8_file, feup8_file_size) != 1)
+            {
+                free(feup8_file);
+                return SERVER_ERROR;
+            }
+            exercise->feup8_file.data = feup8_file;
+            exercise->feup8_file.size = feup8_file_size;
+         
             cJSON *progress_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "progress");
             if(progress_obj == NULL || progress_obj->valuestring == NULL)
                 exercise->progress = 0;
@@ -489,6 +506,10 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
     cJSON_free(monitor_json);
     cJSON_free(ret_code_obj);
 
+    int NOT_EVALUATED_YET = -2;
+    setAllTestsAsValue(exercise, NOT_EVALUATED_YET); //set tests passes value as not filled yet (in this case -2)
+    exercise->tests_global_state = (NOT_EVALUATED_YET - 1); //set global state as not evaluated yet (in this case -3)
+
     return ret_code; //can display a message saying what hapenned and return acordingly
 }
 
@@ -502,7 +523,6 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
 */
 int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercise)
 {
-    //TODO: alterar para nova forma como vêm os testes segundo api
     int ret_code = SUCCESS;
     ExerciseTest **exerciseTestArray = &(ticExercise->exerciseTests);
     cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "tests");
@@ -575,10 +595,11 @@ deallocate_parseExerciseTestsReceived:
             goto deallocate_parseExerciseTestsReceivedAndReturn;
         i++;
     }
-    
-deallocate_parseExerciseTestsReceivedAndReturn : cJSON_free(tests_obj);
-    cJSON_free(test);
 
+deallocate_parseExerciseTestsReceivedAndReturn:
+    cJSON_free(tests_obj);
+    cJSON_free(test);
+ 
     return ret_code;
 }
 
@@ -611,7 +632,6 @@ int saveProgressRequestSend(Buffer exercise_data, char *code, int exercise_id, b
     dataToSend.size = strlen(exercise_data_encoded) + strlen(code_encoded) + FIXED_SAVE_PROGRESS_MESSAGE_SIZE;
     dataToSend.data = malloc(sizeof(u8) * (dataToSend.size + 1));
     sprintf(dataToSend.data, "exercise_data=%s&code=%s", exercise_data_encoded, code_encoded);
-    
     char *request_address = malloc(sizeof(char) * (strlen(SAVE_PROGRESS_PATH) + 1 + log10(exercise_id) + 1 + 4));
     sprintf(request_address, "%s/%d/save", SAVE_PROGRESS_PATH, exercise_id);
 
@@ -622,8 +642,10 @@ int saveProgressRequestSend(Buffer exercise_data, char *code, int exercise_id, b
     {
         response.data = getStringCopy(mock_response_data);
         response.size = strlen(mock_response_data);
+        char *data_sent_to_server = concateStrings(additionalHeaderString, "\n\n");
+        data_sent_to_server = concateStrings(data_sent_to_server, dataToSend.data);
+        memcpy(mock_response_data, data_sent_to_server, strlen(data_sent_to_server) + 1);
     }
-    
     if(response.data == NULL)
         return CANT_CONNECT_TO_SERVER;
     
@@ -659,11 +681,19 @@ int saveProgressRequestSend(Buffer exercise_data, char *code, int exercise_id, b
 * @param code A string with student typed code to be tested.
 * @param ticExercise The struct representing the exercise that will be filled with the result from the tests.
 * @return An int identifying the result of the request. Int returned and respective meaning:
-* 0 - success.
-* 2 - server error.
-* 3 - can't connect to server.
+*  0 - success.
+*  2 - server error.
+*  3 - can't connect to server.
+* -2 - timeout on running tests on server
+* -1 - syntactic errors on running tests on server
 */
 int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise *ticExercise)
+{
+    
+    return sendCodeToServerAndGetTestsResultsRequestSend(exerciseId, code, ticExercise, false, NULL);
+}
+
+int sendCodeToServerAndGetTestsResultsRequestSend(int exerciseId, char *code, tic_exercise *ticExercise, bool testing, char *mock_response_data)
 {
     char *additionalHeaderString = NULL;
     if(auth_token != NULL) //if logged in, the web server will receive the auth token in order to sava the most recent progress of the user based on the code tested.
@@ -671,14 +701,26 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
 
     int ret_code;
     Buffer dataToSend;
-    int FIXED_EXECUTE_TEST_MESSAGE_SIZE = 6;
-    dataToSend.size = strlen(code) + FIXED_EXECUTE_TEST_MESSAGE_SIZE;
-    dataToSend.data = malloc(sizeof(u8) * dataToSend.size);
-    sprintf(dataToSend.data, "code=%s", code);
+    int FIXED_EXECUTE_TEST_MESSAGE_SIZE = 5;
+    char *code_encoded = b64_encode(code, strlen(code) * sizeof(char));
+    dataToSend.size = strlen(code_encoded) + FIXED_EXECUTE_TEST_MESSAGE_SIZE;
+    dataToSend.data = malloc(sizeof(u8) * (dataToSend.size + 1));
+    sprintf(dataToSend.data, "code=%s", code_encoded);
     char *request_address = malloc(sizeof(char) * (strlen(EXECUTE_TEST_PATH) + 1 + (log10(exerciseId) + 1) + 1 + 4));
     sprintf(request_address, "%s/%d/test", EXECUTE_TEST_PATH, exerciseId);
 
-    Buffer response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    Buffer response;
+    if (!testing)
+        response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+    else
+    {
+        response.data = getStringCopy(mock_response_data);
+        response.size = strlen(mock_response_data);
+        char *data_sent_to_server = concateStrings(additionalHeaderString, "\n\n");
+        data_sent_to_server = concateStrings(data_sent_to_server, dataToSend.data);
+        memcpy(mock_response_data, data_sent_to_server, strlen(data_sent_to_server) + 1);
+    }
+    
     if(response.data == NULL)
     {
         free(dataToSend.data);
@@ -706,59 +748,53 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
         ret_code = SERVER_ERROR;
         goto deallocate_memory;
     }
+
     ret_code = ret_code_obj->valueint;
     if(ret_code == SUCCESS)
     {
-        cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "tests");
+        cJSON *tests_global_state_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "tests_global_state");
+        if(tests_global_state_obj == NULL)
+        {
+            cJSON_free(tests_global_state_obj);
+            ret_code = SERVER_ERROR;
+            goto deallocate_memory;
+        }
+        setAllTestsAsValue(ticExercise, 0); //set as not passed
+        ticExercise->tests_global_state = tests_global_state_obj->valueint;
+        if(ticExercise->tests_global_state == EXECUTION_TIMEOUT)
+            return EXECUTION_TIMEOUT;
+        if(ticExercise->tests_global_state == SYNTACTIC_ERRORS)
+            return SYNTACTIC_ERRORS;
+
+        cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "tests_results");
         if(tests_obj == NULL)
         {
+            cJSON_free(tests_global_state_obj);
             cJSON_free(tests_obj);
             ret_code = SERVER_ERROR;
             goto deallocate_memory;
         }
 
-        cJSON *test;
-        size_t i = 0;
-        cJSON_ArrayForEach(test, tests_obj)
+        ExerciseTest *exerciseTestArray = ticExercise->exerciseTests;
+        for(size_t i = 0; i < ticExercise->number_of_exercise_tests; i++)
         {
-            cJSON *id_obj = cJSON_GetObjectItemCaseSensitive(test, "id");
-            if(id_obj == NULL || id_obj->valuestring == NULL)
-                return SERVER_ERROR;
-            int id = atoi(id_obj->valuestring);
-            cJSON_free(id_obj);
-            if(id == 0)
-            {
-                cJSON_free(tests_obj);
-                cJSON_free(test);
-                ret_code = SERVER_ERROR;
-                goto deallocate_memory;
-            }
+            char *test_title = exerciseTestArray[i].title;
+            cJSON *result_obj = cJSON_GetObjectItemCaseSensitive(tests_obj, test_title);
 
-            cJSON *result_obj = cJSON_GetObjectItemCaseSensitive(test, "result");
-            if(result_obj == NULL|| result_obj->valuestring == NULL)
+            if(result_obj == NULL)
             {
+                cJSON_free(tests_global_state_obj);
+                cJSON_free(tests_obj);
                 cJSON_free(result_obj);
-                cJSON_free(tests_obj);
-                cJSON_free(test);
                 ret_code = SERVER_ERROR;
                 goto deallocate_memory;
             }
-
-            bool passed = strcmp(result_obj->valuestring, "OK") == 0 ? true : false;
-            ExerciseTest *exerciseTestArray = ticExercise->exerciseTests;
-            for(size_t i = 0; i < ticExercise->number_of_exercise_tests; i++)
-            {
-                if(exerciseTestArray[i].id == id)
-                    exerciseTestArray[i].passed = passed;
-            }
-            ticExercise->creator_name = getStringCopy(result_obj->valuestring);
-            cJSON_free(result_obj);
-
-            i++;
+            int passed = cJSON_IsTrue(result_obj) == true ? 1 : 0;
+            exerciseTestArray[i].passed = passed;
         }
-
+       
+        cJSON_free(tests_global_state_obj);
         cJSON_free(tests_obj);
-        cJSON_free(test);
     }
 
 deallocate_memory:
@@ -768,4 +804,18 @@ deallocate_memory:
     cJSON_free(ret_code_obj);
     
     return ret_code;
+}
+
+/**
+* Sets all the exercises tests passed value as the value passed as paramater
+* @param ticExercise The struct representing the exercise that will be filled with the result from the tests.
+* @param value the value to set in exercise tests 
+*/
+void setAllTestsAsValue(tic_exercise *ticExercise, int value)
+{
+    ExerciseTest *exerciseTests = ticExercise->exerciseTests;
+    for(size_t i = 0; i < ticExercise->number_of_exercise_tests; i++)
+    {
+        exerciseTests[i].passed = value;
+    }
 }

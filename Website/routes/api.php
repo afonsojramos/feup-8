@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -13,15 +11,13 @@ use Illuminate\Http\Request;
 |
 */
 
-
 //User management
 Route::post('login', 'API\UserController@login');
 Route::post('register', 'API\UserController@register');
 Route::post('logout', 'API\UserController@logout');
 
-
 //Exercises management
 Route::get('exercises/all', 'API\ExerciseController@getAllExercises');
 Route::get('exercises/{exercise_id}', 'API\ExerciseController@getExerciseDetails');
 Route::post('exercises/{exercise_id}/save', 'API\ExerciseController@saveExerciseProgress');
-Route::get('exercises/{exercise_id}/test', 'API\ExerciseController@testStudentCodeForExercise');
+Route::get('exercises/{exercise_id}/test', 'API\ExerciseController@handleTestStudentCode');

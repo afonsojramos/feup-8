@@ -44,22 +44,19 @@ static void drawCode(Exercise *exercise, char *text, u8 color, s32 xStart, s32 x
 {
 	char *pointer = text;
 
-	//u8* colorPointer = exercise->colorBuffer;
-
 	while (*pointer)
 	{
 		char symbol = *pointer;
 
-		if (x >= -TIC_FONT_WIDTH && x < xEnd && y >= -TIC_FONT_HEIGHT && y < TIC80_HEIGHT)
+		if (x >= -TIC_FONT_WIDTH && x <= xEnd && y >= -TIC_FONT_HEIGHT && y < TIC80_HEIGHT)
 		{
 			exercise->tic->api.draw_char(exercise->tic, symbol, x + 1, y + 1, color, false);
 		}
 
-		if (symbol == '\n' || ((x + 2) >= xEnd))
+		if (symbol == '\n' || ((x + TIC_FONT_WIDTH) > xEnd))
 		{
 			x = xStart;
 			y += STUDIO_TEXT_HEIGHT;
-			color++;
 		}
 		else
 			x += TIC_FONT_WIDTH;
@@ -92,18 +89,19 @@ static void drawCodeScroll(Exercise *exercise, char *text, u8 color, s32 x, s32 
 	{
 		char symbol = *pointer;
 
-		if (x >= -TIC_FONT_WIDTH && x < xEnd && y >= -TIC_FONT_HEIGHT && y < yEnd && y >= yStart)
+		if (x >= -TIC_FONT_WIDTH && x <= xEnd && y >= yStart && y <= yEnd)
 		{
-			exercise->tic->api.draw_char(exercise->tic, symbol, x + 1, y + 1, color, false);
+			exercise->tic->api.draw_char(exercise->tic, symbol, x, y, color, false);
 		}
 
-		if (symbol == '\n' || ((x + 2) >= xEnd))
+		if (symbol == '\n' || ((x + TIC_FONT_WIDTH) > xEnd))
 		{
 			x = xStart;
 			y += STUDIO_TEXT_HEIGHT;
-			color++;
 		}
-		else
+		else if (symbol == '\t')
+			x += (TIC_FONT_WIDTH * 2);
+		else 
 			x += TIC_FONT_WIDTH;
 
 		pointer++;
@@ -111,7 +109,21 @@ static void drawCodeScroll(Exercise *exercise, char *text, u8 color, s32 x, s32 
 }
 
 /**
-* proccess keyboard
+ * Draw Border For Rectangle
+ * 
+ */ 
+static void drawDownBorder(Exercise *exercise, s32 x, s32 y, s32 w, s32 h)
+{
+	tic_mem *tic = exercise->tic;
+
+	tic->api.rect(tic, x, y - 1, w, 1, tic_color_dark_gray);
+	tic->api.rect(tic, x - 1, y, 1, h, tic_color_dark_gray);
+	tic->api.rect(tic, x, y + h, w, 1, tic_color_light_blue);
+	tic->api.rect(tic, x + w, y, 1, h, tic_color_light_blue);
+}
+
+/**
+* Proccess keyboard
 *
 * @param exercise a pointer to the exercise loaded
 */
@@ -229,33 +241,28 @@ static void processMouse(Exercise *exercise, char *text)
 }
 
 /**
-* draw the overview layout when the overview tab is selected (default)
+* draw exercise details in the overview layout 
 *
 * @param exercise a pointer to the exercise loaded
 */
-static void drawOverviewLayout(Exercise *exercise)
-{
-	exercise->tic->api.clear(exercise->tic, (tic_color_dark_red));
+static void drawExerciseDetails(Exercise *exercise){
 
-	if (exercise->tic->exe.title == NULL)
-	{
-		drawCode(exercise, "No Exercise Loaded!", tic_color_red, TIC80_WIDTH / 4, TIC80_WIDTH / 4, TIC80_HEIGHT / 3, TIC80_WIDTH);
-		return;
-	}
+	int titleLength = TIC80_WIDTH / 16 + strlen("-- title: ") * TIC_FONT_WIDTH;
+	int authorLength = TIC80_WIDTH / 16 + strlen("-- author: ") * TIC_FONT_WIDTH;
 
-	int titleLength = TIC80_WIDTH / 12 + strlen("-- title: ") * TIC_FONT_WIDTH;
-	int authorLength = TIC80_WIDTH / 12 + strlen("-- author: ") * TIC_FONT_WIDTH;
+	drawCode(exercise, "-- title: ", tic_color_orange, TIC80_WIDTH / 16, TIC80_WIDTH / 16, TIC80_HEIGHT / 8, TIC80_WIDTH);
+	drawCode(exercise, exercise->tic->exe.title, tic_color_white, titleLength, titleLength, TIC80_HEIGHT / 8, TIC80_WIDTH);
 
-	drawCode(exercise, "-- title: ", tic_color_peach, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 8, TIC80_WIDTH);
-	drawCode(exercise, exercise->tic->exe.title, tic_color_red, titleLength, titleLength, TIC80_HEIGHT / 8, TIC80_WIDTH);
+	drawCode(exercise, "-- author: ", tic_color_orange, TIC80_WIDTH / 16, TIC80_WIDTH / 16, TIC80_HEIGHT / 5.25, TIC80_WIDTH);
+	drawCode(exercise, exercise->tic->exe.creator_name, tic_color_white, authorLength, authorLength, TIC80_HEIGHT / 5.25, TIC80_WIDTH);
 
-	drawCode(exercise, "-- author: ", tic_color_peach, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 5.25, TIC80_WIDTH);
-	drawCode(exercise, exercise->tic->exe.creator_name, tic_color_red, authorLength, authorLength, TIC80_HEIGHT / 5.25, TIC80_WIDTH);
+	drawCode(exercise, "-- description: ", tic_color_orange, TIC80_WIDTH / 16, TIC80_WIDTH / 16, TIC80_HEIGHT / 4, TIC80_WIDTH);
 
-	drawCode(exercise, "-- description: ", tic_color_peach, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 4, TIC80_WIDTH);
+	exercise->tic->api.rect(exercise->tic, (TIC80_WIDTH / 16 - 2), (TIC80_HEIGHT / 3 - 0.5), (TIC80_WIDTH - 25), (TIC80_HEIGHT - 55), tic_color_gray);
+	drawDownBorder(exercise, (TIC80_WIDTH / 16 - 2), (TIC80_HEIGHT / 3 - 0.5), (TIC80_WIDTH - 25), (TIC80_HEIGHT - 55));
 
-	if (strlen(exercise->tic->exe.description) < 385)
-		drawCode(exercise, exercise->tic->exe.description, tic_color_red, TIC80_WIDTH / 12, TIC80_WIDTH / 12, TIC80_HEIGHT / 3, TIC80_WIDTH - 10);
+	if (strlen(exercise->tic->exe.description) < 150)
+		drawCode(exercise, exercise->tic->exe.description, tic_color_white, TIC80_WIDTH / 16, TIC80_WIDTH / 16, TIC80_HEIGHT / 3 + 1, TIC80_WIDTH - 15);
 	else
 	{
 		tic80_input *input = &exercise->tic->ram.input;
@@ -274,28 +281,89 @@ static void drawOverviewLayout(Exercise *exercise)
 
 		processMouse(exercise, exercise->tic->exe.description);
 
-		drawCodeScroll(exercise, exercise->tic->exe.description, tic_color_red, TIC80_WIDTH / 12, TIC80_HEIGHT / 3, TIC80_WIDTH - 10, TIC80_HEIGHT - 10);
+		drawCodeScroll(exercise, exercise->tic->exe.description, tic_color_white, TIC80_WIDTH / 16, TIC80_HEIGHT / 3 + 1, TIC80_WIDTH - 17, TIC80_HEIGHT - 10);
 	}
 }
 
+/**
+ * 
+ * @param exercise a pointer to the exercise loaded
+ */
+static char* generateTestsOutputString(Exercise *exercise)
+{
+	
+	char *str = malloc(sizeof(char) * 500);
+	switch (exercise->tic->exe.tests_global_state)
+	{
+		case -1:
+		{
+			sprintf(str,"YOU\nHAVE\nERRORS\n");
+			break;
+		}
+		case -2:
+		{
+			sprintf(str, "TESTS\nTIMED\nOUT\n");
+			break;
+		}
+		default:
+		{
+			int testsPassed = (exercise->tic->exe.number_of_exercise_tests - exercise->tic->exe.tests_global_state);
+			sprintf(str, "%d/%d \nPASSED\nTESTS\n",testsPassed, exercise->tic->exe.number_of_exercise_tests);
+			break;
+		}
+	}
+	return str;
+}
+
+/**
+* Draw general output of tests, to see the general state of the tests ran
+*
+* @param exercise a pointer to the exercise loaded
+*/
+static void drawGeneralTestsOutput(Exercise *exercise)
+{
+	s32 xInit = (TIC80_WIDTH * 4 / 5.0 - 3);
+	exercise->tic->api.rect(exercise->tic, xInit, 15, (TIC80_WIDTH - 12 - xInit), (TIC80_HEIGHT / 5.5), tic_color_red);
+	drawDownBorder(exercise, xInit, 15, (TIC80_WIDTH - 12 - xInit), (TIC80_HEIGHT / 5.5));
+
+	char *text = generateTestsOutputString(exercise);
+
+	drawCode(exercise, text, tic_color_white, (xInit + 1), (xInit + 1), 17, (TIC80_WIDTH - 10));
+}
+
+/**
+* Draw the overview layout when the overview tab is selected (default)
+*
+* @param exercise a pointer to the exercise loaded
+*/
+static void drawOverviewLayout(Exercise *exercise)
+{
+	exercise->tic->api.clear(exercise->tic, (tic_color_gray));
+
+	exercise->tic->api.rect(exercise->tic, 5, 12, (TIC80_WIDTH - 10), (TIC80_HEIGHT - 17), tic_color_dark_red);
+	drawDownBorder(exercise, 5, 12, (TIC80_WIDTH - 10), (TIC80_HEIGHT - 17));
+
+	if (exercise->tic->exe.title == NULL)
+	{
+		drawCode(exercise, "No Exercise Loaded!", tic_color_red, TIC80_WIDTH / 4, TIC80_WIDTH / 4, TIC80_HEIGHT / 3, TIC80_WIDTH);
+		return;
+	}
+
+	drawExerciseDetails(exercise);
+
+	if(exercise->tic->exe.tests_global_state > -3)
+		drawGeneralTestsOutput(exercise);
+}
+
 /** 
-* start running of tests 
+* Start running of tests 
 *
 * @param exercise a pointer to the exercise loaded
 */
 static void runTests(Exercise *exercise)
 {
-	//sendCodeToServerAndGetTestsResults(exercise->tic->exe.id, exercise->tic->cart.code.data,exercise);
-}
-
-/** 
-* stop running of tests 
-*
-* @param exercise a pointer to the exercise loaded
-*/
-static void stopTests(Exercise *exercise)
-{
-	//exercise->tic->api.exercise(exercise->tic, -1, -1, -1, false);
+	sendCodeToServerAndGetTestsResults(exercise->tic->exe.id, 
+		exercise->tic->cart.code.data, &(exercise->tic->exe));
 }
 
 /** 
@@ -315,16 +383,7 @@ static void drawPlayTestButtons(Exercise *exercise)
 			0b00110000,
 			0b00100000,
 			0b00000000,
-			0b00000000,
-
-			0b00000000,
-			0b01111100,
-			0b01111100,
-			0b01111100,
-			0b01111100,
-			0b01111100,
-			0b00000000,
-			0b00000000,
+			0b00000000
 
 		};
 
@@ -348,18 +407,15 @@ static void drawPlayTestButtons(Exercise *exercise)
 			setCursor(tic_cursor_hand);
 			over = true;
 
-			static const char *Tooltips[] = {"PLAY TESTS", "STOP [enter]"};
+			static const char *Tooltips[] = {"PLAY TESTS"};
 			showTooltip(Tooltips[i]);
 
-			static void (*const Handlers[])(Exercise *) = {runTests, stopTests};
+			static void (*const Handlers[])(Exercise *) = {runTests};
 
 			if (checkMouseClick(&rect, tic_mouse_left))
 				Handlers[i](exercise);
 		}
 
-		// if (i == 0 /*&& exercise->tracker.follow*/)
-		// 	drawBitIcon(rect.x, rect.y, Icons + i * Rows, over ? (tic_color_peach) : (tic_color_red));
-		// else
 		drawBitIcon(rect.x, rect.y, Icons + i * Rows, over ? (tic_color_dark_gray) : (tic_color_light_blue));
 	}
 }
@@ -469,8 +525,8 @@ static void setIndex(Exercise *exercise, s32 delta)
 * draw test switch panel, to switch between existent tests
 *
 * @param exercise a pointer to the exercise loaded
-* @param x x_position of where to draw the switch
-* @param y y_position of where to draw the switch
+* @param x x_position of where to begin the switch panel
+* @param y y_position of where to begin the switch panel
 */
 static void drawTestsPanel(Exercise *exercise, s32 x, s32 y)
 {
@@ -490,12 +546,27 @@ static void drawTestsPanel(Exercise *exercise, s32 x, s32 y)
 */
 static void drawTestBox(Exercise *exercise, ExerciseTest *test)
 {
-	exercise->tic->api.rect(exercise->tic, 14, 30, (TIC80_WIDTH - 27), (TIC80_HEIGHT - 50), (tic_color_white));
+	u8 color = tic_color_blue;
+
+	switch (test->passed)
+	{
+	case 0:
+		color = tic_color_red;
+		break;
+	case 1:
+		color = tic_color_green;
+		break;
+	case -2:
+		color = tic_color_dark_gray;
+		break;
+	}
+	exercise->tic->api.rect(exercise->tic, 14, 30, (TIC80_WIDTH - 28), (TIC80_HEIGHT - 50), color);
+	drawDownBorder(exercise, 14, 30, (TIC80_WIDTH - 28), (TIC80_HEIGHT - 50));
 
 	exercise->tic->api.fixed_text(exercise->tic, test->title, 16, 35, (tic_color_black), false);
 
-	if (strlen(test->test_code) < 500)
-		drawCode(exercise, test->test_code, tic_color_blue, 16, 16, 45, (TIC80_WIDTH - 27));
+	if (strlen(test->test_code) < 100)
+		drawCode(exercise, test->test_code, tic_color_white, 16, 16, 45, (TIC80_WIDTH - 28));
 	else
 	{
 		tic80_input *input = &exercise->tic->ram.input;
@@ -514,7 +585,15 @@ static void drawTestBox(Exercise *exercise, ExerciseTest *test)
 
 		processMouse(exercise, test->test_code);
 
-		drawCodeScroll(exercise, test->test_code, tic_color_blue, 16, 45, (TIC80_WIDTH - 27), (TIC80_HEIGHT - 25));
+		drawCodeScroll(exercise, test->test_code, tic_color_white, 16, 45, (TIC80_WIDTH - 15), (TIC80_HEIGHT - 25));
+	}
+
+	if (test->passed == 0 && test->hint != NULL){
+
+		exercise->tic->api.rect(exercise->tic, 14, (TIC80_HEIGHT - 18), (TIC80_WIDTH - 28), 12, tic_color_dark_blue);
+		drawDownBorder(exercise, 14, (TIC80_HEIGHT - 18), (TIC80_WIDTH - 28), 12);
+
+		drawCode(exercise, test->hint, tic_color_white, 16, 16, (TIC80_HEIGHT - 17), TIC80_WIDTH - 28);
 	}
 }
 
@@ -535,8 +614,7 @@ static void drawTestsLayout(Exercise *exercise)
 	
 	drawTestsPanel(exercise, (TIC80_WIDTH / 2 - 25), 10);
 
-	ExerciseTest *test = &(exercise->tic->exe.exerciseTests[exercise->testIndex - 1]);
-	drawTestBox(exercise, test);
+	drawTestBox(exercise, &(exercise->tic->exe.exerciseTests[exercise->testIndex - 1]));
 }
 
 /**

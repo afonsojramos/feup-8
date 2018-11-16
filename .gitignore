@@ -1,2 +1,6 @@
 #Visual Studio Code workspace configs
 .vscode
+*.lua
+.DS_Store
+*.rnd
+*.log

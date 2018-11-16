@@ -413,6 +413,28 @@ endforeach()
 target_compile_definitions(tic80prolib PRIVATE TIC80_PRO)
 
 ################################
+# Coverage Report Generation
+################################
+
+set(PROJECT_NAME tic80)
+set(PROJECT_TEST_NAME tic80)
+set(CMAKE_COMPILER_IS_GNUCXX true)
+
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMakeModules)
+if(CMAKE_COMPILER_IS_GNUCXX)
+	message("Creating coverage report...")
+    include(CodeCoverage)
+	APPEND_COVERAGE_COMPILER_FLAGS()
+	set(COVERAGE_LCOV_EXCLUDES '3rd-party'
+)
+	SETUP_TARGET_FOR_COVERAGE_LCOV(
+		NAME tic80_coverage                     # New target name
+		EXECUTABLE tic80 -test					# Test command
+		DEPENDENCIES tic80                      # Dependencies to build first
+	)
+endif()
+
+################################
 # TIC-80 app
 ################################
 
@@ -471,10 +493,8 @@ foreach(TIC80_OUTPUT ${TIC80_OUTPUTS})
 
 endforeach()
 
-
-
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wfatal-errors -O0 -ggdb3")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wfatal-errors -O0 -ggdb3 -Wall -fprofile-arcs -ftest-coverage")
 	else()
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -Wall -fprofile-arcs -ftest-coverage")
 endif()

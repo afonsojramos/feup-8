@@ -177,7 +177,7 @@ typedef struct
 	char* title;
 	char* hint; //optional, empty string if none
     char* test_code;
-	bool passed;
+	int passed;
 } ExerciseTest;
 
 typedef struct
@@ -191,6 +191,7 @@ typedef struct
 	Buffer feup8_file;
     ExerciseTest* exerciseTests;
 	unsigned int number_of_exercise_tests;
+	int tests_global_state;
 } tic_exercise;
 
 struct tic_mem
