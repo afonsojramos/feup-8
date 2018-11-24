@@ -33,8 +33,6 @@ test:website:
     dependencies:
         - build:website
     script:
-        - pecl install xdebug-2.6.0
-        - docker-php-ext-enable xdebug
         - cd Website
         - touch database/database_tests.sqlite
         - APP_ENV=testing php artisan migrate:refresh

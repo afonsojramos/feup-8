@@ -64,7 +64,7 @@ class UserController extends Controller
         {
             return response()->json(['response_code' => 1], UserController::$successStatus);
         }
-        if (!User::create($input['username'], $input['password'], $input['name'], $input['email']))
+        if (!User::create($input['username'], $input['password'], $input['name'], $input['email'], false))
         {
             return response()->json(['response_code' => 2], UserController::$successStatus);
         }

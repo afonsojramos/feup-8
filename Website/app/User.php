@@ -37,13 +37,13 @@ class User extends Authenticatable
      *
      * @return the response code 0 indicating sucess. Response code 1 indicating failure otherwise.
      */
-    public static function create($username, $password, $name, $email)
+    public static function create($username, $password, $name, $email, $isTeacher)
     {
         try
         {
             return DB::table('users')->insert(['username' => $username, 'name' => $name,
                 'password' => password_hash($password, PASSWORD_BCRYPT), 'email' => $email,
-                'isTeacher' => false, ]);
+                'isTeacher' => $isTeacher, ]);
         }
         catch (\Exception $e)
         {
