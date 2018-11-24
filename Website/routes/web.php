@@ -19,3 +19,7 @@ Route::get('/', function ()
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/exercise/create', 'Web\ExerciseController@createExercisePage');
+Route::post('/exercise/create', 'Web\ExerciseController@createExercise')->name('/exercise/create');
+Route::post('/login', 'Web\UserController@login');
+Route::post('/register', 'Web\UserController@register');

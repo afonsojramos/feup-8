@@ -5,17 +5,21 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{ __('Login') }}</div>
+                <div class="card-header">{{ __('Create Exercise') }}</div>
 
+                @foreach ($errors->all() as $error)
+                    <div class="alert alert-danger">{{ $error }} </div> 
+                @endforeach
+                
                 <div class="card-body">
-                    <form method="POST" action="{{ route('login') }}">
+                    <form method="POST" action="{{ route('/exercise/create') }}">
                         @csrf
 
                         <div class="form-group row">
-                            <label for="username" class="col-sm-4 col-form-label text-md-right">{{ __('Username') }}</label>
+                            <label for="title" class="col-sm-4 col-form-label text-md-right">{{ __('Exercise Title') }}</label>
 
                             <div class="col-md-6">
-                                <input id="username" type="text" class="form-control{{ $errors->has('username') ? ' is-invalid' : '' }}" name="username" value="{{ old('username') }}" required autofocus>
+                                <input id="title" type="text" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="form-title" value="{{ old('title') }}" required autofocus>
 
                                 @if ($errors->any())
                                     <span class="invalid-feedback" role="alert">
@@ -26,10 +30,14 @@
                         </div>
 
                         <div class="form-group row">
-                            <label for="password" class="col-md-4 col-form-label text-md-right">{{ __('Password') }}</label>
+                            <label for="description" class="col-sm-4 col-form-label text-md-right">{{ __('Description') }}</label>
 
                             <div class="col-md-6">
-                                <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" required>
+                                
+                                <textarea class="form-control{{ $errors->has('description') ? ' is-invalid' : '' }}" 
+                                    id="description" rows="3" 
+                                    name="form-description" value="{{ old('description') }}" required autofocus>
+                                </textarea>
 
                                 @if ($errors->any())
                                     <span class="invalid-feedback" role="alert">
@@ -38,14 +46,15 @@
                                 @endif
                             </div>
                         </div>
+
 
                         <div class="form-group row">
                             <div class="col-md-6 offset-md-4">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                                    <input class="form-check-input" type="checkbox" name="form-isPrivate" id="remember" {{ old('remember') ? 'checked' : '' }}>
 
                                     <label class="form-check-label" for="remember">
-                                        {{ __('Remember Me') }}
+                                        {{ __('Private Exercise') }}
                                     </label>
                                 </div>
                             </div>
@@ -54,12 +63,9 @@
                         <div class="form-group row mb-0">
                             <div class="col-md-8 offset-md-4">
                                 <button type="submit" class="btn btn-primary">
-                                    {{ __('Login') }}
+                                    {{ __('Create') }}
                                 </button>
 
-                                <a class="btn btn-link" href="{{ route('password.request') }}">
-                                    {{ __('Forgot Your Password?') }}
-                                </a>
                             </div>
                         </div>
                     </form>

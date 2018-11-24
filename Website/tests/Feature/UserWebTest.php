@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 
-class UserTests extends TestCase
+class UserWebTests extends TestCase
 {
+    private $redirect_code = 302;
+
     /* Register tests
 
     /**
@@ -13,14 +15,11 @@ class UserTests extends TestCase
      * It should be called with data that either causes success or not and the expected returns accordingly.
      * It is used to test success and failure avoiding code duplication.
      */
-    public function genericTestRegister($input, $expected_response_code, $should_succeed, $numberOfElementsReceived)
+    public function genericTestRegister($input, $redirect_to_url, $redirect_with)
     {
-        $response = $this->call('POST', '/api/register', $input);
-        $response->assertStatus(200);
-        $response_array = $response->decodeResponseJson();
-        $this->assertEquals($response_array['response_code'], $expected_response_code);
-        $this->assertEquals(array_key_exists('auth_token', $response_array), $should_succeed);
-        $this->assertEquals(count($response_array), $numberOfElementsReceived);
+        $response = $this->call('POST', '/register', $input);
+        $response->assertStatus($this->redirect_code);
+        $response->assertRedirect($redirect_to_url, $redirect_with);
     }
 
     /**
@@ -30,7 +29,7 @@ class UserTests extends TestCase
     {
         $input = ['username' => 'user_register', 'password' => 'password_register',
             'name' => 'name_register', ];
-        $this->genericTestRegister($input, 1, false, 1);
+        $this->genericTestRegister($input, '/register', ['msg', 'Missing one or more elements: username, name, password, email']);
     }
 
     /**
@@ -40,7 +39,7 @@ class UserTests extends TestCase
     {
         $input = ['username' => 'user_register', 'password' => 'password_register',
             'email' => 'email_register', ];
-        $this->genericTestRegister($input, 1, false, 1);
+        $this->genericTestRegister($input, '/register', ['msg', 'Missing one or more elements: username, name, password, email']);
     }
 
     /**
@@ -50,7 +49,7 @@ class UserTests extends TestCase
     {
         $input = ['username' => 'user_register', 'name' => 'name_register',
             'email' => 'email_register', ];
-        $this->genericTestRegister($input, 1, false, 1);
+        $this->genericTestRegister($input, '/register', ['msg', 'Missing one or more elements: username, name, password, email']);
     }
 
     /**
@@ -60,7 +59,7 @@ class UserTests extends TestCase
     {
         $input = ['password' => 'password_register', 'name' => 'name_register',
             'email' => 'email_register', ];
-        $this->genericTestRegister($input, 1, false, 1);
+        $this->genericTestRegister($input, '/register', ['msg', 'Missing one or more elements: username, name, password, email']);
     }
 
     /**
@@ -68,9 +67,9 @@ class UserTests extends TestCase
      */
     public function testRegisterCorrectly()
     {
-        $input = ['username' => 'user_register', 'password' => 'password_register',
-            'name' => 'name_register', 'email' => 'email_register', ];
-        $this->genericTestRegister($input, 0, true, 2);
+        $input = ['username' => 'teacher_register', 'password' => 'password_register',
+            'name' => 'name_register', 'email' => 'teacher_email_register', ];
+        $this->genericTestRegister($input, '', []);
     }
 
     /**
@@ -80,7 +79,7 @@ class UserTests extends TestCase
     {
         $input = ['username' => 'user_already_in_db', 'password' => 'password',
             'name' => 'name', 'email' => 'email', ];
-        $this->genericTestRegister($input, 1, false, 1);
+        $this->genericTestRegister($input, '/register', ['msg', 'Username already exists!']);
     }
 
     /**
@@ -90,7 +89,7 @@ class UserTests extends TestCase
     {
         $input = ['username' => 'username', 'password' => 'password',
             'name' => 'name', 'email' => 'email_already_in_db', ];
-        $this->genericTestRegister($input, 2, false, 1);
+        $this->genericTestRegister($input, '/register', ['msg', 'Error creating your account!']);
     }
 
     /* Login tests
@@ -100,23 +99,29 @@ class UserTests extends TestCase
      * It should be called with data that either causes success or not and the expected returns accordingly.
      * It is used to test success and failure avoiding code duplication.
      * */
-    public function genericTestLogin($input, $expected_response_code, $should_succeed, $numberOfElementsReceived)
+    public function genericTestLogin($input, $redirect_to_url, $redirect_with)
     {
-        $response = $this->call('POST', '/api/login', $input);
-        $response->assertStatus(200);
-        $response_array = $response->decodeResponseJson();
-        $this->assertEquals($response_array['response_code'], $expected_response_code);
-        $this->assertEquals(array_key_exists('auth_token', $response_array), $should_succeed);
-        $this->assertEquals(count($response_array), $numberOfElementsReceived);
+        $response = $this->call('POST', '/login', $input);
+        $response->assertStatus($this->redirect_code);
+        $response->assertRedirect($redirect_to_url, $redirect_with);
     }
 
     /**
-     * Tests if login fails with wrong password for given username.
+     * Tests if a login without username is rejected.
      */
-    public function testLoginFailForWrongPassword()
+    public function testLoginWithoutUsername()
     {
-        $input = ['username' => 'user_already_in_db', 'password' => 'wrong_password'];
-        $this->genericTestLogin($input, 1, false, 1);
+        $input = ['password' => 'password'];
+        $this->genericTestLogin($input, '/login', ['msg', 'Missing username or password']);
+    }
+
+    /**
+     * Tests if a login without username is rejected.
+     */
+    public function testLoginWithoutPassword()
+    {
+        $input = ['username' => 'user_already_in_db'];
+        $this->genericTestLogin($input, '/login', ['msg', 'Missing username or password']);
     }
 
     /**
@@ -125,7 +130,16 @@ class UserTests extends TestCase
     public function testLoginFailForInexistentUsername()
     {
         $input = ['username' => 'user_not_in_db', 'password' => 'password'];
-        $this->genericTestLogin($input, 1, false, 1);
+        $this->genericTestLogin($input, '/login', ['msg', "Username password doesn't exist"]);
+    }
+
+    /**
+     * Tests if login fails with wrong password for given username.
+     */
+    public function testLoginFailForWrongPassword()
+    {
+        $input = ['username' => 'user_already_in_db', 'password' => 'wrong_password'];
+        $this->genericTestLogin($input, '/login', ['msg', "Username password doesn't exist"]);
     }
 
     /**
@@ -134,44 +148,29 @@ class UserTests extends TestCase
     public function testLoginCorrectly()
     {
         $input = ['username' => 'user_already_in_db', 'password' => 'password_already_in_db'];
-        $this->genericTestLogin($input, 0, true, 2);
+        $this->genericTestLogin($input, '', []);
     }
 
+    //Probably not needed, laravel already does it
     // Logout Tests
 
-    /**
+    /*
      * Generic method used for testing logout feature.
      * It should be called with data that either causes success or not and the expected returns accordingly.
      * It is used to test success and failure avoiding code duplication.
      * */
-    public function genericTestLogout($input, $headers, $expected_response_code, $numberOfElementsReceived)
+  /*  public function genericTestLogout($input, $redirect_to_url, $redirect_with)
     {
-        $response = $this->post('/api/logout', $input, $headers);
-        $response->assertStatus(200);
-        $response_array = $response->decodeResponseJson();
-        $this->assertEquals($response_array['response_code'], $expected_response_code);
-        $this->assertEquals(count($response_array), $numberOfElementsReceived);
-    }
-
-    /**
-     * Tests if a logout is rejected if user not logged in.
-     */
-    public function testLogoutWithoutBeingLoggedIn()
-    {
-        $input = [];
-        $headers = [];
-        $this->genericTestLogout($input, $headers, 1, 1);
-    }
-
-    /**
+        $response = $this->call('POST', '/logout', $input);
+        $response->assertStatus($this->redirect_code);
+        $response->assertRedirect($redirect_to_url, $redirect_with);
+    }*/
+    /*
      * Tests if a successfull logout can be done, all the necessary parameters are given.
      */
-    public function testLogoutSuccessfully()
+  /*  public function testLogoutSuccessfully()
     {
-        $login_response = $this->call('POST', '/api/login', ['username' => 'user_already_in_db', 'password' => 'password_already_in_db']);
-        $login_response_array = $login_response->decodeResponseJson();
         $input = [];
-        $headers = ['Authorization' => 'Bearer '.$login_response_array['auth_token']];
-        $this->genericTestLogout($input, $headers, 0, 1);
-    }
+        $this->genericTestLogin($input, "", []);
+    }*/
 }
