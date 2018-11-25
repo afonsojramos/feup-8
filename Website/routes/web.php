@@ -23,3 +23,5 @@ Route::get('/exercise/create', 'Web\ExerciseController@createExercisePage');
 Route::post('/exercise/create', 'Web\ExerciseController@createExercise')->name('/exercise/create');
 Route::post('/login', 'Web\UserController@login');
 Route::post('/register', 'Web\UserController@register');
+Route::get('/exercises', 'Web\ExerciseController@getAllExercises');
+Route::get('/teacher/exercises', 'Web\ExerciseController@getAllExercisesFromUser');
