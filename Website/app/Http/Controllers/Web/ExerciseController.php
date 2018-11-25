@@ -4,11 +4,37 @@ namespace App\Http\Controllers\Web;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\User;
 use Validator;
 use DB;
 
 class ExerciseController extends Controller
 {
+    public function getAllExercises()
+    {
+        $current_user_id = UserController::getCurrentlyLoggedInUserId();
+        $exercises = DB::select('SELECT * FROM exercise');
+
+        foreach ($exercises as $exercise)
+        {
+            $exercise->creator_name = User::find($exercise->creator_id)->name;
+        }
+
+        return view('exercise.exercises', ['exercises' => $exercises]);
+    }
+
+    public function getAllExercisesFromUser()
+    {
+        $current_user_id = UserController::getCurrentlyLoggedInUserId();
+        if (0 == $current_user_id)
+        {
+            return 'FORBIDDEN';
+        }
+        $exercises = DB::select('SELECT * FROM exercise where creator_id=?', [$current_user_id]);
+
+        return view('teacher.exercises', ['exercises' => $exercises]);
+    }
+
     /**
      * This function will create an exercise on a database.
      *
