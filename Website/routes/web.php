@@ -25,3 +25,4 @@ Route::post('/login', 'Web\UserController@login');
 Route::post('/register', 'Web\UserController@register');
 Route::get('/exercises', 'Web\ExerciseController@getAllExercises');
 Route::get('/teacher/exercises', 'Web\ExerciseController@getAllExercisesFromUser');
+Route::post('/api/test/{id}/tip', 'Web\TestController@addTipToExercise');
