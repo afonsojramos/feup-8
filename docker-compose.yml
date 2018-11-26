@@ -6,9 +6,7 @@ services:
     ports:
     - "8000:8000"
     volumes:
-    - .:/code
-  redis:
-    image: redis
+    - ./Website:/web
 
   feup-8:
     build: ./FEUP-8
