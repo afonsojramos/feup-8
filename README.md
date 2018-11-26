@@ -35,9 +35,9 @@ Since there are two main components to our project, we present their building in
 
 ### FEUP-8 fantasy console
 
-Regardless of the OS, make sure that you are on the ```FEUP-8``` subfolder of the project during **every stage**.
+Regardless of the OS, make sure that you are on the ```FEUP-8``` subfolder of the project during **every stage** of the following instructions.
 
-#### Linux (Ubuntu 14.04)
+#### Linux (Ubuntu 18.04.1 LTS)
 
 Firstly, install CMake:
 ```
@@ -45,9 +45,9 @@ wget "https://cmake.org/files/v3.12/cmake-3.12.0-Linux-x86_64.sh"
 sudo sh cmake-3.12.0-Linux-x86_64.sh --skip-license --prefix=/usr
 ```
 
-Then, run the following commands in the Terminal
+Then, run the following commands in the terminal
 ```
-sudo apt-get install git cmake libgtk-3-dev libgles1-mesa-dev libglu-dev lcov -y
+sudo apt-get install git cmake libgtk-3-dev libglvnd-dev:i386 libglvnd-dev libglu-dev lcov -y
 git clone --recursive https://gitlab.com/ldso18-19/t5g2 && cd t5g2/FEUP-8
 cmake . && make -j4
 ```
@@ -55,6 +55,8 @@ cmake . && make -j4
 A binary executable will be generated in /bin.
 
 After the initial install, simply run the ```build_and_run.sh``` script every time you want to compile and run.
+
+These instructions, as said on the title, were only verified on Ubuntu 18.04.1 LTS. Other distros and versions may have slight differences in dependencies or package manager.
 
 #### Mac
 
@@ -97,7 +99,7 @@ On Ubuntu, this can be installed using ```sudo apt-get install clang-format```, 
 
 ### FEUP-8 Website (Linux and Mac only)
 
-Regardless of the OS, make sure that you are on the ```Website``` subfolder of the project during **every stage**.
+Regardless of the OS, make sure that you are on the ```Website``` subfolder of the project during **every stage** of the following instructions.
 
 #### To run the website locally:
 
@@ -147,10 +149,7 @@ A code coverage report will be generated on ```/report```.
 #### To run the linter and automatic formatter:
 
 ```
-find . -name ".php" -not -path "./vendor/" | xargs --max-args=1 php -l  # linter to check for formatting errors
-
-wget https://cs.sensiolabs.org/download/php-cs-fixer-v2.phar -O php-cs-fixer # to run the code formatter
-php php-cs-fixer fix ./ -v
+sh lint.sh
 ```
 
 ## Related Projects
