@@ -35,6 +35,8 @@ Since there are two main components to our project, we present their building in
 
 ### FEUP-8 fantasy console
 
+Regardless of the OS, make sure that you are on the ```FEUP-8``` subfolder of the project during **every stage**.
+
 #### Linux (Ubuntu 14.04)
 
 Firstly, install CMake:
@@ -50,11 +52,13 @@ git clone --recursive https://gitlab.com/ldso18-19/t5g2 && cd t5g2/FEUP-8
 cmake . && make -j4
 ```
 
+A binary executable will be generated in /bin.
+
 After the initial install, simply run the ```build_and_run.sh``` script every time you want to compile and run.
 
 #### Mac
 
-Firslty, install `Command Line Tools for Xcode` and `brew` package manager
+Firstly, install `Command Line Tools for Xcode` and `brew` package manager
 
 Then, run the following commands in the Terminal
 ```
@@ -64,7 +68,9 @@ cd t5g2/FEUP-8
 cmake . && make -j4
 ```
 
-After the initial install, simply run the ```build_and_run.sh``` script every time you want to compile and run.
+A binary executable will be generated in ```/bin```.
+
+After the initial install, simply run the ```build_and_run_mac.sh``` script every time you want to compile and run.
 
 #### Windows
 
@@ -77,7 +83,7 @@ sh build_and_test.sh    # to run tests
 sh run_coverage.sh      # to generate a coverage report
 ```
 
-A coverage report will be generated in FEUP-8/tic80_coverage.
+A coverage report will be generated in ```/tic80_coverage```.
 
 #### To run the linter/automatic formatter:
 
@@ -87,11 +93,13 @@ sh lint.sh
 
 If you don't have ```clang-format``` installed, the script will tell you in a friendly manner that you need to get it first.
 
+On Ubuntu, this can be installed using ```sudo apt-get install clang-format```, though the package name may change in other distros or OS.
+
 ### FEUP-8 Website (Linux and Mac only)
 
-#### To run the website locally:
+Regardless of the OS, make sure that you are on the ```Website``` subfolder of the project during **every stage**.
 
-* 1st Time:
+#### To run the website locally:
 
 Install the following dependencies using your distro's package manager. The following list has been validated using apt-get on Ubuntu 18.04.1 LTS, and it may differ slightly on other distros or OS. Install them one by one on this exact order to ensure maximal compatibility:
 
@@ -114,14 +122,14 @@ sudo composer install   # use sudo only if you get permission errors, and only a
 luarocks install luaunit
 ```
 
-Now, you need to change the DB_DATABASE path in the .env file to the one on your local machine. Once that is done, run the following:
+Now, you need to change the ```DB_DATABASE``` path in the ```.env``` file to the one on your local machine. Once that is done, run the following:
 
 ```
 sudo sh setup.sh    # use sudo only if you get permission errors, and only after you verify if you can't solve them with chmod
 php artisan serve
 ```
 
-* After the first time, simply run:
+After the former first time setup, simply run:
 
 ```
 php artisan serve
@@ -134,7 +142,7 @@ sudo sh setup_tests.sh
 vendor/bin/phpunit
 ```
 
-A code coverage report will be generated on Website/report.
+A code coverage report will be generated on ```/report```.
 
 #### To run the linter and automatic formatter:
 
