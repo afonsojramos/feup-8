@@ -28,8 +28,8 @@ class UserWebTests extends TestCase
     public function testRegisterWithoutEmail()
     {
         $input = ['username' => 'user_register', 'password' => 'password_register',
-            'name' => 'name_register', ];
-        $this->genericTestRegister($input, '/register', ['msg', 'Missing one or more elements: username, name, password, email']);
+            'password_confirmation' => 'password_register', 'name' => 'name_register', ];
+        $this->genericTestRegister($input, '/register', ['msg', 'Missing one or more elements: name, username, email, password, password confirmation']);
     }
 
     /**
@@ -38,8 +38,8 @@ class UserWebTests extends TestCase
     public function testRegisterWithoutName()
     {
         $input = ['username' => 'user_register', 'password' => 'password_register',
-            'email' => 'email_register', ];
-        $this->genericTestRegister($input, '/register', ['msg', 'Missing one or more elements: username, name, password, email']);
+            'password_confirmation' => 'password_register', 'email' => 'email_register', ];
+        $this->genericTestRegister($input, '/register', ['msg', 'Missing one or more elements: name, username, email, password, password confirmation']);
     }
 
     /**
@@ -47,9 +47,9 @@ class UserWebTests extends TestCase
      */
     public function testRegisterWithoutPassword()
     {
-        $input = ['username' => 'user_register', 'name' => 'name_register',
-            'email' => 'email_register', ];
-        $this->genericTestRegister($input, '/register', ['msg', 'Missing one or more elements: username, name, password, email']);
+        $input = ['username' => 'user_register', 'password_confirmation' => 'password_register',
+            'name' => 'name_register', 'email' => 'email_register', ];
+        $this->genericTestRegister($input, '/register', ['msg', 'Missing one or more elements: name, username, email, password, password confirmation']);
     }
 
     /**
@@ -58,8 +58,18 @@ class UserWebTests extends TestCase
     public function testRegisterWithoutUserName()
     {
         $input = ['password' => 'password_register', 'name' => 'name_register',
-            'email' => 'email_register', ];
-        $this->genericTestRegister($input, '/register', ['msg', 'Missing one or more elements: username, name, password, email']);
+            'email' => 'email_register', 'password_confirmation' => 'password_register', ];
+        $this->genericTestRegister($input, '/register', ['msg', 'Missing one or more elements: name, username, email, password, password confirmation']);
+    }
+
+    /**
+     * Tests if a register without password_confirmation is rejected.
+     */
+    public function testRegisterWithoutPasswordConfirmation()
+    {
+        $input = ['password' => 'password_register', 'name' => 'name_register',
+            'email' => 'email_register', 'username' => 'user_register', ];
+        $this->genericTestRegister($input, '/register', ['msg', 'Password does not match confirmation password!']);
     }
 
     /**
@@ -68,7 +78,8 @@ class UserWebTests extends TestCase
     public function testRegisterCorrectly()
     {
         $input = ['username' => 'teacher_register', 'password' => 'password_register',
-            'name' => 'name_register', 'email' => 'teacher_email_register', ];
+            'password_confirmation' => 'password_register', 'name' => 'name_register',
+            'email' => 'teacher_email_register', ];
         $this->genericTestRegister($input, '', []);
     }
 
@@ -78,8 +89,9 @@ class UserWebTests extends TestCase
     public function testRegisterRepeatedUsername()
     {
         $input = ['username' => 'user_already_in_db', 'password' => 'password',
-            'name' => 'name', 'email' => 'email', ];
-        $this->genericTestRegister($input, '/register', ['msg', 'Username already exists!']);
+            'password_confirmation' => 'password', 'name' => 'name',
+            'email' => 'email', ];
+        $this->genericTestRegister($input, '/register', ['msg', 'Username already existent!']);
     }
 
     /**
@@ -88,8 +100,20 @@ class UserWebTests extends TestCase
     public function testRegisterRepeatedEmail()
     {
         $input = ['username' => 'username', 'password' => 'password',
-            'name' => 'name', 'email' => 'email_already_in_db', ];
+            'password_confirmation' => 'password', 'name' => 'name',
+            'email' => 'email_already_in_db', ];
         $this->genericTestRegister($input, '/register', ['msg', 'Error creating your account!']);
+    }
+
+    /**
+     * Tests if a repeated register for email is rejected. (It should fail because the email is already in the db).
+     */
+    public function testRegisterPasswordDontMatchConfirmationPassword()
+    {
+        $input = ['username' => 'username', 'password' => 'password',
+            'password_confirmation' => 'another_password', 'name' => 'name',
+            'email' => 'email_already_in_db', ];
+        $this->genericTestRegister($input, '/register', ['msg', 'Password does not match confirmation password!']);
     }
 
     /* Login tests
