@@ -74,8 +74,14 @@ class ExerciseController extends Controller
         {
             $exercise = DB::table('exercise')
                 ->join('users', 'exercise.creator_id', '=', 'users.id')
-                ->select('exercise.title', 'exercise.description', 'exercise.image_path as image_base64',
-                'users.name as creator_name', '0 as progress', ' as feup8_file')
+                ->select(
+                    'exercise.title',
+                    'exercise.description',
+                    'exercise.image_path as image_base64',
+                'users.name as creator_name',
+                    '0 as progress',
+                    ' as feup8_file'
+                )
                 ->where('isPrivate', false)
                 ->where('exercise.id', '=', $id);
 
@@ -93,8 +99,14 @@ class ExerciseController extends Controller
                 $private_exercise = DB::table('exercise')
                     ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
                     ->join('users', 'exercise.creator_id', '=', 'users.id')
-                    ->select('exercise.title', 'exercise.description', 'exercise.image_path as image_base64',
-                    'users.name as creator_name', '0 as progress', ' as feup8_file')
+                    ->select(
+                        'exercise.title',
+                        'exercise.description',
+                        'exercise.image_path as image_base64',
+                    'users.name as creator_name',
+                        '0 as progress',
+                        ' as feup8_file'
+                    )
                     ->whereNotIn('exercise.id', $exercise_ids_in_progress)
                     ->where('isPrivate', true)
                     ->where('student_id', $current_user_id)
@@ -103,8 +115,14 @@ class ExerciseController extends Controller
                 $exercise_in_progress = DB::table('exercise')
                         ->join('ExerciseStudent', 'exercise.id', '=', 'ExerciseStudent.exercise_id')
                         ->join('users', 'exercise.creator_id', '=', 'users.id')
-                        ->select('exercise.title', 'exercise.description', 'exercise.image_path as image_base64',
-                        'users.name as creator_name', 'progress', 'feup8_file')
+                        ->select(
+                            'exercise.title',
+                            'exercise.description',
+                            'exercise.image_path as image_base64',
+                        'users.name as creator_name',
+                            'progress',
+                            'feup8_file'
+                        )
                         ->where('student_id', $current_user_id)
                         ->where('exercise.id', '=', $id);
 

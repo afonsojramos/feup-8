@@ -20,7 +20,8 @@ class UserTest extends TestCase
                 'email' => 'john@example.com',
                 'password' => bcrypt('secret'),
                 'isTeacher' => true,
-            ]);
+            ]
+        );
 
         $this->be($user);
         $current_user_id = UserController::getCurrentlyLoggedInUserId();
