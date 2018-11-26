@@ -1,13 +1,10 @@
-services:
-    - docker:dind
-
 stages:
     - build
     - test
     - deploy
 
 build:website:
-    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
     stage: build
     artifacts:
         untracked: true
@@ -19,7 +16,9 @@ build:feup-8:
     image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:feup-8
     stage: build
     artifacts:
-        untracked: true
+        paths:
+            - ./FEUP-8/tic80_coverage
+            - ./FEUP-8/bin/tic80
     script:
         - apt-get install lcov -y
         - cd FEUP-8
@@ -28,12 +27,13 @@ build:feup-8:
         - make -j4
 
 test:website:
-    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
     stage: test
     dependencies:
         - build:website
     script:
         - cd Website
+        - sed -i 's?DB_DATABASE=.*$?DB_DATABASE='`pwd`'/database/database_tests.sqlite?' .env.testing
         - touch database/database_tests.sqlite
         - APP_ENV=testing php artisan migrate:refresh
         - APP_ENV=testing php artisan passport:install
@@ -42,7 +42,7 @@ test:website:
         - cd ..
         - APP_ENV=testing ./vendor/bin/phpunit --testdox
         - wget https://cs.sensiolabs.org/download/php-cs-fixer-v2.phar -O php-cs-fixer
-        - php php-cs-fixer fix ./ -v --dry-run --stop-on-violation --using-cache=no
+        - php php-cs-fixer fix -v --dry-run --using-cache=no
         - find . -name "*.php" -not -path "./vendor/*" | xargs --max-args=1 php -l
     artifacts:
         paths:
@@ -63,7 +63,7 @@ pages:
   stage: deploy
   dependencies:
     - test:website
-    - test:feup-8
+    - build:feup-8
   script:
     - cd ./Website/report
     - mv index.html coverage_website.html
@@ -81,13 +81,81 @@ pages:
   only:
     - development
 
-deploy:website:
-    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website
-    stage: deploy
+
+test:feup-8:
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:feup-8
+    stage: test
+    dependencies:
+        - build:feup-8
     script:
-        - cd Website
+        - cd FEUP-8/bin
+        - ./tic80 -test
+
+
+deploy:update-images-development:
+    image: docker:stable
+    stage: deploy
+    services:
+        - docker:dind
+    script:
+        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+        - docker build ./Website/. -t registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-staging
+        - docker push registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-staging
+    only:
+        - development
+
+deploy:update-images-master:
+    image: docker:stable
+    stage: deploy
+    services:
+        - docker:dind
+    script:
+        - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+        - docker build ./FEUP-8/. -t registry.gitlab.com/feup-tbs/ldso18-19/t5g2:feup-8
+        - docker push registry.gitlab.com/feup-tbs/ldso18-19/t5g2:feup-8
+
+        - docker build ./Website/. -t registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
+        - docker push registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
+    only:
+        - master
+        
+
+deploy:website-prod:
+    image: alpine:latest
+    stage: deploy
+    before_script:
+        - 'which ssh-agent || ( apk update && apk add openssh-client )'
+        - eval $(ssh-agent -s)
+        - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+        - mkdir -p ~/.ssh
+        - chmod 700 ~/.ssh
+        - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+        - chmod 644 ~/.ssh/known_hosts
+    script:
+       - ssh root@prod.feup8.tk "/updateServer.sh prod"
     environment:
         name: production
+        url: http://prod.feup8.tk
     when: manual
     only:
         - master
+
+deploy:website-staging:
+    image: alpine:latest
+    stage: deploy
+    before_script:
+        - 'which ssh-agent || ( apk update && apk add openssh-client )'
+        - eval $(ssh-agent -s)
+        - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+        - mkdir -p ~/.ssh
+        - chmod 700 ~/.ssh
+        - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+        - chmod 644 ~/.ssh/known_hosts
+    script:
+       - ssh root@prod.feup8.tk "/updateServer.sh staging"
+    environment:
+        name: staging
+        url: http://staging.feup8.tk:2375
+    when: manual
+    only:
+        - development

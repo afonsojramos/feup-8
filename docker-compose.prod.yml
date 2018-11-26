@@ -1,0 +1,19 @@
+version: '3'
+
+#Docker compose to override some service settings from development docker-compose.yml
+
+services:
+  web-prod:
+    container_name: web-prod
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
+    ports:
+     - "80:80"
+    command: bash -c "/web/nginx-config-files/nginx_config.sh prod && nginx -g 'daemon off;'"
+
+  web-staging:
+    container_name: web-staging
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-staging
+    ports:
+     - "2375:80"
+    command: bash -c "/web/nginx-config-files/nginx_config.sh staging && nginx -g 'daemon off;'"
+
