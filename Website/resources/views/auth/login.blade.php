@@ -6,7 +6,9 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header">{{ __('Login') }}</div>
-
+                @foreach ($errors->all() as $error)
+                    <div class="alert alert-danger">{{ $error }} </div> 
+                @endforeach
                 <div class="card-body">
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
@@ -15,13 +17,7 @@
                             <label for="username" class="col-sm-4 col-form-label text-md-right">{{ __('Username') }}</label>
 
                             <div class="col-md-6">
-                                <input id="username" type="text" class="form-control{{ $errors->has('username') ? ' is-invalid' : '' }}" name="username" value="{{ old('username') }}" required autofocus>
-
-                                @if ($errors->any())
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $errors->first() }}</strong>
-                                    </span>
-                                @endif
+                                <input id="username" type="text" class="form-control" name="username" value="{{ old('username') }}" required autofocus>
                             </div>
                         </div>
 
@@ -29,13 +25,7 @@
                             <label for="password" class="col-md-4 col-form-label text-md-right">{{ __('Password') }}</label>
 
                             <div class="col-md-6">
-                                <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" required>
-
-                                @if ($errors->any())
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $errors->first() }}</strong>
-                                    </span>
-                                @endif
+                                <input id="password" type="password" class="form-control" name="password" required>
                             </div>
                         </div>
 

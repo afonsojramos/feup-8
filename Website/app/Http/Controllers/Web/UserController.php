@@ -40,7 +40,7 @@ class UserController extends Controller
         }
         else
         {
-            return redirect('login')->withErrors(['msg' => "Username password doesn't exist"]);
+            return redirect('login')->withErrors(['msg' => 'The username and password do not match']);
         }
     }
 
@@ -54,17 +54,22 @@ class UserController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'username' => 'required',
             'name' => 'required',
-            'password' => 'required',
+            'username' => 'required',
             'email' => 'required',
+            'password' => 'required',
+            'password_confirmation' => 'required',
         ]);
         if ($validator->fails())
         {
-            return redirect('register')->with(['msg' => 'Missing one or more elements: username, name, password, email']);
+            return redirect('register')->withErrors(['msg' => 'Missing one or more elements: name, username, email, password, password confirmation']);
         }
 
         $input = $request->all();
+        if ($request['password'] != $request['password_confirmation'])
+        {
+            return redirect('register')->withErrors(['msg' => 'Password does not match confirmation password!']);
+        }
         if (User::checkUserExists($input['username']))
         {
             return redirect('register')->withErrors(['msg' => 'Username already existent!']);
@@ -91,17 +96,4 @@ class UserController extends Controller
             return 0;
         }
     }
-
-    //Probably not needed, laravel already does it
-     /*
-     * Allows to do logout to a user.
-     *
-     * @return \Illuminate\Http\Response redirect to the most home page, not logged in.
-     */
-  /*  public function logout()
-    {
-        return 5;
-        Auth::logout();
-        return redirect('');
-    }*/
 }
