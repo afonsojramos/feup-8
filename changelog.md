@@ -69,3 +69,18 @@ This sprint was more focused in fixes and new  related to the SCRUM process that
 The code is now also verified by a linter in each push.
 The API developed in previous sprints is now fully documented using the Open-API swagger hub platform.
 However, we have also finished the development of the functionalities that allows a student (user of the program) to test student code on server and show tests results.
+
+
+## [0.4.0] - 26-11-2018 - Sprint 4
+### Closed PBI's
+- Added automated deployment #66
+- List existent exercises as a Teacher #10
+- Create exercise as a Teacher #9
+- Add tips to unit tests as a Teacher #17
+- Edit exercise as a Teacher #8
+- Login as a Teacher on the Website #22
+- List the exercise I've created #24
+
+### Increment description
+This sprint was dedicated to the website, allowing a teacher to add exercises that can later be used in the FEUP-8. A teacher can now, using the website, login, create an exercise and respective tests, as well as edit them. The teacher can also list all the exercises available in the platform, as well as his own exercises (i.e. the exercises developed by him).
+The continuous deployment, started in the last sprint, was also finished.
