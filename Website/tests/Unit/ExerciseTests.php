@@ -106,8 +106,10 @@ class ExerciseTests extends TestCase
         $excepted_array_exercise_tests_received = array(
             array('test_code' => "function test_sum_failing()\nluaunit.assertEquals(sum(3,4) , 8)\nluaunit.assertEquals(sum(4,3) , 9)\nluaunit.assertEquals(sum(3,-4) , -7)\nend"),
             array('test_code' => "function test_sum_failing2()\nluaunit.assertEquals(sum(3,4) , 8)\nluaunit.assertEquals(sum(4,3) , 9)\nluaunit.assertEquals(sum(3,-4) , -7)\nend"), );
-        $this->assertEquals($exerciseController->getExerciseTestsTestCode(2, 0),
-            json_decode(json_encode($excepted_array_exercise_tests_received)));
+        $this->assertEquals(
+            $exerciseController->getExerciseTestsTestCode(2, 0),
+            json_decode(json_encode($excepted_array_exercise_tests_received))
+        );
     }
 
     /**
@@ -128,8 +130,10 @@ class ExerciseTests extends TestCase
         $excepted_array_exercise_tests_received = array(
             array('test_code' => "function test_sum_correct()\nluaunit.assertEquals(sum(3,4) , 7)\nluaunit.assertEquals(sum(4,3) , 7)\nluaunit.assertEquals(sum(3,-4) , -1)\nend"),
             array('test_code' => "function test_sum_failing()\nluaunit.assertEquals(sum(3,4) , 8)\nluaunit.assertEquals(sum(4,3) , 9)\nluaunit.assertEquals(sum(3,-4) , -7)\nend"), );
-        $this->assertEquals($exerciseController->getExerciseTestsTestCode(1, 1),
-            json_decode(json_encode($excepted_array_exercise_tests_received)));
+        $this->assertEquals(
+            $exerciseController->getExerciseTestsTestCode(1, 1),
+            json_decode(json_encode($excepted_array_exercise_tests_received))
+        );
     }
 
     //Test testExerciseCodeUsingLuaUnitExecutor

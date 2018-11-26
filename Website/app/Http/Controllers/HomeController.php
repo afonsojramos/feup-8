@@ -21,4 +21,15 @@ class HomeController extends Controller
     {
         return view('home');
     }
+
+    public function start()
+    {
+        $current_user_id = UserController::getCurrentlyLoggedInUserId();
+        if (0 == $current_user_id)
+        {
+            return view('auth.login');
+        }
+
+        return redirect('/home');
+    }
 }

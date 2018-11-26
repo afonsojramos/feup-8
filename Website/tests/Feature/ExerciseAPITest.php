@@ -49,8 +49,12 @@ class ExerciseTest extends TestCase
             array('id' => '1', 'title' => 'Exercise1Title', 'progress' => '0'),
             array('id' => '2', 'title' => 'Exercise2Title', 'progress' => '0'),
         );
-        $this->genericTestGetAllExercises($headers, $expected_response_code, $number_exercises_received,
-            $excepted_array_exercises_received);
+        $this->genericTestGetAllExercises(
+            $headers,
+            $expected_response_code,
+            $number_exercises_received,
+            $excepted_array_exercises_received
+        );
     }
 
     /**
@@ -67,8 +71,12 @@ class ExerciseTest extends TestCase
             array('id' => '1', 'title' => 'Exercise1Title', 'progress' => '0'),
             array('id' => '2', 'title' => 'Exercise2Title', 'progress' => '0'),
         );
-        $this->genericTestGetAllExercises($headers, $expected_response_code, $number_exercises_received,
-            $excepted_array_exercises_received);
+        $this->genericTestGetAllExercises(
+            $headers,
+            $expected_response_code,
+            $number_exercises_received,
+            $excepted_array_exercises_received
+        );
     }
 
     /**
@@ -86,8 +94,12 @@ class ExerciseTest extends TestCase
         array('id' => '2', 'title' => 'Exercise2Title', 'progress' => '0'),
         array('id' => '3', 'title' => 'Exercise3Title', 'progress' => '0'),
         );
-        $this->genericTestGetAllExercises($headers, $expected_response_code, $number_exercises_received,
-            $excepted_array_exercises_received);
+        $this->genericTestGetAllExercises(
+            $headers,
+            $expected_response_code,
+            $number_exercises_received,
+            $excepted_array_exercises_received
+        );
     }
 
     //Get Exercises details request Tests

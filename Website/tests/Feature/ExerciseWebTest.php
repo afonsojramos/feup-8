@@ -23,7 +23,8 @@ class ExerciseWebTests extends TestCase
                 'email' => 'john'.$userIdToBeCreated.'@example.com',
                 'password' => bcrypt('secret'),
                 'isTeacher' => true,
-            ]);
+            ]
+        );
         $this->be($user);
 
         $response = $this->call('POST', '/exercise/create', $input);
