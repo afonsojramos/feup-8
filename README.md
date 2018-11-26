@@ -31,53 +31,32 @@ This is being developed by the following team, feel free to contact any of us at
 
 ## Build instructions
 
-Since there are two main components to our project, we present their building instructions separately. The first component is a local desktop application written in C, and as such has very specific instructions for compilation and execution. The second is a Web application encased in a Docker image, and as such should be straightforward to setup and use.
+Since there are two main components to our project, we present their building instructions separately.
 
 ### FEUP-8 fantasy console
 
-#### Windows
-##### with Visual Studio 2017
-- install `Visual Studio 2017`
-- install `git`
-- run following commands in `cmd`
-```
-git clone --recursive https://gitlab.com/ldso18-19/t5g2
-cd t5g2/FEUP-8
-cmake -G "Visual Studio 15 2017 Win64"
-```
-- open `TIC-80.sln` and build
-- enjoy :)
-
-##### with MinGW
-- install `mingw-w64` (http://mingw-w64.org) and add `.../mingw/bin` path to the *System Variables Path*
-- install `git`
-- install `cmake` (https://cmake.org)
-- run following commands in `terminal`
-```
-git clone --recursive https://gitlab.com/ldso18-19/t5g2
-cd t5g2/FEUP-8
-cmake -G "MinGW Makefiles"
-mingw32-make -j4
-```
-
 #### Linux (Ubuntu 14.04)
-run the following commands in the Terminal
-```
-sudo apt-get install git cmake libgtk-3-dev libgles1-mesa-dev libglu-dev -y
-git clone --recursive https://gitlab.com/ldso18-19/t5g2 && cd t5g2/FEUP-8
-cmake . && make -j4
-```
 
-to install the latest CMake:
+Firstly, install CMake:
 ```
 wget "https://cmake.org/files/v3.12/cmake-3.12.0-Linux-x86_64.sh"
 sudo sh cmake-3.12.0-Linux-x86_64.sh --skip-license --prefix=/usr
 ```
 
-#### Mac
-install `Command Line Tools for Xcode` and `brew` package manager
+Then, run the following commands in the Terminal
+```
+sudo apt-get install git cmake libgtk-3-dev libgles1-mesa-dev libglu-dev lcov -y
+git clone --recursive https://gitlab.com/ldso18-19/t5g2 && cd t5g2/FEUP-8
+cmake . && make -j4
+```
 
-run the following commands in the Terminal
+After the initial install, simply run the ```build_and_run.sh``` script every time you want to compile and run.
+
+#### Mac
+
+Firslty, install `Command Line Tools for Xcode` and `brew` package manager
+
+Then, run the following commands in the Terminal
 ```
 brew install git cmake
 git clone --recursive https://gitlab.com/ldso18-19/t5g2
@@ -85,16 +64,60 @@ cd t5g2/FEUP-8
 cmake . && make -j4
 ```
 
-### FEUP-8 Website
+After the initial install, simply run the ```build_and_run.sh``` script every time you want to compile and run.
+
+#### Windows
+
+Windows builds are no longer supported. The code coverage report generation required additional configuration of that build, and since Windows builds are not within the current scope of the project, we decided to deprecate it instead.
+
+#### To run the tests and generate coverage report:
+
+```
+sh build_and_test.sh    # to run tests
+sh run_coverage.sh      # to generate a coverage report
+```
+
+A coverage report will be generated in FEUP-8/tic80_coverage.
+
+#### To run the linter/automatic formatter:
+
+```
+sh lint.sh
+```
+
+If you don't have ```clang-format``` installed, the script will tell you in a friendly manner that you need to get it first.
+
+### FEUP-8 Website (Linux and Mac only)
 
 #### To run the website locally:
 
 * 1st Time:
 
+Install the following dependencies using your distro's package manager. The following list has been validated using apt-get on Ubuntu 18.04.1 LTS, and it may differ slightly on other distros or OS. Install them one by one on this exact order to ensure maximal compatibility:
+
+- php7.2
+- php-xdebug
+- composer
+- php7.2-sqlite
+- php7.2-mbstring
+- php7.2-xml
+- lua50
+- luajit
+- luarocks
+
+Then, run the initial build:
+
 ```
 git clone --recursive https://gitlab.com/ldso18-19/t5g2.git
 cd t5g2/Website
-composer install
+sudo composer install   # use sudo only if you get permission errors, and only after you verify if you can't solve them with chmod
+luarocks install luaunit
+```
+
+Now, you need to change the DB_DATABASE path in the .env file to the one on your local machine. Once that is done, run the following:
+
+```
+sudo sh setup.sh    # use sudo only if you get permission errors, and only after you verify if you can't solve them with chmod
 php artisan serve
 ```
 
@@ -104,20 +127,23 @@ php artisan serve
 php artisan serve
 ```
 
-#### To push to docker:
+#### To run the unit tests and generate the coverage report:
 
 ```
-docker build nadiacarvalho/ldso-t5g2 .
-docker push nadiacarvalho/ldso-t5g2:latest
+sudo sh setup_tests.sh
+vendor/bin/phpunit
 ```
 
-#### To run the integrated website via docker:
+A code coverage report will be generated on Website/report.
+
+#### To run the linter and automatic formatter:
 
 ```
-docker pull nadiacarvalho/ldso-t5g2
-docker run --rm -d -p 8000:8000/tcp nadiacarvalho/ldso-t5g2:latest
-```
+find . -name ".php" -not -path "./vendor/" | xargs --max-args=1 php -l  # linter to check for formatting errors
 
+wget https://cs.sensiolabs.org/download/php-cs-fixer-v2.phar -O php-cs-fixer # to run the code formatter
+php php-cs-fixer fix ./ -v
+```
 
 ## Related Projects
 
