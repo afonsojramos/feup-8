@@ -3,6 +3,7 @@ stages:
     - test
     - deploy
 
+
 build:website:
     image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
     stage: build
@@ -11,6 +12,7 @@ build:website:
     script:
         - cd Website
         - composer install
+
 
 build:feup-8:
     image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:feup-8
@@ -25,6 +27,7 @@ build:feup-8:
         - cmake .
         - make tic80_coverage
         - make -j4
+
 
 test:website:
     image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
@@ -48,6 +51,7 @@ test:website:
         paths:
             - ./Website/report
 
+
 test:feup-8:
     image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:feup-8
     stage: test
@@ -59,7 +63,8 @@ test:feup-8:
         - cd FEUP-8/bin
         - ./tic80 -test
 
-pages:
+
+deploy:pages:
   stage: deploy
   dependencies:
     - test:website
@@ -82,16 +87,6 @@ pages:
     - development
 
 
-test:feup-8:
-    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:feup-8
-    stage: test
-    dependencies:
-        - build:feup-8
-    script:
-        - cd FEUP-8/bin
-        - ./tic80 -test
-
-
 deploy:update-images-development:
     image: docker:stable
     stage: deploy
@@ -103,6 +98,7 @@ deploy:update-images-development:
         - docker push registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-staging
     only:
         - development
+        
 
 deploy:update-images-master:
     image: docker:stable
@@ -138,6 +134,7 @@ deploy:website-prod:
         url: http://prod.feup8.tk
     only:
         - master
+
 
 deploy:website-staging:
     image: alpine:latest
