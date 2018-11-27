@@ -1,11 +1,26 @@
-# PHP dependencies
-FROM php:7
+# Ubuntu image
+FROM ubuntu:18.04
+
+ENV DEBIAN_FRONTEND noninteractive
 
 WORKDIR /web
+RUN apt-get update -y && apt-get install -y apt-utils openssl zip unzip git sqlite3 libsqlite3-dev tzdata
 
-RUN apt-get update -y && apt-get install -y openssl zip unzip git sqlite3 libsqlite3-dev
+RUN  echo "Europe/Dublin" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
+
+# Install nginx
+RUN apt-get install -y nginx
+
+#Install PHP
+RUN apt-get install -y curl php7.2-cli php7.2-fpm php7.2-curl php7.2-gd php7.2-mysql php7.2-mbstring zip unzip php7.2-xml php7.2-sqlite3 php7.2-xdebug 
+
+
+#Install Nodejs
+RUN apt-get install -y nodejs npm 
+
+
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-RUN docker-php-ext-install pdo mbstring
+
 
 # Lua dependencies
 RUN apt-get install -y lua50        # Lua intepreter
@@ -13,8 +28,14 @@ RUN apt-get install -y luarocks     # Lua package manager
 RUN apt-get install -y luajit       # Lua JIT compiler to validate syntax
 RUN luarocks install luaunit        # LuaUnit library
 
-# Run the server
-COPY . /web
-CMD bash -c "composer install && php artisan serve --host=0.0.0.0 --port=8000"
 
-EXPOSE 8181
+
+COPY . /web
+
+RUN composer install
+
+RUN sed -i 's?DB_DATABASE.*$?DB_DATABASE='`pwd`'/database/database_tests.sqlite?' .env.testing
+
+
+# Run the server
+CMD php artisan serve --host=0.0.0.0 --port=8000

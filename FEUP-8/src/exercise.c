@@ -611,8 +611,13 @@ static void drawTestsLayout(Exercise *exercise)
 		drawCode(exercise, "No Exercise Loaded!", tic_color_dark_blue, TIC80_WIDTH / 4, TIC80_WIDTH / 4, TIC80_HEIGHT / 3, TIC80_WIDTH);
 		return;
 	}
-	
-	drawTestsPanel(exercise, (TIC80_WIDTH / 2 - 25), 10);
+    else if (exercise->tic->exe.exerciseTests[0].title == NULL)
+	{
+		drawCode(exercise, "No Tests for the Exercise Loaded!", tic_color_dark_blue, TIC80_WIDTH / 4, TIC80_WIDTH / 4, TIC80_HEIGHT / 3, TIC80_WIDTH);
+		return;
+	}
+
+    drawTestsPanel(exercise, (TIC80_WIDTH / 2 - 25), 10);
 
 	drawTestBox(exercise, &(exercise->tic->exe.exerciseTests[exercise->testIndex - 1]));
 }

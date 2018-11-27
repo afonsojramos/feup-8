@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 
-class UserTests extends TestCase
+class UserAPITests extends TestCase
 {
     /* Register tests
 

@@ -1,0 +1,30 @@
+.rounded {
+    border-radius: 1rem !important;
+}
+
+div.list-group.container.exercises-listing {
+    padding: 1rem;
+}
+
+#edit-buttons {
+    position: absolute;
+    top: 5%;
+    right: 1%;
+    z-index: 100;
+    font-weight: bold;
+    display: inline-flex;
+    opacity: 0;
+}
+
+#edit-description-button {
+    opacity: 0;
+}
+
+#edit-buttons:hover,
+#edit-description-button:hover {
+    opacity: 100;
+}
+
+.pagination {
+    margin-left: 2.5%;
+}

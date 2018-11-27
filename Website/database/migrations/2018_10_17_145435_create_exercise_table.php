@@ -16,7 +16,7 @@ class CreateExerciseTable extends Migration
             $table->increments('id')->unique();
             $table->string('title')->unique();
             $table->string('description');
-            $table->string('image_path')->unique();
+            $table->string('image_path')->nullable();
             $table->integer('creator_id');
             $table->foreign('creator_id')->references('id')->on('users')->onDelete('cascade');
             $table->boolean('isPrivate');

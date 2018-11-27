@@ -47,8 +47,7 @@ class Handler extends ExceptionHandler
     {
         if ($this->isHttpException($exception))
         {
-            switch ($exception->getStatusCode())
-            {
+            switch ($exception->getStatusCode()) {
                 // not found
                 case 404:
                     return response()->json(['response_code' => 2], 200);

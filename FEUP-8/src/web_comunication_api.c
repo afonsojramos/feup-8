@@ -5,12 +5,6 @@
 #include <stdio.h>
 #include <math.h>
 
-int printDebugMsg()
-{
-    static int count = 1;
-    printf("debug number %d\n", count);
-    count++;
-}
 
 /**
 * Global variable that contains the token of the session. Is filled when login, and destroyed in logout.
@@ -91,14 +85,8 @@ int loginRequestSend(const char *username, const char *password, bool testing, c
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
     {
-        const char *error_ptr = cJSON_GetErrorPtr();
-        if (error_ptr != NULL)
-        {
-            fprintf(stderr, "Error before: %s\n", error_ptr);
-        }
         free(dataToSend.data);
         free(response.data);
-        cJSON_free(monitor_json);
         return SERVER_ERROR;
     }
 
@@ -169,14 +157,8 @@ int registerRequestSend(const char *name, const char *email, const char *usernam
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
     {
-        const char *error_ptr = cJSON_GetErrorPtr();
-        if (error_ptr != NULL)
-        {
-            fprintf(stderr, "Error before: %s\n", error_ptr);
-        }
         free(dataToSend.data);
         free(response.data);
-        cJSON_free(monitor_json);
         return SERVER_ERROR;
     }
 
@@ -235,13 +217,7 @@ int logoutRequestSend(bool testing, char *mock_response_data)
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
     {
-        const char *error_ptr = cJSON_GetErrorPtr();
-        if (error_ptr != NULL)
-        {
-            fprintf(stderr, "Error before: %s\n", error_ptr);
-        }
         free(response.data);
-        cJSON_free(monitor_json);
         return SERVER_ERROR;
     }
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
@@ -298,13 +274,7 @@ int getExercisesListRequestSend(ExerciseSimplified *exercises_list[], size_t *nu
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
     {
-        const char *error_ptr = cJSON_GetErrorPtr();
-        if (error_ptr != NULL)
-        {
-            fprintf(stderr, "Error before: %s\n", error_ptr);
-        }
         free(response.data);
-        cJSON_free(monitor_json);
         return SERVER_ERROR;
     }
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
@@ -425,14 +395,7 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
     {
-        const char *error_ptr = cJSON_GetErrorPtr();
-        if (error_ptr != NULL)
-        {
-            fprintf(stderr, "Error before: %s\n", error_ptr);
-        }
         free(response.data);
-        free((char*)error_ptr);
-        cJSON_free(monitor_json);
         return SERVER_ERROR;
     }
     cJSON *ret_code_obj = cJSON_GetObjectItemCaseSensitive(monitor_json, "response_code");
@@ -527,10 +490,8 @@ int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercis
     ExerciseTest **exerciseTestArray = &(ticExercise->exerciseTests);
     cJSON *tests_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "tests");
     if(tests_obj == NULL)
-    {
-        cJSON_free(tests_obj);
         return SERVER_ERROR;
-    }
+    
     ticExercise->number_of_exercise_tests = cJSON_GetArraySize(tests_obj);
     *exerciseTestArray = malloc(sizeof(ExerciseTest) * ticExercise->number_of_exercise_tests);
 
@@ -652,14 +613,8 @@ int saveProgressRequestSend(Buffer exercise_data, char *code, int exercise_id, b
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
     {
-        const char *error_ptr = cJSON_GetErrorPtr();
-        if (error_ptr != NULL)
-        {
-            fprintf(stderr, "Error before: %s\n", error_ptr);
-        }
         free(dataToSend.data);
         free(response.data);
-        cJSON_free(monitor_json);
         return SERVER_ERROR;
     }
 
@@ -731,14 +686,8 @@ int sendCodeToServerAndGetTestsResultsRequestSend(int exerciseId, char *code, ti
     cJSON *monitor_json = cJSON_Parse(response.data);
     if (monitor_json == NULL)
     {
-        const char *error_ptr = cJSON_GetErrorPtr();
-        if (error_ptr != NULL)
-        {
-            fprintf(stderr, "Error before: %s\n", error_ptr);
-        }
         free(dataToSend.data);
         free(response.data);
-        cJSON_free(monitor_json);
         return SERVER_ERROR;
     }
 
