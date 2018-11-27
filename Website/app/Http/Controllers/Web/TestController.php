@@ -18,21 +18,12 @@ class TestController extends Controller
      */
     public function addTipToExercise(Request $request, $id, $test_id)
     {
-        try
+        /*if (!($request->ajax() || $request->pjax() || Auth::check())) {
+            redirect('exercise/'.$id)->withErrors(['msg' => 'No Authorization to update.']);
+        }*/
+        if ($request->has('form-hint'))
         {
-            /*if (!($request->ajax() || $request->pjax() || Auth::check())) {
-                redirect('exercise/'.$id)->withErrors(['msg' => 'No Authorization to update.']);
-            }*/
-            if ($request->has('form-hint'))
-            {
-                DB::table('test')->where('id', $test_id)->update(['hint' => $request['form-hint']]);
-            }
-        }
-        catch (Exception $e)
-        {
-            $this->error($e);
-
-            return redirect('exercise/'.$id)->withErrors(['msg' => 'Error on Server.']);
+            DB::table('test')->where('id', $test_id)->update(['hint' => $request['form-hint']]);
         }
 
         return redirect('exercise/'.$id);
@@ -79,7 +70,7 @@ class TestController extends Controller
         $file = fopen($filename, 'w');
         fwrite($file, $text);
 
-        $cmd = 'luajit -bl '.$file.' > /dev/null';
+        $cmd = 'luajit -bl '.$filename.' > /dev/null';
         $output = [];
         $ret;
         exec($cmd, $output, $ret);
