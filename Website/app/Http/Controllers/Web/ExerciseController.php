@@ -13,7 +13,7 @@ class ExerciseController extends Controller
     public function getAllExercises()
     {
         $current_user_id = UserController::getCurrentlyLoggedInUserId();
-        $exercises = DB::select('SELECT * FROM exercise');
+        $exercises = DB::table('exercise')->SimplePaginate(5);
 
         foreach ($exercises as $exercise)
         {
@@ -30,7 +30,7 @@ class ExerciseController extends Controller
         {
             return 'FORBIDDEN';
         }
-        $exercises = DB::select('SELECT * FROM exercise where creator_id=?', [$current_user_id]);
+        $exercises = DB::table('exercise')->where('creator_id', $current_user_id)->SimplePaginate(5);
 
         return view('teacher.exercises', ['exercises' => $exercises]);
     }
