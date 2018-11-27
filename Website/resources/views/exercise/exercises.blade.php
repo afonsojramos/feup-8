@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="list-group container">
+<div class="list-group container exercises-listing">
 
     @foreach ($exercises as $exercise)
 

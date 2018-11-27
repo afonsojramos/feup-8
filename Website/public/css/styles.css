@@ -2,6 +2,10 @@
     border-radius: 1rem !important;
 }
 
+div.list-group.container.exercises-listing {
+    padding: 1rem;
+}
+
 #edit-buttons {
     position: absolute;
     top: 5%;
