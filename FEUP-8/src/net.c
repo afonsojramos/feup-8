@@ -83,6 +83,23 @@ static void getDataFromHttpResponse(Buffer *buf)
 }
 
 /**
+* Changes the pointer to the returned data in http reponse, in order to get only the json in the data.
+* @param buf The struct Buffer that contains the data received, of which the pointer will be changed.
+*/
+static void getJsonFromHttpResponse(Buffer *buf)
+{
+	char *first_bracket_ocurrence = strchr(buf->data, '{');
+	char *last_bracket_ocurrence = strrchr(buf->data, '}');
+	size_t new_size = sizeof(char) * (last_bracket_ocurrence - first_bracket_ocurrence + 1 + 1); //all characters plus the null terminator;
+	char *new_data = malloc(new_size);
+	memcpy(new_data, first_bracket_ocurrence, new_size);
+	new_data[new_size - 1] = '\0';
+	free(buf->data);
+	buf->data = new_data;
+	buf->size = new_size;
+}
+
+/**
 * Builds a string to send as http parameter according to the key and value received as parameters.
 * @param key A strin representing the key to be sent as http parameter.
 * @param value A stringg representing the value to be sent as http parameter.
@@ -211,12 +228,15 @@ static Buffer sendHttpRequest(const char* address, int port, const char* path, c
 							if(size > 0)
 							{
 								buffer.size += size;
+								if(size < Size-1)
+									break;
 								buffer.data = realloc(buffer.data, buffer.size + Size);
 							}
 							else break;
 						}
 
 						getDataFromHttpResponse(&buffer);
+						getJsonFromHttpResponse(&buffer);
 						buffer.data[buffer.size] = '\0';
 					}
 
