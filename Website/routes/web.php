@@ -23,7 +23,6 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/exercise/create', 'Web\ExerciseController@createExercisePage');
 Route::post('/exercise/create', 'Web\ExerciseController@createExercise')->name('/exercise/create');
 Route::get('/exercise/{id}', 'Web\ExerciseController@viewExercisePage');
-Route::post('/exercise/{id}/delete', 'Web\ExerciseController@deleteExercise');
 Route::post('/exercise/{id}/edit', 'Web\ExerciseController@editExercise');
 Route::post('/exercise/{id}/addTest', 'Web\TestController@addTestToExercise');
 Route::post('/exercise/{id}/edit/test/{test_id}/remove', 'Web\TestController@removeTest');

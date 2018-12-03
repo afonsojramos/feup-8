@@ -124,13 +124,6 @@ class ExerciseController extends Controller
         return redirect('/exercise/create')->withErrors(['msg' => 'Exercise created successfully.']);
     }
 
-    public function deleteExercise($id)
-    {
-        DB::table('exercise')->where('id', $id)->delete();
-
-        return redirect('exercises/');
-    }
-
     public function viewExercisePage($id)
     {
         try
