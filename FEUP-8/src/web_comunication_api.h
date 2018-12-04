@@ -15,7 +15,7 @@
 #define GET_EXERCISE_DETAILS_PATH "/api/exercises"
 #define SAVE_PROGRESS_PATH "/api/exercises"
 #define EXECUTE_TEST_PATH "/api/exercises"
-#define CONNECTION_TIMEOUT_MS 5000
+#define CONNECTION_TIMEOUT_MS 2000
 
 
 //Return codes
