@@ -15,7 +15,7 @@
 
     @endforeach
 
-    <div style="margin-left: -2.5%;" class="rounded">
+    <div class="rounded">
         {{ $exercises->links() }}
     </div>
 </div>

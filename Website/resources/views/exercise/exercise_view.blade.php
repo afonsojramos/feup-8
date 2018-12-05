@@ -105,14 +105,16 @@
                 </form>
             </div>
         </div>
-
+    <div>
+    <div>
         @foreach ($exercise->tests as $test)
-        @include('test.test_partial', ['exercise' => $exercise, 'test' => $test])
+            @include('test.test_partial', ['exercise' => $exercise, 'test' => $test])
         @endforeach
     </div>
-    <div style="margin-left: 3%;" class="rounded">
+    <div class="rounded">
         {{ $exercise->tests->links() }}
     </div>
+</div>
 
 </div>
 @endsection
