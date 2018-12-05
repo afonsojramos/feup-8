@@ -30,7 +30,7 @@ class ExerciseController extends Controller
         {
             return 'FORBIDDEN';
         }
-        $exercises = DB::table('exercise')->where('creator_id', $current_user_id)->SimplePaginate(5);
+        $exercises = DB::table('exercise')->where('creator_id', $current_user_id)->SimplePaginate(4);
 
         return view('teacher.exercises', ['exercises' => $exercises]);
     }
@@ -124,6 +124,39 @@ class ExerciseController extends Controller
         return redirect('/exercise/create')->withErrors(['msg' => 'Exercise created successfully.']);
     }
 
+    public function deleteExercise($id)
+    {
+        try
+        {
+            $current_user_id = UserController::getCurrentlyLoggedInUserId();
+            if (0 == $current_user_id)
+            {
+                return 'FORBIDDEN';
+            }
+
+            //Check if the user is a teacher (if not, he doesn't have permission to create an exercise)
+            $teacher = DB::table('users')
+                ->select('id')
+                ->where('isTeacher', true)
+                ->where('id', '=', $current_user_id)
+                ->first();
+
+            //This error messages are not "pretty" because if the user landed on this page without being logged in as teacher, he was not supposed to, so the previous page may not even have support to display error messages and he is probably trying to cheat permission system
+            if (null == $teacher)
+            {
+                return 'FORBIDDEN';
+            }
+
+            DB::table('exercise')->where('id', $id)->delete();
+        }
+        catch (\Exception $e)
+        {
+            return redirect('/exercise/'.$id)->withErrors(['msg' => 'Sorry, there was an issue executing your request. If you believe this is an error, please contact system admin.']);
+        }
+
+        return redirect('exercises/');
+    }
+
     public function viewExercisePage($id)
     {
         try
@@ -157,7 +190,7 @@ class ExerciseController extends Controller
         }
         catch (\Exception $e)
         {
-            return redirect('/exercise/{id}')->withErrors(['msg' => 'Sorry, there was an issue executing your request. If you believe this is an error, please contact system admin.']);
+            return redirect('/exercise/'.$id)->withErrors(['msg' => 'Sorry, there was an issue executing your request. If you believe this is an error, please contact system admin.']);
         }
     }
 

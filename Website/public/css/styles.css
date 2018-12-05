@@ -24,7 +24,3 @@ div.list-group.container.exercises-listing {
 #edit-description-button:hover {
     opacity: 100;
 }
-
-.pagination {
-    margin-left: 2.5%;
-}
