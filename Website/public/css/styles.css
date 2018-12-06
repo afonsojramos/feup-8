@@ -16,6 +16,17 @@ html, body {
     border-radius: 1rem !important;
 }
 
+.card {
+    border-radius: 1rem;
+}
+
+.card-header {
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+    text-align: center;
+    font-size: 1.5rem;
+}
+
 div.list-group.container.exercises-listing {
     padding: 1rem;
 }
