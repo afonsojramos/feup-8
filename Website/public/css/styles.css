@@ -7,6 +7,11 @@ html, body {
     margin: 0;
 }
 
+.navbar-brand {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 2rem;
+}
+
 .rounded {
     border-radius: 1rem !important;
 }
