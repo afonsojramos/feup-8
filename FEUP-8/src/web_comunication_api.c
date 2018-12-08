@@ -12,6 +12,85 @@
 char *auth_token = NULL;
 
 /**
+* Global variable for the file that contains the server address. Is filled when application starts with config in file with path CONFIGS_FILE_PATH.
+*/
+char *server_address = NULL;
+
+/**
+* Global variable for the file that contains the server port. Is filled when application starts with config in file with path CONFIGS_FILE_PATH.
+*/
+int server_port;
+
+/**
+* Loads the config file with server port and server address.
+* @return An int identifying the result of the request. Int returned and respective meaning:
+* 0 - success.
+* -1 - file not exists.
+* -2 - error parsing file.
+*/
+int loadServerConfigsFromFile(char *conf_file_path)
+{
+    FILE *file;
+    file = fopen(conf_file_path, "r");
+    if (!file)
+        return -2; 
+
+    int size_server_address = 0;
+    if((size_server_address = getline(&server_address, &size_server_address, file)) == EOF)
+    {
+        free(server_address);
+        return -1;
+    }
+    setNullTerminatorAtFirstCarriageReturnOrLineFeed(server_address);
+    getStringAfterEqualSymbol(&server_address);
+        
+    char *server_port_string = NULL;
+    int size_server_port = 0;
+    if(getline(&server_port_string, &size_server_port, file) == EOF)
+    {
+        free(server_port_string);
+        return -1;
+    }
+    getStringAfterEqualSymbol(&server_port_string);
+    server_port = strtol(server_port_string, (char **)NULL, 10);
+
+    fclose(file);
+    return 0;
+}
+
+/**
+* Changes the pointer to the data after '=' character, in order to get only the data, placed after the double '='.
+* @param buf The char pointer that contains the data received, of which the pointer will be changed.
+*/
+void getStringAfterEqualSymbol(char **string)
+{
+	char *ocurrence = strstr(*string, "=");
+	ocurrence += sizeof(char) * strlen("=");
+	size_t new_size = sizeof(char) * (strlen(ocurrence) + 1);
+	char *new_data = malloc(new_size);
+	memcpy(new_data, ocurrence, new_size);
+	new_data[new_size - 1] = '\0';
+	free(*string);
+	*string = new_data;
+}
+
+/**
+* Changes the string value by setting the null terminator ate the first '\r' or '\n' character.
+* @param buf The char pointer that contains the string received, of which null terminator will be set.
+*/
+void setNullTerminatorAtFirstCarriageReturnOrLineFeed(char *string)
+{
+    for(int i = 0;; i++)
+    {
+        if(string[i] == '\r' || string[i] == '\n')
+        {
+            string[i] = '\0';
+            return;
+        }
+    }
+}
+
+/**
 * Creates a string with the additional header parameters where auth_token is placed according to laravel.
 * @return A string, additional header string. 
 */
@@ -72,7 +151,7 @@ int loginRequestSend(const char *username, const char *password, bool testing, c
     sprintf(dataToSend.data, "username=%s&password=%s", username, password);
     Buffer response;
     if (!testing)
-        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGIN_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
+        response = sendHttpPostRequest(server_address, server_port, LOGIN_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
     else
     {
         response.data = getStringCopy(mock_response_data);
@@ -144,7 +223,7 @@ int registerRequestSend(const char *name, const char *email, const char *usernam
             name, email, username, password);
     Buffer response;
     if (!testing)
-        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, REGISTER_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
+        response = sendHttpPostRequest(server_address, server_port, REGISTER_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
     else
     {
         response.data = getStringCopy(mock_response_data);
@@ -205,7 +284,7 @@ int logoutRequestSend(bool testing, char *mock_response_data)
     char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
     Buffer response;
     if (!testing)
-        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGOUT_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+        response = sendHttpPostRequest(server_address, server_port, LOGOUT_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     else
     {
         response.data = getStringCopy(mock_response_data);
@@ -262,7 +341,7 @@ int getExercisesListRequestSend(ExerciseSimplified *exercises_list[], size_t *nu
 
     Buffer response;
     if (!testing)
-        response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, GET_EXERCISES_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+        response = sendHttpGetRequest(server_address, server_port, GET_EXERCISES_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     else
     {
         response.data = getStringCopy(mock_response_data);
@@ -381,7 +460,7 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
     sprintf(request_address, "%s/%d", GET_EXERCISE_DETAILS_PATH, exercise_id);
     Buffer response;
     if (!testing)
-        response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+        response = sendHttpGetRequest(server_address, server_port, request_address, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     else
     {
         response.data = getStringCopy(mock_response_data);
@@ -598,7 +677,7 @@ int saveProgressRequestSend(Buffer exercise_data, char *code, int exercise_id, b
 
     Buffer response;
     if (!testing)
-        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+        response = sendHttpPostRequest(server_address, server_port, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     else
     {
         response.data = getStringCopy(mock_response_data);
@@ -666,7 +745,7 @@ int sendCodeToServerAndGetTestsResultsRequestSend(int exerciseId, char *code, ti
 
     Buffer response;
     if (!testing)
-        response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+        response = sendHttpGetRequest(server_address, server_port, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     else
     {
         response.data = getStringCopy(mock_response_data);

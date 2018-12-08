@@ -1549,16 +1549,16 @@ static void emsStart(s32 argc, char **argv, const char* folder)
 
 s32 main(s32 argc, char **argv)
 {
-
-
-
-
 	const char* folder = getAppFolder();
 
+	//check for tests run
 	if (argc > 1 && strcmp(argv[1], "-test") == 0)
 	{
 		return run_test_suite();
 	}
+
+	//load server configs from file
+	loadServerConfigsFromFile(CONFIGS_FILE_PATH);
 
 #if defined(__EMSCRIPTEN__)
 
