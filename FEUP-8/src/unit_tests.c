@@ -31,6 +31,8 @@ void testNet()
 }
 
 extern char *auth_token;
+extern char *server_address;
+extern int server_port;
 #include "web_comunication_api.h"
 /* web_comunication_api tests */
 void testLoginRequest()
@@ -589,6 +591,99 @@ void testParseExerciseTestsReceived()
     printf("testParseExerciseTestsReceived: OK\n");
 }
 
+/**
+* This function if tests if the function getStringAfterEqualSymbol performs correctly, i.e. it return the string after the '=' character
+*/
+void testGetStringAfterEqualSymbol()
+{
+    //string of which substring will be extracted
+    char *string_value = "key=value";
+    char *string = malloc(sizeof(char) * (strlen(string_value) + 1));
+    sprintf(string, "%s", string_value);
+    
+    getStringAfterEqualSymbol(&string);
+    ASSERT_STRING_EQUALS(string, "value");
+
+    printf("testGetStringAfterEqualSymbol: OK\n");
+}
+
+/**
+* This function if tests if the function loadServerConfigsFromFile performs correctly, i.e. reading both server address and port from file.
+*/
+void testLoadServerConfigsFromFile()
+{
+    //path to file with configs to be read. Two paths can be applied according to if just are being runned tests, or also coverage. 
+    //This happens beacuse coverage uses as root the root of project and just run_tests uses as rro the /bin folder
+    char *conf_file_path_run_tests = "../conf_test.ini";
+    char *conf_file_path_for_coverage = "conf_test.ini";
+    char *conf_file_path_run_tests_empty = "../conf_test_empty.ini";
+    char *conf_file_path_for_coverage_empty = "conf_test_empty.ini";
+    char *conf_file_path_run_tests_just_one_line = "../conf_test_just_one_line.ini";
+    char *conf_file_path_for_coverage_just_one_line = "conf_test_just_one_line.ini";
+
+
+    //file not exists
+    int ret = loadServerConfigsFromFile("fileNotExistentPath");
+    ASSERT_EQUALS(ret, -2); //fail
+
+    //empty file
+    ret = loadServerConfigsFromFile(conf_file_path_run_tests_empty);
+    if(ret != -1)
+        ret = loadServerConfigsFromFile(conf_file_path_for_coverage_empty);
+    ASSERT_EQUALS(ret, -1); //fail
+
+    //file with just one line
+    ret = loadServerConfigsFromFile(conf_file_path_run_tests_just_one_line);
+    if(ret != -1)
+        ret = loadServerConfigsFromFile(conf_file_path_for_coverage_just_one_line);
+    ASSERT_EQUALS(ret, -1); //fail
+
+    //correct file
+    ret = loadServerConfigsFromFile(conf_file_path_run_tests);
+    if(ret != 0)
+        ret = loadServerConfigsFromFile(conf_file_path_for_coverage);
+    ASSERT_EQUALS(ret, 0); //success
+
+    //assert configs are read and set correctly
+    ASSERT_STRING_EQUALS(server_address, "127.0.0.1");
+    ASSERT_EQUALS(server_port, 8000);
+
+    printf("testLoadServerConfigsFromFile: OK\n");
+}
+
+/**
+* This function if tests if the function setNullTerminatorAtFirstCarriageReturnOrLineFeed performs correctly, i.e. placing the string until the first \r or \n.
+*/
+void testSetNullTerminatorAtFirstCarriageReturnOrLineFeed()
+{
+    char *stringWithLineFeedOnStack = "string\n";
+    char *stringWithCarrigeReturnOnStack = "string\r";
+    char *stringWithLineFeedCarrigeReturnOnStack = "string\n\r";
+    char *stringWithCarrigeReturnLineFeedOnStack = "string\r\n";
+
+    char *stringWithLineFeed = malloc(strlen(stringWithLineFeedOnStack) + 1);
+    memcpy(stringWithLineFeed, stringWithLineFeedOnStack, strlen(stringWithLineFeedOnStack) + 1);
+    char *stringWithCarrigeReturn = malloc(strlen(stringWithCarrigeReturnOnStack) + 1);
+    memcpy(stringWithCarrigeReturn, stringWithCarrigeReturnOnStack, strlen(stringWithCarrigeReturnOnStack) + 1);
+    char *stringWithLineFeedCarrigeReturn = malloc(strlen(stringWithLineFeedCarrigeReturnOnStack) + 1);
+    memcpy(stringWithLineFeedCarrigeReturn, stringWithLineFeedCarrigeReturnOnStack, strlen(stringWithLineFeedCarrigeReturnOnStack) + 1);
+    char *stringWithCarrigeReturnLineFeed = malloc(strlen(stringWithCarrigeReturnLineFeedOnStack) + 1);
+    memcpy(stringWithCarrigeReturnLineFeed, stringWithCarrigeReturnLineFeedOnStack, strlen(stringWithCarrigeReturnLineFeedOnStack) + 1);
+    
+    setNullTerminatorAtFirstCarriageReturnOrLineFeed(stringWithLineFeed);
+    setNullTerminatorAtFirstCarriageReturnOrLineFeed(stringWithCarrigeReturn);
+    setNullTerminatorAtFirstCarriageReturnOrLineFeed(stringWithLineFeedCarrigeReturn);
+    setNullTerminatorAtFirstCarriageReturnOrLineFeed(stringWithCarrigeReturnLineFeed);
+
+    //assert expected string is "string" for all
+    ASSERT_STRING_EQUALS(stringWithLineFeed, "string");
+    ASSERT_STRING_EQUALS(stringWithCarrigeReturn, "string");
+    ASSERT_STRING_EQUALS(stringWithLineFeedCarrigeReturn, "string");
+    ASSERT_STRING_EQUALS(stringWithCarrigeReturnLineFeed, "string");
+
+    printf("testSetNullTerminatorAtFirstCarriageReturnOrLineFeed: OK\n");
+}
+
 
 /*End of test functions*/
 
@@ -606,5 +701,9 @@ int run_test_suite()
     RUN(testSendCodeToServerAndGetTestsResultsRequestSend);
     RUN(testSetAllTestsAsValue);
     RUN(testParseExerciseTestsReceived);
+    RUN(testGetStringAfterEqualSymbol);
+    RUN(testLoadServerConfigsFromFile);
+    RUN(testSetNullTerminatorAtFirstCarriageReturnOrLineFeed);
+    
     return TEST_REPORT();
 }
