@@ -11,8 +11,16 @@
         </div>
         <div class="edition d-flex w-100 justify-content-between rounded mb-2 pt-3 pl-4">
             <h5 class="mb-1" style="white-space: pre-line;">{{ $exercise->description }}</h5>
-            <button id="edit-description-button" class="btn btn-secondary btn-xs rounded"
-                data-toggle="modal" data-target="#edit-modal"><i class="fas fa-pen"></i></button>
+            <div id="edit-exercise-buttons">
+                <div class="btn btn-secondary btn-xs rounded" style="margin-right: 2%"
+                    data-toggle="modal" data-target="#edit-modal"><i class="fas fa-pen"></i></div>
+                <form method="POST" action="{{ action('Web\ExerciseController@deleteExercise', ['id' => $exercise->id]) }}">
+                {{ csrf_field() }}
+                    <button type="submit" id="remove-button" class="btn btn-danger btn-xs rounded">
+                        <i class="far fa-trash-alt"></i>
+                    </button>
+                </form>
+            </div>
         </div>
         <div id="edit-modal" class="modal fade" aria-hidden="true">
             <div class="modal-dialog modal-lg">
