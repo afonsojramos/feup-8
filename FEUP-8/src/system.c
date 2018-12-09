@@ -6,6 +6,7 @@
 #include "web_comunication_api.h"
 #include "unit_tests.h"
 #include "ticapi.h"
+#include "logo64.png.h";
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -141,20 +142,13 @@ static void setWindowIcon()
 	enum{ Size = 64, TileSize = 16, ColorKey = 14, Cols = TileSize / TIC_SPRITESIZE, Scale = Size/TileSize};
 	platform.studio->tic->api.clear(platform.studio->tic, 0);
 
-	u32* pixels = SDL_malloc(Size * Size * sizeof(u32));
-
-	const u32* pal = tic_palette_blit(&platform.studio->config()->cart->bank0.palette);
-
-	for(s32 j = 0, index = 0; j < Size; j++)
-		for(s32 i = 0; i < Size; i++, index++)
-		{
-			u8 color = getSpritePixel(platform.studio->config()->cart->bank0.tiles.data, i/Scale, j/Scale);
-			pixels[index] = color == ColorKey ? 0 : pal[color];
-		}
+	int size = Size * Size * sizeof(u32);
+	u32* pixels = SDL_malloc(size);
+	memcpy(pixels, logo64, size);
 
 	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(pixels, Size, Size,
 		sizeof(s32) * BITS_IN_BYTE, Size * sizeof(s32),
-		0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+		0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
 
 	SDL_SetWindowIcon(platform.window, surface);
 	SDL_FreeSurface(surface);
