@@ -21,12 +21,15 @@ build:feup-8:
         paths:
             - ./FEUP-8/tic80_coverage
             - ./FEUP-8/bin/tic80
+            - ./FEUP-8/release
     script:
         - apt-get install lcov -y
+        - apt-get install zip -y
         - cd FEUP-8
         - cmake .
         - make tic80_coverage
         - make -j4
+        - sh package.sh
 
 
 test:website:
@@ -98,7 +101,7 @@ deploy:update-images-development:
         - docker push registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-staging
     only:
         - development
-        
+
 
 deploy:update-images-master:
     image: docker:stable
@@ -114,7 +117,7 @@ deploy:update-images-master:
         - docker push registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
     only:
         - master
-        
+
 
 deploy:website-prod:
     image: alpine:latest
