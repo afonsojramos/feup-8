@@ -10,6 +10,11 @@
                 @foreach ($errors->all() as $error)
                     <div class="alert alert-danger">{{ $error }} </div> 
                 @endforeach
+                @if (session('msg'))
+                    <div class="alert alert-success">
+                        {{ session('msg') }}
+                    </div>
+                @endif
                 </div>
                 <hr class="my-4 w-75">
                 <div class="container d-flex w-100 justify-content-between">
