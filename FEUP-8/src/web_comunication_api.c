@@ -667,7 +667,7 @@ int saveProgressRequestSend(Buffer exercise_data, char *code, int exercise_id, b
         
     Buffer dataToSend;
     int FIXED_SAVE_PROGRESS_MESSAGE_SIZE = 20;
-    char *exercise_data_encoded = b64_encode(exercise_data.data, exercise_data.size);
+    char *exercise_data_encoded = bin2hex(exercise_data.data, exercise_data.size);
     char *code_encoded = b64_encode(code, strlen(code) * sizeof(char));
     dataToSend.size = strlen(exercise_data_encoded) + strlen(code_encoded) + FIXED_SAVE_PROGRESS_MESSAGE_SIZE;
     dataToSend.data = malloc(sizeof(u8) * (dataToSend.size + 1));

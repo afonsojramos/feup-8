@@ -31,7 +31,7 @@
 
 typedef struct 
 {
-		int id;
+	int id;
     char *title;
     int progress; //-1 if not logged in
 } ExerciseSimplified;
