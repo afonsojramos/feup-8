@@ -2301,13 +2301,31 @@ static void onConsoleRamCommand(Console* console, const char* param)
 	commandDone(console);
 }
 
+static char* getErrorMessageAccordingToReturnCode(int return_code)
+{
+	switch(return_code)
+	{
+		case FORBIDDEN:
+			return "\nAccess forbidden";
+		case SERVER_ERROR:
+			return "\nServer error";
+		case CANT_CONNECT_TO_SERVER:
+			return "\nError connecting to server";
+		default:
+			return NULL;				
+	}
+}
+
 static void onConsoleLoadExerciseCommand(Console* console, const char* param)
 {
 	tic_mem* tic = console->tic;
 	if(param && strlen(param))
 	{
-		if (getExerciseDetailsRequest(atoi(param), &tic->exe) == 0)
+		int return_code = getExerciseDetailsRequest(atoi(param), &tic->exe);
+		if (return_code == 0)
 			gotoExercises();
+		else
+			printError(console, getErrorMessageAccordingToReturnCode(return_code));
 	}
 	else printBack(console, "\nexercise identifier is missing");
 
