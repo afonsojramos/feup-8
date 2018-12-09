@@ -49,6 +49,10 @@ div.list-group.container.exercises-listing {
     display: inline-flex;
 }
 
+#edit-exercise-buttons {
+    display: inline-flex;
+}
+
 input[type][disabled] {
     background-color: #f9f9f9;
     color: #ddd;
@@ -114,3 +118,6 @@ input[type="password"].form-control:focus {
     border-bottom: 1px solid #000;
     box-shadow: 0 1px 0 0 #000;
 }
+
+
+ 

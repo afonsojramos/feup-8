@@ -68,7 +68,7 @@
                         </div>
 
                         <div class="form-group row mb-0">
-                            <div class="col-md-8 offset-md-10" >
+                            <div class="col-md-2 offset-md-10" >
                                 <button type="submit" class="btn btn-primary">
                                     {{ __('Create') }}
                                 </button>
