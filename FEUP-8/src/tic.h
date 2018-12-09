@@ -26,10 +26,10 @@
 
 #include "defines.h"
 
-#define TIC_VERSION_MAJOR 0
-#define TIC_VERSION_MINOR 80
+#define TIC_VERSION_MAJOR 1
+#define TIC_VERSION_MINOR 0
 #define TIC_VERSION_PATCH 0
-#define TIC_VERSION_STATUS "-dev"
+#define TIC_VERSION_STATUS " "
 
 #if defined(TIC80_PRO)
 #define TIC_VERSION_POST " Pro"
@@ -45,11 +45,11 @@
 
 #define TIC_VERSION_LABEL DEF2STR(TIC_VERSION_MAJOR) "." DEF2STR(TIC_VERSION_MINOR) "." DEF2STR(TIC_VERSION_PATCH) TIC_VERSION_STATUS TIC_VERSION_POST
 #define TIC_PACKAGE "com.nesbox.tic"
-#define TIC_NAME "TIC-80"
+#define TIC_NAME "FEUP-8"
 #define TIC_NAME_FULL TIC_NAME " tiny computer"
 #define TIC_TITLE TIC_NAME_FULL " " TIC_VERSION_LABEL
 #define TIC_HOST "tic.computer"
-#define TIC_COPYRIGHT "http://" TIC_HOST " (C) 2017"
+#define TIC_COPYRIGHT "http://prod.feup8.tk (C) 2018"
 
 #define TIC_VRAM_SIZE (16*1024) //16K
 #define TIC_RAM_SIZE (80*1024) //80K

@@ -337,7 +337,7 @@ static void onConsoleHelpCommand(Console* console, const char* param);
 #if defined(CAN_OPEN_URL)
 static void onConsoleWikiCommand(Console* console, const char* param)
 {
-	getSystem()->openSystemPath("https://github.com/nesbox/TIC-80/wiki");
+	getSystem()->openSystemPath("https://gitlab.com/feup-tbs/ldso18-19/t5g2/wikis/home");
 	commandDone(console);
 }
 #endif
@@ -2325,7 +2325,7 @@ static const struct
 {
 	{"help", 		NULL, "show this info", 			onConsoleHelpCommand},
 #if defined(CAN_OPEN_URL)
-	{"wiki", 		NULL, "open github wiki page", 		onConsoleWikiCommand},
+	{"wiki", 		NULL, "open GitLab wiki page", 		onConsoleWikiCommand},
 #endif
 	{"ram", 		NULL, "show memory info", 			onConsoleRamCommand},
 	{"exit", 		"quit", "exit the application", 	onConsoleExitCommand},
@@ -2348,7 +2348,7 @@ static const struct
 	{"del",		    NULL, "delete file or dir",			onConsoleDelCommand},
 	{"cls", 		NULL, "clear screen",				onConsoleClsCommand},
 	{"demo",    	NULL, "install demo carts",			onConsoleInstallDemosCommand},
-	{"config",	    NULL, "edit TIC config",			onConsoleConfigCommand},
+	{"config",	    NULL, "edit FEUP-8 config",			onConsoleConfigCommand},
 	{"version",	    NULL, "show the current version",	onConsoleVersionCommand},
 	{"edit",    	NULL, "open cart editor",			onConsoleCodeCommand},
 	{"surf",	    NULL, "open carts browser",			onConsoleSurfCommand},
