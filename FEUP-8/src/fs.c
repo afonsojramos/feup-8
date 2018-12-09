@@ -54,7 +54,7 @@ struct FileSystem
 	char work[FILENAME_MAX];
 };
 
-static const char* getFilePath(FileSystem* fs, const char* name)
+const char* getFilePath(FileSystem* fs, const char* name)
 {
 	static char path[FILENAME_MAX] = {0};
 

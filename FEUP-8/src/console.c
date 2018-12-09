@@ -2328,6 +2328,30 @@ static void onConsoleLoadExerciseCommand(Console* console, const char* param)
 			printError(console, getErrorMessageAccordingToReturnCode(return_code));
 	}
 	else printBack(console, "\nexercise identifier is missing");
+}
+
+static void onConsoleSaveProgressCommand(Console* console, const char* param)
+{
+	char *filename = "temp_save_progress";
+	CartSaveResult rom = saveCartName(console, filename);
+	if(rom != CART_SAVE_OK)
+		printError(console, "\nError saving progress");
+
+	char *filename_with_extension = "temp_save_progress.tic";
+	char *filepath = getFilePath(console->fs, filename_with_extension);
+	Buffer exercise_data;
+	exercise_data.data = (u8*)fsReadFile(filepath, &exercise_data.size);
+	if(exercise_data.data != NULL && exercise_data.size != 0)
+	{
+		tic_mem* tic = console->tic;
+		int return_code = saveProgressRequest(exercise_data, tic->cart.code.data, tic->exe.id);
+		if (return_code == 0)
+			printBack(console, "\nProgress saved successfully");
+		else
+			printError(console, getErrorMessageAccordingToReturnCode(return_code));
+	}
+	else 
+		printError(console, "\nError saving progress");
 
 	commandDone(console);
 }
@@ -2372,6 +2396,7 @@ static const struct
 	{"surf",	    NULL, "open carts browser",			onConsoleSurfCommand},
 	{"exercises",	NULL, "open avaiable exercises",			onConsoleExerciseCommand},
 	{"loadexe",		NULL, "load a specific exercise",			onConsoleLoadExerciseCommand},
+	{"save progress",NULL, "save current exercise progress",			onConsoleSaveProgressCommand},
 };
 
 static bool predictFilename(const char* name, const char* info, s32 id, void* data, bool dir)
