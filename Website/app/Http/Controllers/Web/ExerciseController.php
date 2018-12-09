@@ -121,7 +121,7 @@ class ExerciseController extends Controller
             }
         }
 
-        return redirect('/exercise/create')->withErrors(['msg' => 'Exercise created successfully.']);
+        return redirect('/exercise/create')->with(['msg' => 'Exercise created successfully.']);
     }
 
     public function deleteExercise($id)
