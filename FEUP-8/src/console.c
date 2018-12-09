@@ -1470,11 +1470,55 @@ static void onConsoleExerciseCommand(Console* console, const char* param)
 	commandDone(console);
 }
 
+static void onConsoleRegisterCommand(Console* console, const char* param)
+{
+	if(param){
+		memset(console->password, 0, CONSOLE_BUFFER_SIZE);
+		console->emailMode = true;
+		memcpy(console->username,param,CONSOLE_BUFFER_SIZE);
+		consolePrint(console, "\nemail (tab to enter):", CONSOLE_BACK_TEXT_COLOR);
+	}
+	else{
+		printBack(console, "\nusername is missing");
+		commandDone(console);
+	}
+}
+
+static void onConsoleLoginCommand(Console* console, const char* param)
+{
+	if(param){
+		memset(console->password, 0, CONSOLE_BUFFER_SIZE);
+		console->passwordMode = true;
+		memcpy(console->username,param,CONSOLE_BUFFER_SIZE);
+		consolePrint(console, "\npassword (tab to enter):", CONSOLE_BACK_TEXT_COLOR);
+	}
+	else{
+		printBack(console, "\nusername is missing");
+		commandDone(console);
+	}
+}
+
+static void onConsoleLogoutCommand(Console* console, const char* param)
+{
+	int i =logoutRequest();
+
+			if(i==0){
+				printFront(console, "\n Logout succeeded");
+			}
+			else if(i==1){
+				printError(console, "\n You must be logged in to logout");
+			}
+			else printError(console, getErrorMessageAccordingToReturnCode(i));
+
+		commandDone(console);
+}
+
 static void onConsoleCodeCommand(Console* console, const char* param)
 {
 	gotoCode();
 	commandDone(console);
 }
+
 
 static void onConsoleVersionCommand(Console* console, const char* param)
 {
@@ -2396,7 +2440,10 @@ static const struct
 	{"surf",	    NULL, "open carts browser",			onConsoleSurfCommand},
 	{"exercises",	NULL, "open avaiable exercises",			onConsoleExerciseCommand},
 	{"loadexe",		NULL, "load a specific exercise",			onConsoleLoadExerciseCommand},
-	{"save progress",NULL, "save current exercise progress",			onConsoleSaveProgressCommand},
+	{"register",  NULL,  "register on application",     onConsoleRegisterCommand},
+	{"login",  NULL,  "login on application",     onConsoleLoginCommand},
+	{"logout",  NULL,  "logout of application",     onConsoleLogoutCommand},
+	{"save progress",NULL, "save current exercise progress",	onConsoleSaveProgressCommand},
 };
 
 static bool predictFilename(const char* name, const char* info, s32 id, void* data, bool dir)
@@ -2743,6 +2790,84 @@ static void tick(Console* console)
 			setScroll(console, console->scroll.pos + delta);
 		}
 	}
+	
+
+	 if(console->emailMode){
+		char* sym = calloc(3, sizeof(char));
+		 if(keyWasPressed(tic_key_tab)){
+			consolePrint(console, "\npassword (tab to enter):", CONSOLE_BACK_TEXT_COLOR);
+			console->emailMode=false;
+			console->registerMode=true;
+			drawConsoleText(console);
+		}
+
+	 	sym[0] = getKeyboardText();
+		if(sym[0]){
+			int size = strlen(console->email);
+			console->email[size] = sym[0];
+			console->email[size + 1] = '\0';
+			printFront(console, sym);
+			tic->api.clear(tic, TIC_COLOR_BG);
+			drawConsoleText(console);
+		}
+		return;
+	}
+	else if(console->passwordMode){
+		char* sym = calloc(3, sizeof(char));
+		 if(keyWasPressed(tic_key_tab)){
+			
+			int i = loginRequest(console->username,console->password);
+			if(i==0){
+				printFront(console, "\n Login succeeded");
+			}
+			else if(i==1){
+				printError(console, "\n Wrong username or password");
+			}
+			else printError(console, getErrorMessageAccordingToReturnCode(i));
+
+			console->passwordMode=false;
+			commandDone(console);
+		}
+
+	 	sym[0] = getKeyboardText();
+		if(sym[0]){
+			int size = strlen(console->password);
+			console->password[size] = sym[0];
+			console->password[size + 1] = '\0';
+			printFront(console, "*");
+			tic->api.clear(tic, TIC_COLOR_BG);
+			drawConsoleText(console);
+		}
+		return;
+	}
+	if(console->registerMode){
+		 char* sym = calloc(3, sizeof(char));
+		 if(keyWasPressed(tic_key_tab)){
+			int i=registerRequest(console->username, console->email,console->username,console->password);
+			if(i==0){
+				printFront(console, "\n Register successful");
+				int j = loginRequest(console->username,console->password);
+				if(j==0){
+					printFront(console, "\n Login successful");
+				}
+			}
+			else printError(console, getErrorMessageAccordingToReturnCode(i));
+			
+			console->registerMode=false;
+			commandDone(console);
+		}
+
+	 	sym[0] = getKeyboardText();
+		if(sym[0]){
+			int size = strlen(console->password);
+			console->password[size] = sym[0];
+			console->password[size + 1] = '\0';
+			printFront(console, "*");
+			tic->api.clear(tic, TIC_COLOR_BG);
+			drawConsoleText(console);
+		}
+		return;
+	}
 
 	if(tic->ram.input.keyboard.data != 0)
 	{
@@ -3063,6 +3188,9 @@ void initConsole(Console* console, tic_mem* tic, FileSystem* fs, Config* config,
 	if(!console->buffer) console->buffer = malloc(CONSOLE_BUFFER_SIZE);
 	if(!console->colorBuffer) console->colorBuffer = malloc(CONSOLE_BUFFER_SIZE);
 	if(!console->embed.file) console->embed.file = malloc(sizeof(tic_cartridge));
+	if(!console->password) console->password = malloc(CONSOLE_BUFFER_SIZE);
+	if(!console->username) console->username = malloc(CONSOLE_BUFFER_SIZE);
+	if(!console->email) console->email = malloc(CONSOLE_BUFFER_SIZE);
 
 	*console = (Console)
 	{
@@ -3113,12 +3241,21 @@ void initConsole(Console* console, tic_mem* tic, FileSystem* fs, Config* config,
 		.skipStart = false,
 		.goFullscreen = false,
 		.crtMonitor = false,
+		.registerMode = false,
+		.emailMode = false,
+		.passwordMode=false,
+		.password = console->password,
+		.username = console->username,
+		.email = console->email,
 	};
 
 	memset(console->buffer, 0, CONSOLE_BUFFER_SIZE);
 	memset(console->colorBuffer, TIC_COLOR_BG, CONSOLE_BUFFER_SIZE);
 
 	memset(console->codeLiveReload.fileName, 0, FILENAME_MAX);
+	memset(console->password, 0, CONSOLE_BUFFER_SIZE);
+	memset(console->username, 0, CONSOLE_BUFFER_SIZE);
+	memset(console->email, 0, CONSOLE_BUFFER_SIZE);
 
 	if(argc)
 	{
