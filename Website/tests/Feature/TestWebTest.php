@@ -62,6 +62,19 @@ class TestWebTest extends TestCase
         //$response->assertRedirect($redirect_to_url, $redirect_with);
     }
 
+    public function testEditExistingTestAsNotCreator()
+    {
+        $user = $this->authenticateUser(10);
+        $input = ['form-test-code' => 'x = 1', 'form-title' => 'adasd'];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/edit/test/1/', $input);
+        $response->assertStatus($this->redirect_code);
+
+        $input = [];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/edit/test/1/', $input);
+        $response->assertStatus($this->redirect_code);
+        //$response->assertRedirect($redirect_to_url, $redirect_with);
+    }
+
     public function testRemoveExistingTestWithoutBeingItsCreator()
     {
         $user = $this->authenticateUser(10);
@@ -100,9 +113,47 @@ class TestWebTest extends TestCase
         //$response->assertRedirect($redirect_to_url, $redirect_with);
     }
 
+    public function testEditExerciseAsNotCreator()
+    {
+        $user = $this->authenticateUser(10);
+        $input = [];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/edit', $input);
+        $response->assertStatus($this->redirect_code);
+        //$response->assertRedirect($redirect_to_url, $redirect_with);
+    }
+
+
+    public function testDeleteExercise()
+    {
+        $user = $this->authenticateUser(1);
+        $input = [];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/edit', $input);
+        $response->assertStatus($this->redirect_code);
+        //$response->assertRedirect($redirect_to_url, $redirect_with);
+    }
+
+
+    public function testDeleteExerciseAsNotCreator()
+    {
+        $user = $this->authenticateUser(10);
+        $input = [];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/edit', $input);
+        $response->assertStatus($this->redirect_code);
+        //$response->assertRedirect($redirect_to_url, $redirect_with);
+    }
+
     public function testAddHintToTest()
     {
         $user = $this->authenticateUser(1);
+        $input = ['form-hint' => 'asdasdasdsa'];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/edit/test/1/tip', $input);
+        $response->assertStatus($this->redirect_code);
+        //$response->assertRedirect($redirect_to_url, $redirect_with);
+    }
+
+    public function testAddHintToTestAsNotCreator()
+    {
+        $user = $this->authenticateUser(10);
         $input = ['form-hint' => 'asdasdasdsa'];
         $response = $this->actingAs($user)->call('POST', '/exercise/1/edit/test/1/tip', $input);
         $response->assertStatus($this->redirect_code);
