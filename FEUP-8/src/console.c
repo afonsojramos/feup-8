@@ -637,18 +637,30 @@ static void onConsoleLoadDemoCommandConfirmed(Console* console, const char* para
 	free(data);
 }
 
-static void onCartLoaded(Console* console, const char* name)
+static void onCartLoadedAuxiliar(Console* console, const char* name, bool is_to_print)
 {
 	setCartName(console, name);
 
 	studioRomLoaded();
 
-	printBack(console, "\ncart ");
-	printFront(console, console->romName);
-	printBack(console, " loaded!\nuse ");
-	printFront(console, "RUN");
-	printBack(console, " command to run it\n");
+	if(is_to_print)
+	{
+		printBack(console, "\ncart ");
+		printFront(console, console->romName);
+		printBack(console, " loaded!\nuse ");
+		printFront(console, "RUN");
+		printBack(console, " command to run it\n");
+	}
+}
 
+static void onCartLoaded(Console* console, const char* name)
+{
+	onCartLoadedAuxiliar(console, name, true);
+}
+
+static void onCartLoadedWithoutPrints(Console* console, const char* name)
+{
+	onCartLoadedAuxiliar(console, name, false);
 }
 
 static bool hasExt(const char* name, const char* ext)
@@ -1002,64 +1014,92 @@ static void updateProject(Console* console)
 
 #endif
 
+static bool onConsoleLoadCommandConfirmedAuxiliar(Console* console, const char* param, bool is_to_print)
+{
+    if (onConsoleLoadSectionCommand(console, param))
+        return false;
+
+    if (param)
+    {
+        s32 size = 0;
+        const char* name = getCartName(param);
+
+        void* data = strcmp(name, CONFIG_TIC_PATH) == 0 ? fsLoadRootFile(console->fs, name, &size)
+                                                        : fsLoadFile(console->fs, name, &size);
+
+        if (data)
+        {
+            console->showGameMenu = fsIsInPublicDir(console->fs);
+
+            loadRom(console->tic, data, size, true);
+
+            if (is_to_print)
+                onCartLoaded(console, name);
+            else
+                onCartLoadedWithoutPrints(console, name);
+
+            free(data);
+        }
+        else
+        {
+#if defined(TIC80_PRO)
+            const char* name = getName(param, PROJECT_LUA_EXT);
+
+            if (!fsExistsFile(console->fs, name))
+                name = getName(param, PROJECT_MOON_EXT);
+
+            if (!fsExistsFile(console->fs, name))
+                name = getName(param, PROJECT_JS_EXT);
+
+            if (!fsExistsFile(console->fs, name))
+                name = getName(param, PROJECT_WREN_EXT);
+
+            void* data = fsLoadFile(console->fs, name, &size);
+
+            if (data)
+            {
+                ;
+                loadProject(console, name, data, size, &console->tic->cart);
+                if (is_to_print)
+                    onCartLoaded(console, name);
+                else
+                    onCartLoadedWithoutPrints(console, name);
+
+                free(data);
+            }
+            else if (is_to_print)
+            {
+                printBack(console, "\ncart loading error");
+            }
+            else
+                return false;
+#else
+            if (is_to_print)
+                printBack(console, "\ncart loading error");
+            else
+                return false;
+#endif
+        }
+    }
+    else if (is_to_print)
+        printBack(console, "\ncart name is missing");
+    else
+        return false;
+
+    if (is_to_print)
+        commandDone(console);
+
+    return true;
+}
+
 static void onConsoleLoadCommandConfirmed(Console* console, const char* param)
 {
-	if(onConsoleLoadSectionCommand(console, param)) return;
+	onConsoleLoadCommandConfirmedAuxiliar(console, param, true);
+}
 
-	if(param)
-	{
-		s32 size = 0;
-		const char* name = getCartName(param);
-
-		void* data = strcmp(name, CONFIG_TIC_PATH) == 0
-			? fsLoadRootFile(console->fs, name, &size)
-			: fsLoadFile(console->fs, name, &size);
-
-		if(data)
-		{
-			console->showGameMenu = fsIsInPublicDir(console->fs);
-
-			loadRom(console->tic, data, size, true);
-
-			onCartLoaded(console, name);
-
-			free(data);
-		}
-		else
-		{
-#if defined(TIC80_PRO)
-			const char* name = getName(param, PROJECT_LUA_EXT);
-
-			if(!fsExistsFile(console->fs, name))
-				name = getName(param, PROJECT_MOON_EXT);
-
-			if(!fsExistsFile(console->fs, name))
-				name = getName(param, PROJECT_JS_EXT);
-
-			if(!fsExistsFile(console->fs, name))
-				name = getName(param, PROJECT_WREN_EXT);
-
-			void* data = fsLoadFile(console->fs, name, &size);
-
-			if(data)
-			{
-				loadProject(console, name, data, size, &console->tic->cart);
-				onCartLoaded(console, name);
-
-				free(data);
-			}
-			else
-			{
-				printBack(console, "\ncart loading error");
-			}
-#else
-			printBack(console, "\ncart loading error");
-#endif
-		}
-	}
-	else printBack(console, "\ncart name is missing");
-
-	commandDone(console);
+static bool onConsoleLoadCommandConfirmedWithoutPrints(Console* console, const char* param)
+{
+	return onConsoleLoadCommandConfirmedAuxiliar(console, param, false);
 }
 
 static void load(Console* console, const char* path, const char* hash)
@@ -1518,7 +1558,6 @@ static void onConsoleCodeCommand(Console* console, const char* param)
 	gotoCode();
 	commandDone(console);
 }
-
 
 static void onConsoleVersionCommand(Console* console, const char* param)
 {
@@ -2360,18 +2399,59 @@ static char* getErrorMessageAccordingToReturnCode(int return_code)
 	}
 }
 
-static void onConsoleLoadExerciseCommand(Console* console, const char* param)
+static bool loadProgress(Console* console)
 {
+	tic_exercise tic_exe = console->tic->exe;
+	Buffer exercise_data = tic_exe.feup8_file;
+	if(exercise_data.data != NULL && exercise_data.size != 0)
+	{
+		char *filename_with_extension = "loaded_progress.tic";
+		char *filepath = getFilePath(console->fs, filename_with_extension);
+
+		bool save_file_progress = fsWriteFile(filepath, exercise_data.data, exercise_data.size);
+		if(!save_file_progress)
+			return false;
+
+		bool loadProjectStatus = onConsoleLoadCommandConfirmedWithoutPrints(console, filename_with_extension);
+		if(!loadProjectStatus)
+			return false;
+	}
+		
+	return true;
+}
+
+static bool onConsoleLoadExerciseCommandCheckForSuccess(Console* console, const char* param)
+{
+	bool success = false;
 	tic_mem* tic = console->tic;
+
 	if(param && strlen(param))
 	{
 		int return_code = getExerciseDetailsRequest(atoi(param), &tic->exe);
 		if (return_code == 0)
-			gotoExercises();
+		{
+			bool load_progress_status = loadProgress(console);
+			if(load_progress_status)
+			{
+				gotoExercises();
+				success = true;
+			}
+			else
+				printBack(console, "\nExercise loaded successfully\n, but progress has failed to load. \nFEUP-8 will proceed to exercise \nbut without the progress.");
+		}
 		else
 			printError(console, getErrorMessageAccordingToReturnCode(return_code));
 	}
-	else printBack(console, "\nexercise identifier is missing");
+	else 
+		printBack(console, "\nexercise identifier is missing");
+
+	commandDone(console);
+	return success;
+}
+
+static void onConsoleLoadExerciseCommand(Console* console, const char* param)
+{
+	onConsoleLoadExerciseCommandCheckForSuccess(console, param);
 }
 
 static void onConsoleSaveProgressCommand(Console* console, const char* param)
@@ -2443,7 +2523,7 @@ static const struct
 	{"register",  NULL,  "register on application",     onConsoleRegisterCommand},
 	{"login",  NULL,  "login on application",     onConsoleLoginCommand},
 	{"logout",  NULL,  "logout of application",     onConsoleLogoutCommand},
-	{"save progress",NULL, "save current exercise progress",	onConsoleSaveProgressCommand},
+	{"saveprogress",NULL, "save current exercise progress",	onConsoleSaveProgressCommand},
 };
 
 static bool predictFilename(const char* name, const char* info, s32 id, void* data, bool dir)
@@ -2790,7 +2870,6 @@ static void tick(Console* console)
 			setScroll(console, console->scroll.pos + delta);
 		}
 	}
-	
 
 	 if(console->emailMode){
 		char* sym = calloc(3, sizeof(char));
@@ -3202,10 +3281,12 @@ void initConsole(Console* console, tic_mem* tic, FileSystem* fs, Config* config,
 		.loadProject = loadProject,
 		.updateProject = updateProject,
 		.onConsoleLoadExerciseCommand=onConsoleLoadExerciseCommand,
+		.onConsoleLoadExerciseCommandCheckForSuccess=onConsoleLoadExerciseCommandCheckForSuccess,
 #else
 		.loadProject = NULL,
 		.updateProject = NULL,
 		.onConsoleLoadExerciseCommand=onConsoleLoadExerciseCommand,
+		.onConsoleLoadExerciseCommandCheckForSuccess=onConsoleLoadExerciseCommandCheckForSuccess,
 #endif
 		.error = error,
 		.trace = trace,
