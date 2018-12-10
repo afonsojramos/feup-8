@@ -379,20 +379,7 @@ int getExercisesListRequestSend(ExerciseSimplified *exercises_list[], size_t *nu
             if(title_obj == NULL)
                 return SERVER_ERROR;
             cJSON *progress_obj = cJSON_GetObjectItemCaseSensitive(exercise, "progress"); //progress can be NULL in case user not logged in
-            if (!cJSON_IsString(id_obj))            
-            {
-                free(response.data);
-                cJSON_free(monitor_json);
-                cJSON_free(ret_code_obj);
-                free(*exercises_list);
-                cJSON_free(exercises);
-                cJSON_free(exercise);
-                cJSON_free(id_obj);
-                cJSON_free(title_obj);
-                cJSON_free(progress_obj);
-                return SERVER_ERROR;
-            }
-            int id = atoi(id_obj->valuestring);
+            int id = id_obj->valueint;
             if (id == 0)
             {
                 free(response.data);
@@ -408,13 +395,13 @@ int getExercisesListRequestSend(ExerciseSimplified *exercises_list[], size_t *nu
             char *title_str = title_obj->valuestring;
             (*exercises_list)[i].id = id;
             (*exercises_list)[i].title = getStringCopy(title_str);
-            if(progress_obj == NULL || progress_obj->valuestring == NULL)
+            if(progress_obj == NULL)
             {
                 (*exercises_list)[i].progress = 0;
             }
             else
             {
-                int progress = atoi(progress_obj->valuestring);
+                int progress = progress_obj->valueint;
                 (*exercises_list)[i].progress = progress;
             }
     
@@ -529,10 +516,10 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
           
             exercise->feup8_file.size = decode_size;
             cJSON *progress_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "progress");
-            if(progress_obj == NULL || progress_obj->valuestring == NULL)
+            if(progress_obj == NULL)
                 exercise->progress = 0;
             else
-                exercise->progress = atoi(progress_obj->valuestring);
+                exercise->progress = progress_obj->valueint;
 
             if (parseExerciseTestsReceived(monitor_json, exercise) == 2)
                 return SERVER_ERROR;
@@ -584,12 +571,12 @@ int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercis
         cJSON *hint_obj = cJSON_GetObjectItemCaseSensitive(test, "hint");
         cJSON *test_code_obj = cJSON_GetObjectItemCaseSensitive(test, "test_code");
 
-        if(id_obj == NULL || id_obj->valuestring == NULL)
+        if(id_obj == NULL)
         {
             ret_code = SERVER_ERROR;
             goto deallocate_parseExerciseTestsReceived;
         }
-        int id = atoi(id_obj->valuestring);
+        int id = id_obj->valueint;
         if(id == 0)
         {
             ret_code = SERVER_ERROR;
