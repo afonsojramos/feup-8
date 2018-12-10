@@ -127,7 +127,7 @@ class TestWebTest extends TestCase
     {
         $user = $this->authenticateUser(1);
         $input = [];
-        $response = $this->actingAs($user)->call('POST', '/exercise/1/edit', $input);
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/delete', $input);
         $response->assertStatus($this->redirect_code);
         //$response->assertRedirect($redirect_to_url, $redirect_with);
     }
@@ -137,7 +137,7 @@ class TestWebTest extends TestCase
     {
         $user = $this->authenticateUser(10);
         $input = [];
-        $response = $this->actingAs($user)->call('POST', '/exercise/1/edit', $input);
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/delete', $input);
         $response->assertStatus($this->redirect_code);
         //$response->assertRedirect($redirect_to_url, $redirect_with);
     }
