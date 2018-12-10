@@ -3,10 +3,35 @@ version: '3'
 services:
   web:
     build: ./Website
+    depends_on:
+      - postgres-db
     ports:
     - "8000:8000"
     volumes:
     - ./Website:/web
+
+  postgres-db:
+    image: postgres:11.1-alpine
+    ports:
+    - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DATABASE: postgres
+      POSTGRES_PASSWORD: ldsoFeup8
+
+  pgadmin:
+    image: thajeztah/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: postgres
+      PGADMIN_DEFAULT_PASSWORD: ldsoFeup8
+      PGADMIN_ENABLE_TLS: "False"
+    ports:
+      - "5050:5050"
+    depends_on:
+      - postgres-db
+
+
 
   feup-8:
     build: ./FEUP-8

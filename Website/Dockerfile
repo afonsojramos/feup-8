@@ -4,7 +4,7 @@ FROM ubuntu:18.04
 ENV DEBIAN_FRONTEND noninteractive
 
 WORKDIR /web
-RUN apt-get update -y && apt-get install -y apt-utils openssl zip unzip git sqlite3 libsqlite3-dev tzdata
+RUN apt-get update -y && apt-get install -y apt-utils openssl zip unzip git tzdata
 
 RUN  echo "Europe/Dublin" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
 
@@ -12,7 +12,7 @@ RUN  echo "Europe/Dublin" > /etc/timezone && dpkg-reconfigure -f noninteractive 
 RUN apt-get install -y nginx
 
 #Install PHP
-RUN apt-get install -y curl php7.2-cli php7.2-fpm php7.2-curl php7.2-gd php7.2-mysql php7.2-mbstring zip unzip php7.2-xml php7.2-sqlite3 php7.2-xdebug 
+RUN apt-get install -y curl php7.2-cli php7.2-fpm php7.2-curl php7.2-gd php7.2-pgsql php7.2-mbstring zip unzip php7.2-xml php7.2-xdebug 
 
 
 #Install Nodejs
@@ -33,9 +33,6 @@ RUN luarocks install luaunit        # LuaUnit library
 COPY . /web
 
 RUN composer install
-
-RUN sed -i 's?DB_DATABASE.*$?DB_DATABASE='`pwd`'/database/database_tests.sqlite?' .env.testing
-
 
 # Run the server
 CMD php artisan serve --host=0.0.0.0 --port=8000
