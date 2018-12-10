@@ -67,11 +67,11 @@ class TestWebTest extends TestCase
         $user = $this->authenticateUser(10);
         $input = ['form-test-code' => 'x = 1', 'form-title' => 'adasd'];
         $response = $this->actingAs($user)->call('POST', '/exercise/1/edit/test/1/', $input);
-        $response->assertStatus($this->redirect_code);
+        $response->assertStatus($this->redirect_forbidden);
 
         $input = [];
         $response = $this->actingAs($user)->call('POST', '/exercise/1/edit/test/1/', $input);
-        $response->assertStatus($this->redirect_code);
+        $response->assertStatus($this->redirect_forbidden);
         //$response->assertRedirect($redirect_to_url, $redirect_with);
     }
 
@@ -80,7 +80,7 @@ class TestWebTest extends TestCase
         $user = $this->authenticateUser(10);
         $input = [];
         $response = $this->actingAs($user)->call('POST', '/exercise/1/edit/test/1/remove', $input);
-        $response->assertStatus($this->redirect_code);
+        $response->assertStatus($this->redirect_forbidden);
         //$response->assertRedirect($redirect_to_url, $redirect_with);
     }
 
@@ -156,7 +156,7 @@ class TestWebTest extends TestCase
         $user = $this->authenticateUser(10);
         $input = ['form-hint' => 'asdasdasdsa'];
         $response = $this->actingAs($user)->call('POST', '/exercise/1/edit/test/1/tip', $input);
-        $response->assertStatus($this->redirect_code);
+        $response->assertStatus($this->redirect_forbidden);
         //$response->assertRedirect($redirect_to_url, $redirect_with);
     }
 }
