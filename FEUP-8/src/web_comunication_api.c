@@ -515,16 +515,19 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
             cJSON *feup8_file_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "feup8_file");
             if(feup8_file_obj == NULL)
                 return SERVER_ERROR;
-            size_t feup8_file_size = b64_decoded_size(feup8_file_obj->valuestring);
-            char *feup8_file = malloc(sizeof(char) * feup8_file_size);
-            if (b64_decode(feup8_file_obj->valuestring, feup8_file, feup8_file_size) != 1)
+        
+            size_t decode_size = 0;
+            if(strlen(feup8_file_obj->valuestring) != 0)
             {
-                free(feup8_file);
-                return SERVER_ERROR;
+                decode_size = hexs2bin(feup8_file_obj->valuestring, &exercise->feup8_file.data);
+                if(decode_size == -1)
+                {
+                    free(exercise->feup8_file.data);
+                    return SERVER_ERROR;
+                }
             }
-            exercise->feup8_file.data = feup8_file;
-            exercise->feup8_file.size = feup8_file_size;
-         
+          
+            exercise->feup8_file.size = decode_size;
             cJSON *progress_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "progress");
             if(progress_obj == NULL || progress_obj->valuestring == NULL)
                 exercise->progress = 0;
@@ -539,10 +542,8 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
             cJSON_free(description_obj);
             cJSON_free(img_base64_obj);
             cJSON_free(progress_obj);
-            cJSON_free(exercise_obj);
-        
+            cJSON_free(exercise_obj);    
         }
-
     }
     free(response.data);
     cJSON_free(monitor_json);

@@ -117,6 +117,7 @@ struct Console
 	void(*trace)(Console*, const char*, u8 color);
 	void(*tick)(Console*);
 	void(*onConsoleLoadExerciseCommand)(Console* console, const char* param);
+	bool(*onConsoleLoadExerciseCommandCheckForSuccess)(Console* console, const char* param);
 	CartSaveResult(*save)(Console*);
 };
 

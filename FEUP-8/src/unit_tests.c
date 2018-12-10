@@ -257,7 +257,7 @@ void testGetExerciseDetailsRequest()
     //correct login
     int exercise_id = 26;
     char *mock_response_data = 
-    "{    \"response_code\": 0,    \"exercise\": [        {            \"title\": \"ac mattis semper,\",            \"description\": \"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sed tortor. Integer aliquam adipiscing lacus. Ut nec urna et arcu imperdiet ullamcorper. Duis at lacus. Quisque purus sapien, gravida non, sollicitudin a, malesuada id, erat. Etiam\",            \"image_base64\": \"2.png\",            \"creator_name\": \"Utilizador Um\",            \"progress\": \"10\",            \"feup8_file\": \"c2R0aCB0c2h0c2VyeTR3dGFiMzQ2cTUzNHkgNjR1cyA1NnNyNHU=\"        }    ],    \"tests\": [        {            \"id\": \"2\",            \"title\": \"consequat purus. Maecenas\",            \"test_code\": \"c2RmIHpkZiBnZGZnIGZzZGd2c3RmZHZzZXJ0dnNkdGZ2dmR0ZiBzZXJ0dnNlcnR2NnczdjU0\",            \"hint\": \"at lacus. Quisque purus sapien,\"        }    ]    };    ";
+    "{    \"response_code\": 0,    \"exercise\": [        {            \"title\": \"ac mattis semper,\",            \"description\": \"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sed tortor. Integer aliquam adipiscing lacus. Ut nec urna et arcu imperdiet ullamcorper. Duis at lacus. Quisque purus sapien, gravida non, sollicitudin a, malesuada id, erat. Etiam\",            \"image_base64\": \"2.png\",            \"creator_name\": \"Utilizador Um\",            \"progress\": \"10\",            \"feup8_file\": \"736A666C6B736A646C6B666A73646C6B666A73646C6B666A736B6C646A666C6B73646A666C6B73646A666C736B646A\"        }    ],    \"tests\": [        {            \"id\": \"2\",            \"title\": \"consequat purus. Maecenas\",            \"test_code\": \"c2RmIHpkZiBnZGZnIGZzZGd2c3RmZHZzZXJ0dnNkdGZ2dmR0ZiBzZXJ0dnNlcnR2NnczdjU0\",            \"hint\": \"at lacus. Quisque purus sapien,\"        }    ]    };    ";
     char *mock_response_data_ = malloc(5000);
     memcpy(mock_response_data_, mock_response_data, strlen(mock_response_data) + 1);
     tic_exercise exercise;
@@ -277,8 +277,8 @@ void testGetExerciseDetailsRequest()
     exercise_correct.description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sed tortor. Integer aliquam adipiscing lacus. Ut nec urna et arcu imperdiet ullamcorper. Duis at lacus. Quisque purus sapien, gravida non, sollicitudin a, malesuada id, erat. Etiam";
     //exercise_correct.img_base64 = "2.png";
     exercise_correct.progress = 10;
-    exercise_correct.feup8_file.data = "sdth tshtsery4wtab346q534y 64us 56sr4u";
-    exercise_correct.feup8_file.size = 38;
+    exercise_correct.feup8_file.data = "sjflksjdlkfjsdlkfjsdlkfjskldjflksdjflksdjflskdj";
+    exercise_correct.feup8_file.size = 47;
     
     
     //fill in test details
