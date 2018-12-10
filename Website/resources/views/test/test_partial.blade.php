@@ -4,6 +4,7 @@
     </div>
     <div class="test-description w-100 justify-content-between">
         <h5 class="mb-1 w-100"><br><pre>{{ $test->test_code }}</pre></h5>
+        @if(Auth::check() && $exercise->creator_id == Auth::user()->id)
         <div id="edit-buttons">
             <div id="edit-button" class="btn btn-secondary btn-xs rounded" style="margin-right: 2%" data-toggle="modal" data-target=".edit-test-modal_{{ $test->id }}">
                 <i class="fas fa-pen"></i>
@@ -15,20 +16,22 @@
                 </button>
             </form>
         </div>
+        @endif
         <div class="d-flex w-100 justify-content-between">
             <h6 class="mb-1 w-75" style="font-style: italic; color: cadetblue;">{{ $test->hint }}</h6>
-            <div id="hint-button" class="btn btn-white btn-xs rounded" data-toggle="collapse" 
-                data-target={{ "#test_" . $test->id }}>
+            @if(Auth::check() && $exercise->creator_id == Auth::user()->id) 
+            <button id="hint-button" class="btn btn-secondary btn-xs rounded" data-toggle="collapse" data-target=".test_{{ $test->id }}">
                 @if ($test->hint!=null)
-                    <button class="hint-submit btn btn-secondary rounded" style=" margin-left: 0; margin-top: 0.5rem;" type="submit"><i class="fa fa-pen"></i> Edit hint</button>
+                    <i class="fa fa-pen"></i> Edit hint
                 @else 
                     Add Hint
                 @endif   
-            </div>
+            </button>
+            @endif
         </div>
     </div>
-    <div class="container col-12 flex-column align-items-start rounded mb-2 pt-3">
-        <div id={{ "test_" . $test->id }} class="content">
+    <div class="test_{{ $test->id }} collapse ontainer col-12 flex-column align-items-start rounded mb-2 pt-3">
+        <div class="content">
             <div>
                 <form method="POST" action="{{ action('Web\TestController@addTipToExercise', ['id' => $exercise->id,'test_id' => $test->id]) }}"
                     enctype="multipart/form-data" id={{ "form" . $test->id  }} class="form-hint">
@@ -49,7 +52,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Edit Test {{ $test->title }} Code And Hints</h4>
+                    <h4 class="modal-title">Edit Test {{ $test->title }} Code </h4>
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
                 <div class="modal-body">
@@ -89,7 +92,6 @@
                                     <button type="submit" class="btn btn-primary">
                                         {{ __('Save Changes') }}
                                     </button>
-
                                 </div>
                             </div>
                         </form>
