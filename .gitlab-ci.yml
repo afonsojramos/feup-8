@@ -5,7 +5,7 @@ stages:
 
 
 build:website:
-    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-staging
     stage: build
     artifacts:
         untracked: true
@@ -33,20 +33,26 @@ build:feup-8:
 
 
 test:website:
-    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
+    services:
+    -   name: postgres:11.1-alpine
+        alias: postgres-db
+    variables:
+        POSTGRES_DB: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: $POSTGRES_PASS
+
+
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-staging
     stage: test
     dependencies:
         - build:website
+
     script:
         - cd Website
-        - sed -i 's?DB_DATABASE=.*$?DB_DATABASE='`pwd`'/database/database_tests.sqlite?' .env.testing
-        - touch database/database_tests.sqlite
-        - APP_ENV=testing php artisan migrate:refresh
-        - APP_ENV=testing php artisan passport:install
-        - cd database
-        - sqlite3 database_tests.sqlite < database_tests_data.sql
-        - cd ..
-        - APP_ENV=testing ./vendor/bin/phpunit --testdox
+        - php artisan migrate:refresh
+        - php artisan db:seed --class=TestsSeeder
+        - php artisan passport:install
+        - ./vendor/bin/phpunit --testdox
         - wget https://cs.sensiolabs.org/download/php-cs-fixer-v2.phar -O php-cs-fixer
         - php php-cs-fixer fix -v --dry-run --using-cache=no
         - find . -name "*.php" -not -path "./vendor/*" | xargs --max-args=1 php -l

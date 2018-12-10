@@ -5,15 +5,42 @@ version: '3'
 services:
   web-prod:
     container_name: web-prod
+
+    depends_on:
+      - postgres-prod
+
     image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
     ports:
      - "80:80"
     command: bash -c "/web/nginx-config-files/nginx_config.sh prod && nginx -g 'daemon off;'"
 
+  postgres-prod:
+    image: postgres:11.1-alpine
+    ports:
+    - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DATABASE: postgres
+      POSTGRES_PASSWORD: ldsoFeup8
+
   web-staging:
     container_name: web-staging
+
+    depends_on:
+      - postgres-staging
+
     image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-staging
     ports:
      - "2375:80"
     command: bash -c "/web/nginx-config-files/nginx_config.sh staging && nginx -g 'daemon off;'"
 
+  postgres-staging:
+    image: postgres:11.1-alpine
+    ports:
+    - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DATABASE: postgres
+      POSTGRES_PASSWORD: ldsoFeup8

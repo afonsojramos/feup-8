@@ -13,7 +13,7 @@ class ExerciseController extends Controller
     public function getAllExercises()
     {
         $current_user_id = UserController::getCurrentlyLoggedInUserId();
-        $exercises = DB::table('exercise')->SimplePaginate(5);
+        $exercises = DB::table('Exercise')->SimplePaginate(5);
 
         foreach ($exercises as $exercise)
         {
@@ -30,7 +30,7 @@ class ExerciseController extends Controller
         {
             return 'FORBIDDEN';
         }
-        $exercises = DB::table('exercise')->where('creator_id', $current_user_id)->SimplePaginate(4);
+        $exercises = DB::table('Exercise')->where('creator_id', $current_user_id)->SimplePaginate(4);
 
         return view('teacher.exercises', ['exercises' => $exercises]);
     }
@@ -99,7 +99,7 @@ class ExerciseController extends Controller
                 return 'FORBIDDEN';
             }
 
-            DB::table('exercise')->insert([
+            DB::table('Exercise')->insert([
                     ['title' => $username,
                     'description' => $description,
                     'creator_id' => $current_user_id,
@@ -147,7 +147,7 @@ class ExerciseController extends Controller
                 return 'FORBIDDEN';
             }
 
-            DB::table('exercise')->where('id', $id)->delete();
+            DB::table('Exercise')->where('id', $id)->delete();
         }
         catch (\Exception $e)
         {
@@ -182,9 +182,9 @@ class ExerciseController extends Controller
                 return 'FORBIDDEN';
             }*/
 
-            $exercise = DB::table('exercise')->where('id', '=', $id)->first();
+            $exercise = DB::table('Exercise')->where('id', '=', $id)->first();
             $exercise->creator_name = User::find($exercise->creator_id)->name;
-            $exercise->tests = DB::table('test')->where('exercise_id', '=', $id)->orderBy('id', 'desc')->simplePaginate(1);
+            $exercise->tests = DB::table('Test')->where('exercise_id', '=', $id)->orderBy('id', 'desc')->simplePaginate(1);
 
             return view('exercise/exercise_view', ['exercise' => $exercise]);
         }
@@ -198,7 +198,7 @@ class ExerciseController extends Controller
     {
         if ($request->has('form-description'))
         {
-            $exercise = DB::table('exercise')->where('id', $id)->update(['description' => $request['form-description']]);
+            $exercise = DB::table('Exercise')->where('id', $id)->update(['description' => $request['form-description']]);
         }
 
         return redirect('exercise/'.$id);
