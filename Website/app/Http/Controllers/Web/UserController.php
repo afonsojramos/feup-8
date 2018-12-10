@@ -80,11 +80,15 @@ class UserController extends Controller
         }
 
         $id = DB::table('users')->select('id')->where('username', '=', $request['username'])->get();
-        session()->put('user_id', $id[0]->id);
 
-        return redirect('');
+        return $this->login($request);
     }
 
+    /**
+     * Get Currently Logged in user.
+     *
+     * @return Id of Currently Logged in user or 0 on no authenticated user
+     */
     public static function getCurrentlyLoggedInUserId()
     {
         if (Auth::check())

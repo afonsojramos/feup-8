@@ -11,6 +11,7 @@
         </div>
         <div class="edition d-flex w-100 justify-content-between rounded mb-2 pt-3 pl-4">
             <h5 class="mb-1" style="white-space: pre-line;">{{ $exercise->description }}</h5>
+            @if(Auth::check() && $exercise->creator_id == Auth::user()->id)
             <div id="edit-exercise-buttons">
                 <div class="btn btn-secondary btn-xs rounded" style="margin-right: 2%"
                     data-toggle="modal" data-target="#edit-modal"><i class="fas fa-pen"></i></div>
@@ -21,6 +22,7 @@
                     </button>
                 </form>
             </div>
+            @endif
         </div>
         <div id="edit-modal" class="modal fade" aria-hidden="true">
             <div class="modal-dialog modal-lg">
@@ -68,6 +70,7 @@
     </div>
     <hr class="my-4 w-75">
     <div class="list-group container">
+        @if(Auth::check() && $exercise->creator_id == Auth::user()->id)
         <div>
             <button class="rounded btn-primary w-100" style="margin-bottom: 2%;" data-toggle="collapse" data-target="#newTest">
                 Add a New Test </button>
@@ -113,6 +116,7 @@
                 </form>
             </div>
         </div>
+        @endif
     <div>
     <div>
         @foreach ($exercise->tests as $test)
