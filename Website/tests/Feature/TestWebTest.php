@@ -8,6 +8,7 @@ use App\User;
 class TestWebTest extends TestCase
 {
     private $redirect_code = 302;
+    private $redirect_forbidden = 403;
 
     private function authenticateUser($userIdToBeAuth)
     {
@@ -58,6 +59,15 @@ class TestWebTest extends TestCase
         $input = [];
         $response = $this->actingAs($user)->call('POST', '/exercise/1/edit/test/1/', $input);
         $response->assertStatus($this->redirect_code);
+        //$response->assertRedirect($redirect_to_url, $redirect_with);
+    }
+
+    public function testRemoveExistingTestWithoutBeingItsCreator()
+    {
+        $user = $this->authenticateUser(10);
+        $input = [];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/edit/test/1/remove', $input);
+        $response->assertStatus($this->redirect_forbidden);
         //$response->assertRedirect($redirect_to_url, $redirect_with);
     }
 
