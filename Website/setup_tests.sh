@@ -2,6 +2,6 @@
 #Sets correct database path
 
 composer install
-php artisan migrate:refresh
-php artisan db:seed --class=TestsSeeder
+php artisan migrate:refresh --env=testing
+php artisan db:seed --class=TestsSeeder --env=testing
 
