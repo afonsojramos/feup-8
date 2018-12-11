@@ -6,6 +6,10 @@ services:
   web-prod:
     container_name: web-prod
 
+    env_file:
+      - .env
+    environment:
+      - DB_PORT=5432
     depends_on:
       - postgres-prod
 
@@ -15,6 +19,10 @@ services:
     command: bash -c "/web/nginx-config-files/nginx_config.sh prod && nginx -g 'daemon off;'"
 
   postgres-prod:
+    container_name: postgres-prod
+
+    env_file:
+      - .env
     image: postgres:11.1-alpine
     ports:
     - "5432:5432"
@@ -27,6 +35,10 @@ services:
   web-staging:
     container_name: web-staging
 
+    env_file:
+      - .env
+    environment:
+      - DB_PORT=5433
     depends_on:
       - postgres-staging
 
@@ -36,9 +48,11 @@ services:
     command: bash -c "/web/nginx-config-files/nginx_config.sh staging && nginx -g 'daemon off;'"
 
   postgres-staging:
+    container_name: postgres-staging
+
     image: postgres:11.1-alpine
     ports:
-    - "5432:5432"
+    - "5433:5432"
     restart: always
     environment:
       POSTGRES_USER: postgres-prod

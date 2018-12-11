@@ -157,7 +157,7 @@ deploy:website-staging:
         - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
         - chmod 644 ~/.ssh/known_hosts
     script:
-       - ssh root@prod.feup8.tk "/updateServer.sh prod $APP_KEY $DB_PASSWORD"
+       - ssh root@prod.feup8.tk "/updateServer.sh staging $APP_KEY $DB_PASSWORD"
     environment:
         name: staging
         url: http://staging.feup8.tk:2375
