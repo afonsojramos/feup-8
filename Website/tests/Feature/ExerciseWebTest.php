@@ -9,6 +9,23 @@ class ExerciseWebTests extends TestCase
 {
     private $redirect_code = 302;
 
+    private function authenticateUser($userIdToBeAuth)
+    {
+        $user = factory(User::class)->make(
+            [
+                'id' => $userIdToBeAuth,
+                'username' => 'user_already_in_db',
+                'email' => 'name',
+                'password' => '$2y$10$CIMNPzE21s7KpyAoRuPL6OVnSq.4UE5XVJxvUsaExxpRCZJO3s8Iy',
+                'isTeacher' => true,
+            ]
+        );
+
+        $this->be($user);
+
+        return $user;
+    }
+
     /**
      * Generic method used for testing creation of exercise feature.
      * It should be called with data that either causes success or not and the expected returns accordingly.
@@ -76,5 +93,31 @@ class ExerciseWebTests extends TestCase
     {
         $input = ['form-title' => 'ExerciseTitle2', 'form-description' => 'ExerciseDescription'];
         $this->genericExerciseCreate(64, $input, '/exercise/create', ['msg', 'Sorry, there is already an exercise with that title. Please choose a different title.']);
+    }
+
+    public function testGetAllExercises()
+    {
+        $response = $this->actingAs($user)->call('POST', '/exercises', $input);
+        $response->assertStatus($this->redirect_code);
+    }
+
+    public function testGetAllExercisesAsUser()
+    {
+        $this->authenticateUser(1);
+        $response = $this->actingAs($user)->call('POST', '/exercises', $input);
+        $response->assertStatus($this->redirect_code);
+    }
+
+    public function testGetAllExercisesFromUserUnauthenticated()
+    {
+        $response = $this->actingAs($user)->call('POST', '/teacher/exercises', $input);
+        $response->assertStatus($this->redirect_code);
+    }
+
+    public function testGetAllExercisesFromUser()
+    {
+        $this->authenticateUser(1);
+        $response = $this->actingAs($user)->call('POST', '/teacher/exercises', $input);
+        $response->assertStatus($this->redirect_code);
     }
 }
