@@ -125,4 +125,40 @@ class ExerciseWebTests extends TestCase
         $response = $this->actingAs($user)->call('GET', '/teacher/exercises', $input);
         $response->assertStatus($this->success_code);
     }
+
+    public function testEditExercise()
+    {
+        $user = $this->authenticateUser(1);
+        $input = [];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/edit', $input);
+        $response->assertStatus($this->redirect_code);
+        //$response->assertRedirect($redirect_to_url, $redirect_with);
+    }
+
+    public function testEditExerciseAsNotCreator()
+    {
+        $user = $this->authenticateUser(10);
+        $input = [];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/edit', $input);
+        $response->assertStatus($this->redirect_code);
+        //$response->assertRedirect($redirect_to_url, $redirect_with);
+    }
+
+    public function testDeleteExercise()
+    {
+        $user = $this->authenticateUser(1);
+        $input = [];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/delete', $input);
+        $response->assertStatus($this->redirect_code);
+        //$response->assertRedirect($redirect_to_url, $redirect_with);
+    }
+
+    public function testDeleteExerciseAsNotCreator()
+    {
+        $user = $this->authenticateUser(10);
+        $input = [];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/delete', $input);
+        $response->assertStatus($this->redirect_code);
+        //$response->assertRedirect($redirect_to_url, $redirect_with);
+    }
 }
