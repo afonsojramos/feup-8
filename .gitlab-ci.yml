@@ -53,6 +53,7 @@ test:website:
         - php artisan db:seed --class=TestsSeeder
         - php artisan passport:install
         - ./vendor/bin/phpunit --testdox
+        - rm -f ./storage/framework/views/*
         - wget https://cs.sensiolabs.org/download/php-cs-fixer-v2.phar -O php-cs-fixer
         - php php-cs-fixer fix -v --dry-run --using-cache=no
         - find . -name "*.php" -not -path "./vendor/*" | xargs --max-args=1 php -l
