@@ -9,7 +9,7 @@ services:
     env_file:
       - .env
     environment:
-      - DB_PORT=5432
+      DB_PORT: 5432
     depends_on:
       - postgres-prod
 
@@ -21,11 +21,8 @@ services:
   postgres-prod:
     container_name: postgres-prod
 
-    env_file:
-      - .env
     image: postgres:11.1-alpine
-    ports:
-    - "5432:5432"
+    
     restart: always
     environment:
       POSTGRES_USER: postgres-prod
@@ -38,7 +35,7 @@ services:
     env_file:
       - .env
     environment:
-      - DB_PORT=5433
+      DB_PORT: 5432
     depends_on:
       - postgres-staging
 
@@ -51,8 +48,7 @@ services:
     container_name: postgres-staging
 
     image: postgres:11.1-alpine
-    ports:
-    - "5433:5432"
+    
     restart: always
     environment:
       POSTGRES_USER: postgres-prod
