@@ -49,9 +49,9 @@ test:website:
 
     script:
         - cd Website
-        - php artisan migrate:refresh
-        - php artisan db:seed --class=TestsSeeder
-        - php artisan passport:install
+        - php artisan migrate:refresh --env=testing
+        - php artisan db:seed --class=TestsSeeder --env=testing
+        - php artisan passport:install --env=testing
         - ./vendor/bin/phpunit --testdox
         - wget https://cs.sensiolabs.org/download/php-cs-fixer-v2.phar -O php-cs-fixer
         - php php-cs-fixer fix -v --dry-run --using-cache=no
@@ -137,7 +137,7 @@ deploy:website-prod:
         - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
         - chmod 644 ~/.ssh/known_hosts
     script:
-       - ssh root@prod.feup8.tk "/updateServer.sh prod"
+       - ssh root@prod.feup8.tk "/updateServer.sh prod $APP_KEY $DB_PASSWORD"
     environment:
         name: production
         url: http://prod.feup8.tk
@@ -157,7 +157,7 @@ deploy:website-staging:
         - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
         - chmod 644 ~/.ssh/known_hosts
     script:
-       - ssh root@prod.feup8.tk "/updateServer.sh staging"
+       - ssh root@prod.feup8.tk "/updateServer.sh prod $APP_KEY $DB_PASSWORD"
     environment:
         name: staging
         url: http://staging.feup8.tk:2375

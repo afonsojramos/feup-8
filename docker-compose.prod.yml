@@ -20,9 +20,9 @@ services:
     - "5432:5432"
     restart: always
     environment:
-      POSTGRES_USER: postgres
+      POSTGRES_USER: postgres-prod
       POSTGRES_DATABASE: postgres
-      POSTGRES_PASSWORD: ldsoFeup8
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
 
   web-staging:
     container_name: web-staging
@@ -41,6 +41,6 @@ services:
     - "5432:5432"
     restart: always
     environment:
-      POSTGRES_USER: postgres
+      POSTGRES_USER: postgres-prod
       POSTGRES_DATABASE: postgres
-      POSTGRES_PASSWORD: ldsoFeup8
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
