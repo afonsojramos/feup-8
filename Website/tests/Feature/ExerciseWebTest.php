@@ -8,6 +8,7 @@ use App\User;
 class ExerciseWebTests extends TestCase
 {
     private $redirect_code = 302;
+    private $success_code = 200;
 
     private function authenticateUser($userIdToBeAuth)
     {
@@ -99,7 +100,7 @@ class ExerciseWebTests extends TestCase
     {
         $input = [];
         $response = $this->call('GET', '/exercises', $input);
-        $response->assertStatus($this->redirect_code);
+        $response->assertStatus($this->success_code);
     }
 
     public function testGetAllExercisesAsUser()
@@ -107,14 +108,14 @@ class ExerciseWebTests extends TestCase
         $user = $this->authenticateUser(1);
         $input = [];
         $response = $this->actingAs($user)->call('GET', '/exercises', $input);
-        $response->assertStatus($this->redirect_code);
+        $response->assertStatus($this->success_code);
     }
 
     public function testGetAllExercisesFromUserUnauthenticated()
     {
         $input = [];
         $response = $this->call('GET', '/teacher/exercises', $input);
-        $response->assertStatus($this->redirect_code);
+        $response->assertStatus($this->success_code);
     }
 
     public function testGetAllExercisesFromUser()
@@ -122,6 +123,6 @@ class ExerciseWebTests extends TestCase
         $user = $this->authenticateUser(1);
         $input = [];
         $response = $this->actingAs($user)->call('GET', '/teacher/exercises', $input);
-        $response->assertStatus($this->redirect_code);
+        $response->assertStatus($this->success_code);
     }
 }
