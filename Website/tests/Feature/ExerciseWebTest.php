@@ -98,7 +98,7 @@ class ExerciseWebTests extends TestCase
     public function testGetAllExercises()
     {
         $input = [];
-        $response = $this->call('POST', '/exercises', $input);
+        $response = $this->call('GET', '/exercises', $input);
         $response->assertStatus($this->redirect_code);
     }
 
@@ -106,14 +106,14 @@ class ExerciseWebTests extends TestCase
     {
         $user = $this->authenticateUser(1);
         $input = [];
-        $response = $this->actingAs($user)->call('POST', '/exercises', $input);
+        $response = $this->actingAs($user)->call('GET', '/exercises', $input);
         $response->assertStatus($this->redirect_code);
     }
 
     public function testGetAllExercisesFromUserUnauthenticated()
     {
         $input = [];
-        $response = $this->call('POST', '/teacher/exercises', $input);
+        $response = $this->call('GET', '/teacher/exercises', $input);
         $response->assertStatus($this->redirect_code);
     }
 
@@ -121,7 +121,7 @@ class ExerciseWebTests extends TestCase
     {
         $user = $this->authenticateUser(1);
         $input = [];
-        $response = $this->actingAs($user)->call('POST', '/teacher/exercises', $input);
+        $response = $this->actingAs($user)->call('GET', '/teacher/exercises', $input);
         $response->assertStatus($this->redirect_code);
     }
 }
