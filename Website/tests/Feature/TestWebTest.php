@@ -149,7 +149,6 @@ class TestWebTest extends TestCase
         //$response->assertRedirect($redirect_to_url, $redirect_with);
     }
 
-
     public function testDeleteExerciseAsNotCreator()
     {
         $user = $this->authenticateUser(10);
