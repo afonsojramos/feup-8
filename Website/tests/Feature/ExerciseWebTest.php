@@ -67,7 +67,7 @@ class ExerciseWebTests extends TestCase
     {
         $input = ['form-description' => 'ExerciseDescription'];
         $response = $this->call('POST', '/exercise/create', $input);
-        $response->assertStatus($this->forbidden_code);
+        $response->assertStatus($this->redirect_code);
     }
 
     /**
@@ -88,7 +88,7 @@ class ExerciseWebTests extends TestCase
 
         $input = ['form-description' => 'ExerciseDescription'];
         $response = $this->actingAs($user)->call('POST', '/exercise/create', $input);
-        $response->assertStatus($this->forbidden_code);
+        $response->assertStatus($this->redirect_code);
     }
 
     /**
@@ -147,7 +147,7 @@ class ExerciseWebTests extends TestCase
     {
         $input = [];
         $response = $this->call('GET', '/teacher/exercises', $input);
-        $response->assertStatus($this->success_code);
+        $response->assertStatus($this->forbidden_code);
     }
 
     public function testGetAllExercisesFromUser()
@@ -179,7 +179,7 @@ class ExerciseWebTests extends TestCase
         $user = $this->authenticateUser(2);
         $input = ['form-description' => 'xpto'];
         $response = $this->actingAs($user)->call('POST', '/exercise/1/edit', $input);
-        $response->assertStatus($this->success_code);
+        $response->assertStatus($this->redirect_code);
     }
 
     public function testDeleteExerciseAsItsCreator()
@@ -201,7 +201,7 @@ class ExerciseWebTests extends TestCase
     public function testcreateExercisePage()
     {
         $input = [];
-        $response = $this->actingAs($user)->call('GET', '/exercise/create', $input);
+        $response = $this->call('GET', '/exercise/create', $input);
         $response->assertStatus($this->redirect_code);
     }
 }
