@@ -236,8 +236,10 @@ class ExerciseController extends Controller
         ->get()
         ->toArray();
 
-        if (count($unit_tests_code_array) == 0)
+        if (0 == count($unit_tests_code_array))
+        {
             return 0;
+        }
 
         $unit_tests_code_array = $this->getExerciseTestsTestCode($exercise_id, $logged_user_id);
 

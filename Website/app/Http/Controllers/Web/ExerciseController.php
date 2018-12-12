@@ -118,13 +118,13 @@ class ExerciseController extends Controller
                     'creator_id' => $current_user_id,
                     'isPrivate' => $isPrivate,
                     'created_at' => now(),
-                    'updated_at' => now()
+                    'updated_at' => now(),
                 ));
-;
+
             DB::table('ExerciseStudentPermissions')->insert([
                 ['student_id' => $current_user_id,
-                'exercise_id' => $inserted_exercise_id
-                ]]);
+                'exercise_id' => $inserted_exercise_id,
+                ], ]);
         }
         catch (\Exception $e)
         {
