@@ -25,7 +25,7 @@ class TestController extends Controller
         $current_user_id = UserController::getCurrentlyLoggedInUserId();
         if (0 == $current_user_id || $current_user_id != DB::table('Exercise')->where('id', $id)->first()->creator_id)
         {
-            return 'FORBIDDEN';
+            return abort(403, 'Unauthorized action.');
         }
         if ($request->has('form-hint'))
         {
@@ -42,7 +42,7 @@ class TestController extends Controller
      * @param $id the id of the exercise
      * @param $test_id the id of the test
      *
-     * @return the exercise view on success, 'FORBIDDEN' on the authenticated user not being
+     * @return the exercise view on success, abort(403, 'Unauthorized action.'); on the authenticated user not being
      *             the creator of the exercise and exercise list with msg 'Test Code is not valid' on fail of validator
      */
     public function editTestCode(Request $request, $id, $test_id)
@@ -52,7 +52,7 @@ class TestController extends Controller
             $current_user_id = UserController::getCurrentlyLoggedInUserId();
             if (0 == $current_user_id || $current_user_id != DB::table('Exercise')->where('id', $id)->first()->creator_id)
             {
-                return 'FORBIDDEN';
+                return abort(403, 'Unauthorized action.');
             }
 
             DB::table('Test')->where('id', $test_id)->update(['test_code' => $request['form-test-code'], 'title' => $request['form-title']]);
@@ -69,7 +69,7 @@ class TestController extends Controller
      * @param $request the received request
      * @param $id the id of the exercise
      *
-     * @return the exercise view on success, 'FORBIDDEN' on the authenticated user not being
+     * @return the exercise view on success, abort(403, 'Unauthorized action.'); on the authenticated user not being
      *             the creator of the exercise and exercise list with msg 'Test Code is not valid' on fail of validator
      */
     public function addTestToExercise(Request $request, $id)
@@ -80,7 +80,7 @@ class TestController extends Controller
             $current_user_id = UserController::getCurrentlyLoggedInUserId();
             if (0 == $current_user_id || $current_user_id != DB::table('Exercise')->where('id', $id)->first()->creator_id)
             {
-                return 'FORBIDDEN';
+                return abort(403, 'Unauthorized action.');
             }
 
             DB::table('Test')->insert(
@@ -101,7 +101,7 @@ class TestController extends Controller
      * @param $id the id of the exercise
      * @param $test_id the id of the test
      *
-     * @return the exercise view on success, 'FORBIDDEN' on the authenticated user not being
+     * @return the exercise view on success, abort(403, 'Unauthorized action.'); on the authenticated user not being
      *             the creator of the exercise and exercise list with msg 'Sorry, there was an issue
      *             executing your request. If you believe this is an error, please contact system admin.' on error.
      */
@@ -112,15 +112,15 @@ class TestController extends Controller
             $current_user_id = UserController::getCurrentlyLoggedInUserId();
             if (0 == $current_user_id || $current_user_id != DB::table('Exercise')->where('id', $id)->first()->creator_id)
             {
-                return 'FORBIDDEN';
+                return abort(403, 'Unauthorized action.');
             }
 
             DB::table('Test')->where('id', $test_id)->delete();
-        }
+        } //@codeCoverageIgnoreStart
         catch (\Exception $e)
         {
             return redirect('/exercise/'.$id)->withErrors(['msg' => 'Sorry, there was an issue executing your request. If you believe this is an error, please contact system admin.']);
-        }
+        } //@codeCoverageIgnoreEnd
 
         return redirect('exercise/'.$id);
     }
