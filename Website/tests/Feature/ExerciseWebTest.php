@@ -60,6 +60,14 @@ class ExerciseWebTests extends TestCase
         $this->genericExerciseCreate(60, $input, '/exercise/create', ['msg', 'Please fill all the fields.']);
     }
 
+    public function viewExercisePage()
+    {
+        $user = $this->authenticateUser(1);
+        $input = [];
+        $response = $this->call('GET', '/exercise/1', $input);
+        $response->assertStatus($this->redirect_code);
+    }
+
     /**
      * Tests if an exercise creation without title is rejected.
      */
@@ -126,8 +134,9 @@ class ExerciseWebTests extends TestCase
      */
     public function testCreateExerciseCorrectlyWithIsPrivateSet()
     {
+        $private = 'on';
         $input = ['form-title' => 'ExerciseTitle', 'form-description' => 'ExerciseDescription',
-            'form-isPrivate' => 'true', ];
+            'form-isPrivate' => $private, ];
         $this->genericExerciseCreate(62, $input, '/exercise/create', ['msg', 'Exercise created successfully.']);
     }
 
@@ -145,15 +154,8 @@ class ExerciseWebTests extends TestCase
      */
     public function testCreateExerciseDuplicatedTitle()
     {
-        $input = ['form-title' => 'ExerciseTitle2', 'form-description' => 'ExerciseDescription'];
+        $input = ['form-title' => 'Exercise1Title', 'form-description' => 'ExerciseDescription'];
         $this->genericExerciseCreate(64, $input, '/exercise/create', ['msg', 'Sorry, there is already an exercise with that title. Please choose a different title.']);
-    }
-
-    public function viewExercisePage()
-    {
-        $input = [];
-        $response = $this->call('GET', '/exercise/2/', $input);
-        $response->assertStatus($this->redirect_code);
     }
 
     public function testGetAllExercises()

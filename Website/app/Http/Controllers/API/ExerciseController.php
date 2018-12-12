@@ -52,11 +52,11 @@ class ExerciseController extends Controller
             }
 
             $exercises = $exercises->orderBy('id', 'asc')->get();
-        }
+        } //@codeCoverageIgnoreStart
         catch (\Exception $e)
         {
             return response()->json(['response_code' => 2], 200);
-        }
+        } //@codeCoverageIgnoreEnd
 
         return response()->json(['response_code' => 0, 'exercises' => $exercises], 200);
     }
@@ -147,11 +147,11 @@ class ExerciseController extends Controller
             {
                 $tests[$i]->test_code = base64_encode($tests[$i]->test_code);
             }
-        }
+        } //@codeCoverageIgnoreStart
         catch (\Exception $e)
         {
             return response()->json(['response_code' => 2], 200);
-        }
+        } //@codeCoverageIgnoreEnd
 
         return response()->json(['response_code' => 0, 'exercise' => $exercise, 'tests' => $tests], 200);
     }
@@ -184,11 +184,11 @@ class ExerciseController extends Controller
         if (-1 == $progress)
         {
             return response()->json(['response_code' => 1], 200);
-        }
+        } //@codeCoverageIgnoreStart
         elseif (-2 == $progress)
         {
             return response()->json(['response_code' => 2], 200);
-        }
+        } //@codeCoverageIgnoreEnd
 
         try
         {
@@ -204,11 +204,11 @@ class ExerciseController extends Controller
                 DB::table('ExerciseStudent')->insert(['exercise_id' => $exercise_id, 'student_id' => Auth::guard('api')->user()->id,
                     'progress' => $progress, 'feup8_file' => $request['exercise_data'], ]);
             }
-        }
+        } //@codeCoverageIgnoreStart
         catch (\Exception $e)
         {
             return response()->json(['response_code' => 2], 200);
-        }
+        } //@codeCoverageIgnoreEnd
 
         return response()->json(['response_code' => 0], 200);
     }
@@ -231,11 +231,12 @@ class ExerciseController extends Controller
         }
 
         $unit_tests_code_array = $this->getExerciseTestsTestCode($exercise_id, $logged_user_id);
-
+        //@codeCoverageIgnoreStart
         if (-1 === $unit_tests_code_array)
         {
             return -2;
         }
+        //@codeCoverageIgnoreEnd
         $numberOfUnitTests = count($unit_tests_code_array);
         if (0 == $numberOfUnitTests)
         {
@@ -274,11 +275,11 @@ class ExerciseController extends Controller
             {
                 return true;
             }
-        }
+        } //@codeCoverageIgnoreStart
         catch (\Exception $e)
         {
             return true;
-        }
+        } //@codeCoverageIgnoreEnd
 
         return false;
     }
@@ -320,11 +321,11 @@ class ExerciseController extends Controller
                 ->toArray();
 
             return $unit_tests_code_array;
-        }
+        } //@codeCoverageIgnoreStart
         catch (\Exception $e)
         {
             return -1;
-        }
+        } //@codeCoverageIgnoreEnd
     }
 
     /**
@@ -373,7 +374,9 @@ class ExerciseController extends Controller
         $unit_tests_code_array = $this->getExerciseTestsTestCode($exercise_id, $logged_user_id);
         if (-1 === $unit_tests_code_array)
         {
+            //@codeCoverageIgnoreStart
             return response()->json(['response_code' => 2], 200);
+            //@codeCoverageIgnoreEnd
         }
         if (0 == count($unit_tests_code_array))
         {
