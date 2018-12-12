@@ -362,8 +362,11 @@ static void drawOverviewLayout(Exercise *exercise)
 */
 static void runTests(Exercise *exercise)
 {
-	sendCodeToServerAndGetTestsResults(exercise->tic->exe.id, 
-		exercise->tic->cart.code.data, &(exercise->tic->exe));
+	if(exercise->exe->number_of_exercise_tests > 0)
+	{
+		sendCodeToServerAndGetTestsResults(exercise->tic->exe.id, 
+			exercise->tic->cart.code.data, &(exercise->tic->exe));
+	}	
 }
 
 /** 
@@ -717,7 +720,10 @@ static void tick(Exercise *exercise)
 		drawOverviewLayout(exercise);
 		break;
 	case EXERCISE_TESTS_TAB:
-		drawTestsLayout(exercise);
+		if(exercise->exe->number_of_exercise_tests != 0)
+			drawTestsLayout(exercise);
+		else
+			exercise->tab = EXERCISE_OVERVIEW_TAB;
 		break;
 	}
 
