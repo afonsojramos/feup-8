@@ -125,4 +125,44 @@ class ExerciseWebTests extends TestCase
         $response = $this->actingAs($user)->call('GET', '/teacher/exercises', $input);
         $response->assertStatus($this->success_code);
     }
+
+    public function testEditExerciseAsItsCreator()
+    {
+        $user = $this->authenticateUser(1);
+        $input = ['form-description' => 'xpto'];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/edit', $input);
+        $response->assertStatus($this->success_code);
+    }
+
+    public function testEditExerciseWithoutInput()
+    {
+        $user = $this->authenticateUser(1);
+        $input = [];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/edit', $input);
+        $response->assertStatus($this->success_code);
+    }
+
+    public function testEditExerciseAsNotItsOwnCreator()
+    {
+        $user = $this->authenticateUser(2);
+        $input = ['form-description' => 'xpto'];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/edit', $input);
+        $response->assertStatus($this->success_code);
+    }
+
+    public function testDeleteExerciseAsItsCreator()
+    {
+        $user = $this->authenticateUser(1);
+        $input = [];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/delete', $input);
+        $response->assertStatus($this->success_code);
+    }
+
+    public function testDeleteExerciseAsNotItsOwnCreator()
+    {
+        $user = $this->authenticateUser(2);
+        $input = [];
+        $response = $this->actingAs($user)->call('POST', '/exercise/1/delete', $input);
+        $response->assertStatus($this->success_code);
+    }
 }
