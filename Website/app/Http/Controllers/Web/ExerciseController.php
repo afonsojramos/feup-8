@@ -111,15 +111,20 @@ class ExerciseController extends Controller
                 return 'FORBIDDEN';
             }
 
-            DB::table('Exercise')->insert([
-                    ['title' => $username,
+            $inserted_exercise_id = DB::table('Exercise')->insertGetId(
+                array(
+                    'title' => $username,
                     'description' => $description,
                     'creator_id' => $current_user_id,
                     'isPrivate' => $isPrivate,
                     'created_at' => now(),
-                    'updated_at' => now(),
-                    ],
-                ]);
+                    'updated_at' => now()
+                ));
+;
+            DB::table('ExerciseStudentPermissions')->insert([
+                ['student_id' => $current_user_id,
+                'exercise_id' => $inserted_exercise_id
+                ]]);
         }
         catch (\Exception $e)
         {
