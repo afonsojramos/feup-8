@@ -152,7 +152,7 @@ class ExerciseWebTests extends TestCase
     public function viewExercisePage()
     {
         $input = [];
-        $response = $this->call('GET', '/exercise/1', $input);
+        $response = $this->call('GET', '/exercise/2/', $input);
         $response->assertStatus($this->redirect_code);
     }
 
@@ -210,17 +210,24 @@ class ExerciseWebTests extends TestCase
         $response->assertStatus($this->redirect_code);
     }
 
-    public function testDeleteExerciseAsItsCreator()
+    public function testDeleteExerciseAsNotItsOwnCreator()
     {
-        $user = $this->authenticateUser(1);
+        $user = $this->authenticateUser(2);
         $input = [];
         $response = $this->actingAs($user)->call('POST', '/exercise/2/delete', $input);
         $response->assertStatus($this->redirect_code);
     }
 
-    public function testDeleteExerciseAsNotItsOwnCreator()
+    public function testDeleteExerciseAsNotAuthenticatedUser()
     {
-        $user = $this->authenticateUser(2);
+        $input = [];
+        $response = $this->call('POST', '/exercise/2/delete', $input);
+        $response->assertStatus($this->redirect_code);
+    }
+
+    public function testDeleteExerciseAsItsCreator()
+    {
+        $user = $this->authenticateUser(1);
         $input = [];
         $response = $this->actingAs($user)->call('POST', '/exercise/2/delete', $input);
         $response->assertStatus($this->redirect_code);
