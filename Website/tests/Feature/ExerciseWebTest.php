@@ -127,7 +127,7 @@ class ExerciseWebTests extends TestCase
     public function testCreateExerciseCorrectlyWithIsPrivateSet()
     {
         $input = ['form-title' => 'ExerciseTitle', 'form-description' => 'ExerciseDescription',
-            'form-isPrivate' => 'on', ];
+            'form-isPrivate' => 'true', ];
         $this->genericExerciseCreate(62, $input, '/exercise/create', ['msg', 'Exercise created successfully.']);
     }
 
