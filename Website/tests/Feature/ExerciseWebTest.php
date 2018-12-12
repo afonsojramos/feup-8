@@ -9,6 +9,7 @@ class ExerciseWebTests extends TestCase
 {
     private $redirect_code = 302;
     private $success_code = 200;
+    private $forbidden_code = 403;
 
     private function authenticateUser($userIdToBeAuth)
     {
@@ -159,6 +160,14 @@ class ExerciseWebTests extends TestCase
     }
 
     public function testDeleteExerciseAsNotItsOwnCreator()
+    {
+        $user = $this->authenticateUser(2);
+        $input = [];
+        $response = $this->actingAs($user)->call('POST', '/exercise/2/delete', $input);
+        $response->assertStatus($this->redirect_code);
+    }
+
+    public function testcreateExercisePage()
     {
         $user = $this->authenticateUser(2);
         $input = [];

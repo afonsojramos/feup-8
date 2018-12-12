@@ -8,7 +8,7 @@ use App\User;
 class TestWebTest extends TestCase
 {
     private $redirect_code = 302;
-    private $redirect_forbidden = 200;
+    private $redirect_forbidden = 403;
 
     private function authenticateUser($userIdToBeAuth)
     {

@@ -32,14 +32,14 @@ class ExerciseController extends Controller
      * This function will return all the exercises of an user on the database.
      *
      * @return the response the view of listing exercises of user/teacher
-     *             with all the exercises as parameter. If the user is not loggedin returns 'FORBIDDEN'
+     *             with all the exercises as parameter. If the user is not loggedin returns abort(403, 'Unauthorized action.');
      */
     public function getAllExercisesFromUser()
     {
         $current_user_id = UserController::getCurrentlyLoggedInUserId();
         if (0 == $current_user_id)
         {
-            return 'FORBIDDEN';
+            return abort(403, 'Unauthorized action.');
         }
 
         $exercises = DB::table('Exercise')->where('creator_id', $current_user_id)->SimplePaginate(4);
@@ -95,7 +95,7 @@ class ExerciseController extends Controller
             $current_user_id = UserController::getCurrentlyLoggedInUserId();
             if (0 == $current_user_id)
             {
-                return 'FORBIDDEN';
+                return abort(403, 'Unauthorized action.');
             }
 
             //Check if the user is a teacher (if not, he doesn't have permission to create an exercise)
@@ -108,7 +108,7 @@ class ExerciseController extends Controller
             //This error messages are not "pretty" because if the user landed on this page without being logged in as teacher, he was not supposed to, so the previous page may not even have support to display error messages and he is probably trying to cheat permission system
             if (null == $teacher)
             {
-                return 'FORBIDDEN';
+                return abort(403, 'Unauthorized action.');
             }
 
             DB::table('Exercise')->insert([
@@ -150,7 +150,7 @@ class ExerciseController extends Controller
             $current_user_id = UserController::getCurrentlyLoggedInUserId();
             if (0 == $current_user_id || $current_user_id != DB::table('Exercise')->where('id', $id)->first()->creator_id)
             {
-                return 'FORBIDDEN';
+                return abort(403, 'Unauthorized action.');
             }
 
             DB::table('Exercise')->where('id', $id)->delete();
@@ -192,7 +192,7 @@ class ExerciseController extends Controller
      *
      * @param $id the id of the exercise we want to update the description on from the database
      *
-     * @return the exercise view on success, 'FORBIDDEN' on the authenticated user not being
+     * @return the exercise view on success, abort(403, 'Unauthorized action.'); on the authenticated user not being
      *             the creator of the exercise and exercise list with msg 'Sorry, there was an issue
      *             executing your request. If you believe this is an error, please contact system admin.' on error.
      */
@@ -205,7 +205,7 @@ class ExerciseController extends Controller
                 $current_user_id = UserController::getCurrentlyLoggedInUserId();
                 if (0 == $current_user_id || $current_user_id != DB::table('Exercise')->where('id', $id)->first()->creator_id)
                 {
-                    return 'FORBIDDEN';
+                    return abort(403, 'Unauthorized action.');
                 }
 
                 $exercise = DB::table('Exercise')->where('id', $id)->update(['description' => $request['form-description']]);
