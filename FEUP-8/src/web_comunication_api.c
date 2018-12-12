@@ -604,7 +604,7 @@ int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercis
             goto deallocate_parseExerciseTestsReceived;
         }
         size_t code_decoded_size = b64_decoded_size(test_code_obj->valuestring);
-	    char *code_decoded = malloc(sizeof(char) * code_decoded_size);
+	    char *code_decoded = calloc(code_decoded_size, sizeof(char));
 	    if (b64_decode(test_code_obj->valuestring, code_decoded, code_decoded_size) != 1)
 		{
             free(code_decoded);
@@ -626,7 +626,6 @@ deallocate_parseExerciseTestsReceived:
 
 deallocate_parseExerciseTestsReceivedAndReturn:
     cJSON_free(tests_obj);
-    cJSON_free(test);
  
     return ret_code;
 }
@@ -717,6 +716,10 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
 
 int sendCodeToServerAndGetTestsResultsRequestSend(int exerciseId, char *code, tic_exercise *ticExercise, bool testing, char *mock_response_data)
 {
+	//assert that only is tested code that has at least one test
+    if(ticExercise->number_of_exercise_tests <= 0)
+        return INVALID_ARGUMENTS;
+
     char *additionalHeaderString = NULL;
     if(auth_token != NULL) //if logged in, the web server will receive the auth token in order to sava the most recent progress of the user based on the code tested.
         additionalHeaderString = getAdditionalHeaderStringWithAuthToken();

@@ -74,7 +74,7 @@ static void getDataFromHttpResponse(Buffer *buf)
 	char *ocurrence = strstr(buf->data, "\r\n\r\n");
 	ocurrence += sizeof(char) * strlen("\r\n\r\n");
 	size_t new_size = sizeof(char) * (strlen(ocurrence) + 1);
-	char *new_data = malloc(new_size);
+	char *new_data = calloc(new_size, sizeof(char));
 	memcpy(new_data, ocurrence, new_size);
 	new_data[new_size - 1] = '\0';
 	free(buf->data);
@@ -91,7 +91,7 @@ static void getJsonFromHttpResponse(Buffer *buf)
 	char *first_bracket_ocurrence = strchr(buf->data, '{');
 	char *last_bracket_ocurrence = strrchr(buf->data, '}');
 	size_t new_size = sizeof(char) * (last_bracket_ocurrence - first_bracket_ocurrence + 1 + 1); //all characters plus the null terminator;
-	char *new_data = malloc(new_size);
+	char *new_data = calloc(new_size, sizeof(char));
 	memcpy(new_data, first_bracket_ocurrence, new_size);
 	new_data[new_size - 1] = '\0';
 	free(buf->data);
@@ -218,7 +218,7 @@ static Buffer sendHttpRequest(const char* address, int port, const char* path, c
 					if(SDLNet_CheckSockets(set, timeout) == 1 && SDLNet_SocketReady(sock))
 					{
 						enum {Size = MEGABYTE};
-						buffer.data = malloc(Size);
+						buffer.data = calloc(Size, sizeof(char));
 						s32 size = 0;
 
 						for(;;)
@@ -234,7 +234,7 @@ static Buffer sendHttpRequest(const char* address, int port, const char* path, c
 							}
 							else break;
 						}
-
+						buffer.data[buffer.size] = '\0';
 						getDataFromHttpResponse(&buffer);
 						getJsonFromHttpResponse(&buffer);
 						buffer.data[buffer.size] = '\0';

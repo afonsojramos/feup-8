@@ -23,6 +23,7 @@
 #define FORBIDDEN 1
 #define SERVER_ERROR 2
 #define CANT_CONNECT_TO_SERVER 3
+#define INVALID_ARGUMENTS 4
 
 //Tests codes
 #define EXECUTION_TIMEOUT -2

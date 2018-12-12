@@ -2427,20 +2427,28 @@ static bool onConsoleLoadExerciseCommandCheckForSuccess(Console* console, const 
 
 	if(param && strlen(param))
 	{
-		int return_code = getExerciseDetailsRequest(atoi(param), &tic->exe);
-		if (return_code == 0)
+		if(atoi(param) > 0)
 		{
-			bool load_progress_status = loadProgress(console);
-			if(load_progress_status)
+			int return_code = getExerciseDetailsRequest(atoi(param), &tic->exe);
+			if (return_code == 0)
 			{
-				gotoExercises();
-				success = true;
+				bool load_progress_status = loadProgress(console);
+				if(load_progress_status)
+				{
+					gotoExercises();
+					success = true;
+				}
+				else
+					printBack(console, "\nExercise loaded successfully\n, but progress has failed to load. \nFEUP-8 will proceed to exercise \nbut without the progress.");
 			}
 			else
-				printBack(console, "\nExercise loaded successfully\n, but progress has failed to load. \nFEUP-8 will proceed to exercise \nbut without the progress.");
+				printError(console, getErrorMessageAccordingToReturnCode(return_code));
 		}
 		else
-			printError(console, getErrorMessageAccordingToReturnCode(return_code));
+		{
+			printBack(console, "\nexercise identifier must be positive");
+			success = false;
+		}	
 	}
 	else 
 		printBack(console, "\nexercise identifier is missing");
@@ -2925,10 +2933,7 @@ static void tick(Console* console)
 			int i=registerRequest(console->username, console->email,console->username,console->password);
 			if(i==0){
 				printFront(console, "\n Register successful");
-				int j = loginRequest(console->username,console->password);
-				if(j==0){
-					printFront(console, "\n Login successful");
-				}
+				printFront(console, "\n Login successful");
 			}
 			else printError(console, getErrorMessageAccordingToReturnCode(i));
 			
