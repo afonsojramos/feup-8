@@ -61,6 +61,37 @@ class ExerciseWebTests extends TestCase
     }
 
     /**
+     * Tests if an exercise creation without being loggedin is rejected.
+     */
+    public function testCreateExerciseWithoutBeingLoggedIn()
+    {
+        $input = ['form-description' => 'ExerciseDescription'];
+        $response = $this->call('POST', '/exercise/create', $input);
+        $response->assertStatus($this->forbidden_code);
+    }
+
+    /**
+     * Tests if an exercise creation without being a teacher is rejected.
+     */
+    public function testCreateExerciseWithoutBeingATeacher()
+    {
+        $user = factory(User::class)->make(
+            [
+                'id' => 65,
+                'username' => 'user_already_in_db',
+                'email' => 'name',
+                'password' => '$2y$10$CIMNPzE21s7KpyAoRuPL6OVnSq.4UE5XVJxvUsaExxpRCZJO3s8Iy',
+                'isTeacher' => false,
+            ]
+        );
+        $this->be($user);
+
+        $input = ['form-description' => 'ExerciseDescription'];
+        $response = $this->actingAs($user)->call('POST', '/exercise/create', $input);
+        $response->assertStatus($this->forbidden_code);
+    }
+
+    /**
      * Tests if an exercise creation without deecription is rejected.
      */
     public function testCreateExerciseWithoutDescription()
@@ -169,9 +200,8 @@ class ExerciseWebTests extends TestCase
 
     public function testcreateExercisePage()
     {
-        $user = $this->authenticateUser(2);
         $input = [];
-        $response = $this->actingAs($user)->call('POST', '/exercise/2/delete', $input);
+        $response = $this->actingAs($user)->call('GET', '/exercise/create', $input);
         $response->assertStatus($this->redirect_code);
     }
 }
