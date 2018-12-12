@@ -116,11 +116,11 @@ class TestController extends Controller
             }
 
             DB::table('Test')->where('id', $test_id)->delete();
-        }
+        } //@codeCoverageIgnoreStart
         catch (\Exception $e)
         {
             return redirect('/exercise/'.$id)->withErrors(['msg' => 'Sorry, there was an issue executing your request. If you believe this is an error, please contact system admin.']);
-        }
+        } //@codeCoverageIgnoreEnd
 
         return redirect('exercise/'.$id);
     }

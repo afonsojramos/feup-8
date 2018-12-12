@@ -180,11 +180,11 @@ class ExerciseController extends Controller
             $exercise->tests = DB::table('Test')->where('exercise_id', '=', $id)->orderBy('id', 'desc')->simplePaginate(1);
 
             return view('exercise/exercise_view', ['exercise' => $exercise]);
-        }
+        } //@codeCoverageIgnoreStart
         catch (\Exception $e)
         {
             return redirect('/exercise/'.$id)->withErrors(['msg' => 'Sorry, there was an issue executing your request. If you believe this is an error, please contact system admin.']);
-        }
+        } //@codeCoverageIgnoreEnd
     }
 
     /**
@@ -209,11 +209,11 @@ class ExerciseController extends Controller
                 }
 
                 $exercise = DB::table('Exercise')->where('id', $id)->update(['description' => $request['form-description']]);
-            }
+            } //@codeCoverageIgnoreStart
             catch (\Exception $e)
             {
                 return redirect('/exercise/'.$id)->withErrors(['msg' => 'Sorry, there was an issue executing your request. If you believe this is an error, please contact system admin.']);
-            }
+            } //@codeCoverageIgnoreEnd
         }
 
         return redirect('exercise/'.$id);

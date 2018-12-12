@@ -61,11 +61,32 @@ class ExerciseWebTests extends TestCase
     }
 
     /**
+     * Tests if an exercise creation without title is rejected.
+     */
+    public function testCreateExerciseWithTitleThatExists()
+    {
+        $user = factory(User::class)->make(
+            [
+                'id' => 66,
+                'username' => 'user_already_in_db',
+                'email' => 'name',
+                'password' => '$2y$10$CIMNPzE21s7KpyAoRuPL6OVnSq.4UE5XVJxvUsaExxpRCZJO3s8Iy',
+                'isTeacher' => false,
+            ]
+        );
+        $this->be($user);
+
+        $input = ['form-title' => 'test_sum_correct', 'form-description' => 'ExerciseDescription'];
+        $response = $this->actingAs($user)->call('POST', '/exercise/create', $input);
+        $response->assertStatus($this->redirect_code);
+    }
+
+    /**
      * Tests if an exercise creation without being loggedin is rejected.
      */
     public function testCreateExerciseWithoutBeingLoggedIn()
     {
-        $input = ['form-description' => 'ExerciseDescription'];
+        $input = ['form-title' => 'ExerciseTitle', 'form-description' => 'ExerciseDescription'];
         $response = $this->call('POST', '/exercise/create', $input);
         $response->assertStatus($this->redirect_code);
     }
@@ -86,7 +107,7 @@ class ExerciseWebTests extends TestCase
         );
         $this->be($user);
 
-        $input = ['form-description' => 'ExerciseDescription'];
+        $input = ['form-title' => 'ExerciseTitle', 'form-description' => 'ExerciseDescription'];
         $response = $this->actingAs($user)->call('POST', '/exercise/create', $input);
         $response->assertStatus($this->redirect_code);
     }
@@ -126,6 +147,13 @@ class ExerciseWebTests extends TestCase
     {
         $input = ['form-title' => 'ExerciseTitle2', 'form-description' => 'ExerciseDescription'];
         $this->genericExerciseCreate(64, $input, '/exercise/create', ['msg', 'Sorry, there is already an exercise with that title. Please choose a different title.']);
+    }
+
+    public function viewExercisePage()
+    {
+        $input = [];
+        $response = $this->call('GET', '/exercise/1', $input);
+        $response->assertStatus($this->redirect_code);
     }
 
     public function testGetAllExercises()
@@ -202,6 +230,6 @@ class ExerciseWebTests extends TestCase
     {
         $input = [];
         $response = $this->call('GET', '/exercise/create', $input);
-        $response->assertStatus($this->redirect_code);
+        $response->assertStatus($this->success_code);
     }
 }
