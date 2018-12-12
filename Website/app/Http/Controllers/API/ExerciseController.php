@@ -230,6 +230,15 @@ class ExerciseController extends Controller
             $logged_user_id = Auth::guard('api')->user()->id;
         }
 
+        $unit_tests_code_array = DB::table('Test')
+        ->select('Test.test_code')
+        ->where('exercise_id', $exercise_id)
+        ->get()
+        ->toArray();
+
+        if (count($unit_tests_code_array) == 0)
+            return 0;
+
         $unit_tests_code_array = $this->getExerciseTestsTestCode($exercise_id, $logged_user_id);
 
         if (-1 === $unit_tests_code_array)
