@@ -230,11 +230,22 @@ class ExerciseController extends Controller
             $logged_user_id = Auth::guard('api')->user()->id;
         }
 
+        $exercise_exists = DB::table('Exercise')
+        ->select('id')
+        ->where('id', $exercise_id)
+        ->get()
+        ->toArray();
+
         $unit_tests_code_array = DB::table('Test')
         ->select('Test.test_code')
         ->where('exercise_id', $exercise_id)
         ->get()
         ->toArray();
+
+        if (0 == count($exercise_exists))
+        {
+            return -1;
+        }
 
         if (0 == count($unit_tests_code_array))
         {
