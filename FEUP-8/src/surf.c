@@ -86,7 +86,7 @@ static Anim menuLeftShowAnim = {240, 0, ANIM, &AnimVar.menuX};
 static Anim menuRightShowAnim = {-240, 0, ANIM, &AnimVar.menuX};
 static Anim menuShowAnim = {0, MENU_HEIGHT, ANIM, &AnimVar.menuHeight};
 
-static Anim* MenuModeShowMovieItems[] = 
+static Anim* MenuModeShowMovieItems[] =
 {
 	&topBarShowAnim,
 	&bottomBarShowAnim,
@@ -94,7 +94,7 @@ static Anim* MenuModeShowMovieItems[] =
 	&menuShowAnim,
 };
 
-static Anim* MenuModeHideMovieItems[] = 
+static Anim* MenuModeHideMovieItems[] =
 {
 	&topBarHideAnim,
 	&bottomBarHideAnim,
@@ -102,25 +102,25 @@ static Anim* MenuModeHideMovieItems[] =
 	&menuHideAnim,
 };
 
-static Anim* MenuLeftHideMovieItems[] = 
+static Anim* MenuLeftHideMovieItems[] =
 {
 	&menuLeftHideAnim,
 	&menuHideAnim,
 };
 
-static Anim* MenuRightHideMovieItems[] = 
+static Anim* MenuRightHideMovieItems[] =
 {
 	&menuRightHideAnim,
 	&menuHideAnim,
 };
 
-static Anim* MenuLeftShowMovieItems[] = 
+static Anim* MenuLeftShowMovieItems[] =
 {
 	&menuLeftShowAnim,
 	&menuShowAnim,
 };
 
-static Anim* MenuRightShowMovieItems[] = 
+static Anim* MenuRightShowMovieItems[] =
 {
 	&menuRightShowAnim,
 	&menuShowAnim,
@@ -190,7 +190,7 @@ static void drawTopToolbar(Surf* surf, s32 x, s32 y)
 	{
 		char label[FILENAME_MAX];
 
-		sprintf(label, "%s", "TIC-80 SURF");
+		sprintf(label, "%s", "FEUP-8 SURF");
 
 		s32 xl = x + MAIN_OFFSET;
 		s32 yl = y + (Height - TIC_FONT_HEIGHT)/2;
@@ -236,7 +236,7 @@ static void drawBottomToolbar(Surf* surf, s32 x, s32 y)
 		tic->api.text(tic, label, xl, yl, tic_color_white, false);
 	}
 
-#ifdef CAN_OPEN_URL	
+#ifdef CAN_OPEN_URL
 
 	if(surf->menu.items[surf->menu.pos].hash)
 	{
@@ -303,7 +303,7 @@ static void drawInverseRect(tic_mem* tic, s32 x, s32 y, s32 w, s32 h)
 			s32 index = i + j*TIC80_WIDTH;
 			u8 color = tic_tool_peek4(tic->ram.vram.screen.data, index);
 			tic_tool_poke4(tic->ram.vram.screen.data, index, color % 4);
-		}            
+		}
 	}
 }
 
@@ -316,7 +316,7 @@ static void drawMenu(Surf* surf, s32 x, s32 y, bool bg)
 	if(bg)
 	{
 		if(AnimVar.menuHeight)
-			drawInverseRect(tic, 0, y + (MENU_HEIGHT - AnimVar.menuHeight)/2 - 1, TIC80_WIDTH, AnimVar.menuHeight+2);    
+			drawInverseRect(tic, 0, y + (MENU_HEIGHT - AnimVar.menuHeight)/2 - 1, TIC80_WIDTH, AnimVar.menuHeight+2);
 	}
 	else
 	{
@@ -369,7 +369,7 @@ static void replace(char* src, const char* what, const char* with)
 			strcpy(pos, pos + strlen(what) - strlen(with));
 			memcpy(pos, with, strlen(with));
 		}
-		else break;     
+		else break;
 	}
 }
 
@@ -389,9 +389,9 @@ static bool addMenuItem(const char* name, const char* info, s32 id, void* ptr, b
 
 	static const char CartExt[] = CART_EXT;
 
-	if(dir 
+	if(dir
 		|| hasExt(name, CartExt)
-#if defined(TIC80_PRO)		
+#if defined(TIC80_PRO)
 		|| hasExt(name, PROJECT_LUA_EXT)
 		|| hasExt(name, PROJECT_MOON_EXT)
 		|| hasExt(name, PROJECT_JS_EXT)
@@ -518,9 +518,9 @@ static void updateMenuItemCover(Surf* surf, const u8* cover, s32 size)
 static void loadCover(Surf* surf)
 {
 	tic_mem* tic = surf->tic;
-	
+
 	MenuItem* item = &surf->menu.items[surf->menu.pos];
-	
+
 	if(!fsIsInPublicDir(surf->fs))
 	{
 
@@ -557,7 +557,7 @@ static void loadCover(Surf* surf)
 		{
 			updateMenuItemCover(surf, cover, size);
 			free(cover);
-		}       
+		}
 	}
 }
 
@@ -568,7 +568,7 @@ static void initMenu(Surf* surf)
 	// TODO: calc files count before
 	enum{Count = MAX_CARTS, Size = sizeof(MenuItem) * Count};
 
-	AddMenuItem data = 
+	AddMenuItem data =
 	{
 		.items = malloc(Size),
 		.count = 0,
@@ -859,7 +859,7 @@ void initSurf(Surf* surf, tic_mem* tic, struct Console* console)
 		.state = &EmptyState,
 		.init = false,
 		.resume = resume,
-		.menu = 
+		.menu =
 		{
 			.pos = 0,
 			.anim = 0,

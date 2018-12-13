@@ -26,14 +26,14 @@
 #define DIALOG_WIDTH (TIC80_WIDTH/2)
 #define DIALOG_HEIGHT (TIC80_HEIGHT/2)
 
-static const char* Rows[] = 
+static const char* Rows[] =
 {
 	"RESUME GAME",
 	"RESET GAME",
 	"GAMEPAD CONFIG",
 	"",
 	"CLOSE GAME",
-	"QUIT TIC-80",
+	"QUIT FEUP-8",
 };
 
 static void resumeGame(Menu* menu)
@@ -126,7 +126,7 @@ static void drawDialog(Menu* menu)
 	{
 		u8 chromakey = 14;
 		tic->api.sprite_ex(tic, &getConfig()->cart->bank0.tiles, 0, rect.x+6, rect.y-4, 2, 2, &chromakey, 1, 1, tic_no_flip, tic_no_rotate);
-	}	
+	}
 }
 
 static void drawTabDisabled(Menu* menu, s32 x, s32 y, s32 id)
@@ -515,7 +515,7 @@ void initMenu(Menu* menu, tic_mem* tic, FileSystem* fs)
 			.tab = 0,
 			.selected = -1,
 		},
-		.drag = 
+		.drag =
 		{
 			.start = {0, 0},
 			.active = 0,

@@ -1,5 +1,6 @@
 #!/bin/bash
 
 cmake . && make -j4 || exit 1
-cd bin 
+yes | cp -rf ./assets/conf.ini ./bin/conf.ini
+cd bin
 ./tic80

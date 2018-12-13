@@ -3,7 +3,7 @@
 @section('title', $exercise->title)
 
 @section('content')
-<div>
+<div class="container">
     <div class="list-group container">
         <div class="d-flex w-100 justify-content-between">
             <h3 class="mb-1">{{ $exercise->title }}</h3>
@@ -11,8 +11,18 @@
         </div>
         <div class="edition d-flex w-100 justify-content-between rounded mb-2 pt-3 pl-4">
             <h5 class="mb-1" style="white-space: pre-line;">{{ $exercise->description }}</h5>
-            <div id="edit-description-button" class="btn btn-danger btn-xs rounded"
-                data-toggle="modal" data-target="#edit-modal"><img src="/images/edit.png" alt="edit" height="20" width="20"></div>
+            @if(Auth::check() && $exercise->creator_id == Auth::user()->id)
+            <div id="edit-exercise-buttons">
+                <div class="btn btn-secondary btn-xs rounded" style="margin-right: 2%"
+                    data-toggle="modal" data-target="#edit-modal"><i class="fas fa-pen"></i></div>
+                <form method="POST" action="{{ action('Web\ExerciseController@deleteExercise', ['id' => $exercise->id]) }}">
+                {{ csrf_field() }}
+                    <button type="submit" id="remove-button" class="btn btn-danger btn-xs rounded">
+                        <i class="far fa-trash-alt"></i>
+                    </button>
+                </form>
+            </div>
+            @endif
         </div>
         <div id="edit-modal" class="modal fade" aria-hidden="true">
             <div class="modal-dialog modal-lg">
@@ -60,10 +70,11 @@
     </div>
     <hr class="my-4 w-75">
     <div class="list-group container">
+        @if(Auth::check() && $exercise->creator_id == Auth::user()->id)
         <div>
             <button class="rounded btn-primary w-100" style="margin-bottom: 2%;" data-toggle="collapse" data-target="#newTest">
                 Add a New Test </button>
-            <div id="newTest" class="collapse list-group-item list-group-item-action flex-column align-items-start rounded mb-2 pt-3 pl-4"
+            <div id="newTest" class="collapse list-group-item flex-column align-items-start rounded mb-2 pt-3 pl-4"
                 style="margin-bottom: 2%;">
                 <form method="POST" action="{{ action('Web\TestController@addTestToExercise', ['id' => $exercise->id]) }}"
                     enctype="multipart/form-data">
@@ -105,14 +116,17 @@
                 </form>
             </div>
         </div>
-
+        @endif
+    <div>
+    <div>
         @foreach ($exercise->tests as $test)
-        @include('test.test_partial', ['exercise' => $exercise, 'test' => $test])
+            @include('test.test_partial', ['exercise' => $exercise, 'test' => $test])
         @endforeach
     </div>
-    <div style="margin-left: 3%;" class="rounded">
+    <div class="rounded">
         {{ $exercise->tests->links() }}
     </div>
+</div>
 
 </div>
 @endsection

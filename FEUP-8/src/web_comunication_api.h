@@ -6,8 +6,7 @@
 #include "net.h"
 #include <string.h>
 
-#define WEB_SERVER_ADDRESS "127.0.0.1"
-#define WEB_SERVER_PORT 8000
+#define CONFIGS_FILE_PATH "conf.ini"
 #define REGISTER_PATH "/api/register"
 #define LOGIN_PATH "/api/login"
 #define LOGOUT_PATH "/api/logout"
@@ -24,6 +23,7 @@
 #define FORBIDDEN 1
 #define SERVER_ERROR 2
 #define CANT_CONNECT_TO_SERVER 3
+#define INVALID_ARGUMENTS 4
 
 //Tests codes
 #define EXECUTION_TIMEOUT -2
@@ -32,11 +32,14 @@
 
 typedef struct 
 {
-		int id;
+	int id;
     char *title;
     int progress; //-1 if not logged in
 } ExerciseSimplified;
 
+int loadServerConfigsFromFile(char *conf_file_path);
+void getStringAfterEqualSymbol(char **string);
+void setNullTerminatorAtFirstCarriageReturnOrLineFeed(char *string);
 char *getAdditionalHeaderStringWithAuthToken();
 static char* getStringCopy(const char *original);
 int loginRequest(const char *username, const char *password);

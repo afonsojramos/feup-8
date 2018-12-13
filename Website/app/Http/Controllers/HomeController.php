@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+
 class HomeController extends Controller
 {
     /**
@@ -24,12 +26,11 @@ class HomeController extends Controller
 
     public function start()
     {
-        $current_user_id = UserController::getCurrentlyLoggedInUserId();
-        if (0 == $current_user_id)
+        if (Auth::check())
         {
-            return view('auth.login');
+            return redirect('/exercises');
         }
 
-        return redirect('/home');
+        return view('auth.login');
     }
 }

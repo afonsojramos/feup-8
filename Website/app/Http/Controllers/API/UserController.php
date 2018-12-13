@@ -86,7 +86,9 @@ class UserController extends Controller
 
         if (!Auth::guard('api')->user()->token()->revoke())
         {
+            //@codeCoverageIgnoreStart
             return response()->json(['response_code' => 2], 200);
+            //@codeCoverageIgnoreEnd
         }
 
         return response()->json(['response_code' => 0], UserController::$successStatus);

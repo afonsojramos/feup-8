@@ -21,29 +21,29 @@ class ExerciseController extends Controller
     {
         try
         {
-            $exercises = DB::table('exercise')
-                ->select('id', 'title', '0 as progress')
+            $exercises = DB::table('Exercise')
+                ->selectRaw('id, title, 0 as progress')
                 ->where('isPrivate', false);
 
             $current_user_id = UserController::getCurrentlyLoggedInUserId();
             if (0 != $current_user_id)
             { //logged in
                 $exercises_ids_in_progress = DB::table('ExerciseStudent')
-                    ->select('exercise_id as id')
+                    ->selectRaw('exercise_id as id')
                     ->where('student_id', $current_user_id);
 
                 $exercises = $exercises
                     ->whereNotIn('id', $exercises_ids_in_progress);
 
-                $private_exercises = DB::table('exercise')
-                    ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
-                    ->select('id', 'title', '0 as progress')
+                $private_exercises = DB::table('Exercise')
+                    ->join('ExerciseStudentPermissions', 'Exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
+                    ->selectRaw('id, title, 0 as progress')
                     ->whereNotIn('id', $exercises_ids_in_progress)
                     ->where('isPrivate', true)
                     ->where('student_id', $current_user_id);
 
-                $exercises_in_progress = DB::table('exercise')
-                        ->join('ExerciseStudent', 'exercise.id', '=', 'ExerciseStudent.exercise_id')
+                $exercises_in_progress = DB::table('Exercise')
+                        ->join('ExerciseStudent', 'Exercise.id', '=', 'ExerciseStudent.exercise_id')
                         ->select('id', 'title', 'progress')
                         ->where('student_id', $current_user_id);
 
@@ -51,12 +51,12 @@ class ExerciseController extends Controller
                 $exercises = $exercises->union($exercises_in_progress);
             }
 
-            $exercises = $exercises->get();
-        }
+            $exercises = $exercises->orderBy('id', 'asc')->get();
+        } //@codeCoverageIgnoreStart
         catch (\Exception $e)
         {
             return response()->json(['response_code' => 2], 200);
-        }
+        } //@codeCoverageIgnoreEnd
 
         return response()->json(['response_code' => 0, 'exercises' => $exercises], 200);
     }
@@ -72,18 +72,18 @@ class ExerciseController extends Controller
     {
         try
         {
-            $exercise = DB::table('exercise')
-                ->join('users', 'exercise.creator_id', '=', 'users.id')
-                ->select(
-                    'exercise.title',
-                    'exercise.description',
-                    'exercise.image_path as image_base64',
-                'users.name as creator_name',
-                    '0 as progress',
-                    ' as feup8_file'
+            $exercise = DB::table('Exercise')
+                ->join('users', 'Exercise.creator_id', '=', 'users.id')
+                ->selectRaw(
+                    '"Exercise".title,
+                     "Exercise".description,
+                     "Exercise".image_path as image_base64,
+                     users.name as creator_name,
+                     0 as progress,
+                     convert_from(\'\'::bytea, \'UTF8\') as feup8_file'
                 )
                 ->where('isPrivate', false)
-                ->where('exercise.id', '=', $id);
+                ->where('Exercise.id', '=', $id);
 
             $current_user_id = UserController::getCurrentlyLoggedInUserId();
             if (0 != $current_user_id)
@@ -91,40 +91,40 @@ class ExerciseController extends Controller
                 $exercise_ids_in_progress = DB::table('ExerciseStudent')
                     ->select('exercise_id as id')
                     ->where('student_id', $current_user_id)
-                    ->where('exercise.id', '=', $id);
+                    ->where('exercise_id', '=', $id);
 
                 $exercise = $exercise
-                    ->whereNotIn('exercise.id', $exercise_ids_in_progress);
+                    ->whereNotIn('Exercise.id', $exercise_ids_in_progress);
 
-                $private_exercise = DB::table('exercise')
-                    ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
-                    ->join('users', 'exercise.creator_id', '=', 'users.id')
-                    ->select(
-                        'exercise.title',
-                        'exercise.description',
-                        'exercise.image_path as image_base64',
-                    'users.name as creator_name',
-                        '0 as progress',
-                        ' as feup8_file'
+                $private_exercise = DB::table('Exercise')
+                    ->join('ExerciseStudentPermissions', 'Exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
+                    ->join('users', 'Exercise.creator_id', '=', 'users.id')
+                    ->selectRaw(
+                        '"Exercise".title,
+                        "Exercise".description,
+                        "Exercise".image_path as image_base64,
+                        users.name as creator_name,
+                        0 as progress,
+                        convert_from(\'\'::bytea, \'UTF8\')  as feup8_file'
                     )
-                    ->whereNotIn('exercise.id', $exercise_ids_in_progress)
+                    ->whereNotIn('Exercise.id', $exercise_ids_in_progress)
                     ->where('isPrivate', true)
                     ->where('student_id', $current_user_id)
-                    ->where('exercise.id', '=', $id);
+                    ->where('Exercise.id', '=', $id);
 
-                $exercise_in_progress = DB::table('exercise')
-                        ->join('ExerciseStudent', 'exercise.id', '=', 'ExerciseStudent.exercise_id')
-                        ->join('users', 'exercise.creator_id', '=', 'users.id')
-                        ->select(
-                            'exercise.title',
-                            'exercise.description',
-                            'exercise.image_path as image_base64',
-                        'users.name as creator_name',
-                            'progress',
-                            'feup8_file'
+                $exercise_in_progress = DB::table('Exercise')
+                        ->join('ExerciseStudent', 'Exercise.id', '=', 'ExerciseStudent.exercise_id')
+                        ->join('users', 'Exercise.creator_id', '=', 'users.id')
+                        ->selectRaw(
+                            '"Exercise".title,
+                            "Exercise".description,
+                            "Exercise".image_path as image_base64,
+                            users.name as creator_name,
+                            progress,
+                            convert_from(feup8_file::bytea, \'UTF8\') as feup8_file'
                         )
                         ->where('student_id', $current_user_id)
-                        ->where('exercise.id', '=', $id);
+                        ->where('Exercise.id', '=', $id);
 
                 $exercise = $exercise->union($private_exercise);
                 $exercise = $exercise->union($exercise_in_progress);
@@ -137,7 +137,7 @@ class ExerciseController extends Controller
                 return response()->json(['response_code' => 1], 200);
             }
 
-            $tests = DB::table('test')
+            $tests = DB::table('Test')
                 ->select('id', 'title', 'test_code', 'hint')
                 ->where('exercise_id', '=', $id)
                 ->get()
@@ -147,11 +147,11 @@ class ExerciseController extends Controller
             {
                 $tests[$i]->test_code = base64_encode($tests[$i]->test_code);
             }
-        }
+        } //@codeCoverageIgnoreStart
         catch (\Exception $e)
         {
             return response()->json(['response_code' => 2], 200);
-        }
+        } //@codeCoverageIgnoreEnd
 
         return response()->json(['response_code' => 0, 'exercise' => $exercise, 'tests' => $tests], 200);
     }
@@ -184,31 +184,31 @@ class ExerciseController extends Controller
         if (-1 == $progress)
         {
             return response()->json(['response_code' => 1], 200);
-        }
+        } //@codeCoverageIgnoreStart
         elseif (-2 == $progress)
         {
             return response()->json(['response_code' => 2], 200);
-        }
+        } //@codeCoverageIgnoreEnd
 
         try
         {
             if (ExerciseController::checkExerciseStudentExists($exercise_id, Auth::guard('api')->user()->id))
             {
-                DB::table('exerciseStudent')
+                DB::table('ExerciseStudent')
                     ->where('exercise_id', '=', $exercise_id)
                     ->where('student_id', '=', Auth::guard('api')->user()->id)
                     ->update(['progress' => $progress, 'feup8_file' => $request['exercise_data']]);
             }
             else
             {
-                DB::table('exerciseStudent')->insert(['exercise_id' => $exercise_id, 'student_id' => Auth::guard('api')->user()->id,
+                DB::table('ExerciseStudent')->insert(['exercise_id' => $exercise_id, 'student_id' => Auth::guard('api')->user()->id,
                     'progress' => $progress, 'feup8_file' => $request['exercise_data'], ]);
             }
-        }
+        } //@codeCoverageIgnoreStart
         catch (\Exception $e)
         {
             return response()->json(['response_code' => 2], 200);
-        }
+        } //@codeCoverageIgnoreEnd
 
         return response()->json(['response_code' => 0], 200);
     }
@@ -230,11 +230,35 @@ class ExerciseController extends Controller
             $logged_user_id = Auth::guard('api')->user()->id;
         }
 
+        $exercise_exists = DB::table('Exercise')
+        ->select('id')
+        ->where('id', $exercise_id)
+        ->get()
+        ->toArray();
+
+        $unit_tests_code_array = DB::table('Test')
+        ->select('Test.test_code')
+        ->where('exercise_id', $exercise_id)
+        ->get()
+        ->toArray();
+
+        if (0 == count($exercise_exists))
+        {
+            return -1;
+        }
+
+        if (0 == count($unit_tests_code_array))
+        {
+            return 0;
+        }
+
         $unit_tests_code_array = $this->getExerciseTestsTestCode($exercise_id, $logged_user_id);
+        //@codeCoverageIgnoreStart
         if (-1 === $unit_tests_code_array)
         {
             return -2;
         }
+        //@codeCoverageIgnoreEnd
         $numberOfUnitTests = count($unit_tests_code_array);
         if (0 == $numberOfUnitTests)
         {
@@ -264,7 +288,7 @@ class ExerciseController extends Controller
     {
         try
         {
-            $exercise_student = DB::table('exerciseStudent')
+            $exercise_student = DB::table('ExerciseStudent')
                 ->select('*')
                 ->where('exercise_id', '=', $exercise_id)
                 ->where('student_id', '=', $logged_user_id)
@@ -273,11 +297,11 @@ class ExerciseController extends Controller
             {
                 return true;
             }
-        }
+        } //@codeCoverageIgnoreStart
         catch (\Exception $e)
         {
             return true;
-        }
+        } //@codeCoverageIgnoreEnd
 
         return false;
     }
@@ -293,37 +317,37 @@ class ExerciseController extends Controller
     {
         try
         {
-            $public_exercise = DB::table('exercise')
+            $public_exercise = DB::table('Exercise')
                 ->select('id')
-                ->where('exercise.id', '=', $exercise_id)
+                ->where('Exercise.id', '=', $exercise_id)
                 ->where('isPrivate', false);
 
             $possible_exercise = $public_exercise;
 
             if (0 != $logged_user_id)
             {
-                $private_exercise = DB::table('exercise')
-                    ->join('ExerciseStudentPermissions', 'exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
+                $private_exercise = DB::table('Exercise')
+                    ->join('ExerciseStudentPermissions', 'Exercise.id', '=', 'ExerciseStudentPermissions.exercise_id')
                     ->select('id')
-                    ->where('exercise.id', '=', $exercise_id)
+                    ->where('Exercise.id', '=', $exercise_id)
                     ->where('isPrivate', true)
                     ->where('ExerciseStudentPermissions.student_id', $logged_user_id);
 
                 $possible_exercise = $possible_exercise->union($private_exercise);
             }
 
-            $unit_tests_code_array = DB::table('test')
-                ->select('test.test_code')
+            $unit_tests_code_array = DB::table('Test')
+                ->select('Test.test_code')
                 ->whereIn('exercise_id', $possible_exercise)
                 ->get()
                 ->toArray();
 
             return $unit_tests_code_array;
-        }
+        } //@codeCoverageIgnoreStart
         catch (\Exception $e)
         {
             return -1;
-        }
+        } //@codeCoverageIgnoreEnd
     }
 
     /**
@@ -372,7 +396,9 @@ class ExerciseController extends Controller
         $unit_tests_code_array = $this->getExerciseTestsTestCode($exercise_id, $logged_user_id);
         if (-1 === $unit_tests_code_array)
         {
+            //@codeCoverageIgnoreStart
             return response()->json(['response_code' => 2], 200);
+            //@codeCoverageIgnoreEnd
         }
         if (0 == count($unit_tests_code_array))
         {

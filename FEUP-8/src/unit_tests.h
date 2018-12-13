@@ -12,4 +12,7 @@ void testSaveProgressRequest();
 void testSendCodeToServerAndGetTestsResultsRequestSend();
 void testSetAllTestsAsValue();
 void testParseExerciseTestsReceived();
+void testSetNullTerminatorAtFirstCarriageReturnOrLineFeed();
+void testGetStringAfterEqualSymbol();
+void testLoadServerConfigsFromFile();
 int run_test_suite();

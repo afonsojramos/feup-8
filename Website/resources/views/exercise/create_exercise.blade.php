@@ -10,10 +10,15 @@
                 @foreach ($errors->all() as $error)
                     <div class="alert alert-danger">{{ $error }} </div> 
                 @endforeach
+                @if (session('msg'))
+                    <div class="alert alert-success">
+                        {{ session('msg') }}
+                    </div>
+                @endif
                 </div>
                 <hr class="my-4 w-75">
                 <div class="container d-flex w-100 justify-content-between">
-                    <form method="POST" action="{{ route('/exercise/create') }}" class="w-100 list-group-item list-group-item-action flex-column align-items-start rounded mb-2 pt-3 pl-4"
+                    <form method="POST" action="{{ route('/exercise/create') }}" class="w-100 list-group-item flex-column align-items-start rounded mb-2 pt-3 pl-4"
                         style="margin-bottom: 2%; padding: 2rem 1rem !important;">
                         @csrf
 
@@ -63,7 +68,7 @@
                         </div>
 
                         <div class="form-group row mb-0">
-                            <div class="col-md-8 offset-md-10" >
+                            <div class="col-md-2 offset-md-10" >
                                 <button type="submit" class="btn btn-primary">
                                     {{ __('Create') }}
                                 </button>
