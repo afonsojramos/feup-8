@@ -132,3 +132,4 @@ Makefile
 make_run.sh
 tic80_coverage
 tic80_coverage.info
+release

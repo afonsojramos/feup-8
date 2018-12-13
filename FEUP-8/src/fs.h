@@ -47,6 +47,8 @@ typedef struct FileSystem FileSystem;
 
 FileSystem* createFileSystem(const char* path);
 
+const char* getFilePath(FileSystem* fs, const char* name);
+
 void fsEnumFiles(FileSystem* fs, ListCallback callback, void* data);
 void fsAddFile(FileSystem* fs, AddCallback callback, void* data);
 void fsGetFile(FileSystem* fs, GetCallback callback, const char* name, void* data);

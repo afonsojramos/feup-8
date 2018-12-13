@@ -337,7 +337,7 @@ static void onConsoleHelpCommand(Console* console, const char* param);
 #if defined(CAN_OPEN_URL)
 static void onConsoleWikiCommand(Console* console, const char* param)
 {
-	getSystem()->openSystemPath("https://github.com/nesbox/TIC-80/wiki");
+	getSystem()->openSystemPath("https://gitlab.com/feup-tbs/ldso18-19/t5g2/wikis/home");
 	commandDone(console);
 }
 #endif
@@ -637,18 +637,30 @@ static void onConsoleLoadDemoCommandConfirmed(Console* console, const char* para
 	free(data);
 }
 
-static void onCartLoaded(Console* console, const char* name)
+static void onCartLoadedAuxiliar(Console* console, const char* name, bool is_to_print)
 {
 	setCartName(console, name);
 
 	studioRomLoaded();
 
-	printBack(console, "\ncart ");
-	printFront(console, console->romName);
-	printBack(console, " loaded!\nuse ");
-	printFront(console, "RUN");
-	printBack(console, " command to run it\n");
+	if(is_to_print)
+	{
+		printBack(console, "\ncart ");
+		printFront(console, console->romName);
+		printBack(console, " loaded!\nuse ");
+		printFront(console, "RUN");
+		printBack(console, " command to run it\n");
+	}
+}
 
+static void onCartLoaded(Console* console, const char* name)
+{
+	onCartLoadedAuxiliar(console, name, true);
+}
+
+static void onCartLoadedWithoutPrints(Console* console, const char* name)
+{
+	onCartLoadedAuxiliar(console, name, false);
 }
 
 static bool hasExt(const char* name, const char* ext)
@@ -1002,64 +1014,92 @@ static void updateProject(Console* console)
 
 #endif
 
+static bool onConsoleLoadCommandConfirmedAuxiliar(Console* console, const char* param, bool is_to_print)
+{
+    if (onConsoleLoadSectionCommand(console, param))
+        return false;
+
+    if (param)
+    {
+        s32 size = 0;
+        const char* name = getCartName(param);
+
+        void* data = strcmp(name, CONFIG_TIC_PATH) == 0 ? fsLoadRootFile(console->fs, name, &size)
+                                                        : fsLoadFile(console->fs, name, &size);
+
+        if (data)
+        {
+            console->showGameMenu = fsIsInPublicDir(console->fs);
+
+            loadRom(console->tic, data, size, true);
+
+            if (is_to_print)
+                onCartLoaded(console, name);
+            else
+                onCartLoadedWithoutPrints(console, name);
+
+            free(data);
+        }
+        else
+        {
+#if defined(TIC80_PRO)
+            const char* name = getName(param, PROJECT_LUA_EXT);
+
+            if (!fsExistsFile(console->fs, name))
+                name = getName(param, PROJECT_MOON_EXT);
+
+            if (!fsExistsFile(console->fs, name))
+                name = getName(param, PROJECT_JS_EXT);
+
+            if (!fsExistsFile(console->fs, name))
+                name = getName(param, PROJECT_WREN_EXT);
+
+            void* data = fsLoadFile(console->fs, name, &size);
+
+            if (data)
+            {
+                ;
+                loadProject(console, name, data, size, &console->tic->cart);
+                if (is_to_print)
+                    onCartLoaded(console, name);
+                else
+                    onCartLoadedWithoutPrints(console, name);
+
+                free(data);
+            }
+            else if (is_to_print)
+            {
+                printBack(console, "\ncart loading error");
+            }
+            else
+                return false;
+#else
+            if (is_to_print)
+                printBack(console, "\ncart loading error");
+            else
+                return false;
+#endif
+        }
+    }
+    else if (is_to_print)
+        printBack(console, "\ncart name is missing");
+    else
+        return false;
+
+    if (is_to_print)
+        commandDone(console);
+
+    return true;
+}
+
 static void onConsoleLoadCommandConfirmed(Console* console, const char* param)
 {
-	if(onConsoleLoadSectionCommand(console, param)) return;
+	onConsoleLoadCommandConfirmedAuxiliar(console, param, true);
+}
 
-	if(param)
-	{
-		s32 size = 0;
-		const char* name = getCartName(param);
-
-		void* data = strcmp(name, CONFIG_TIC_PATH) == 0
-			? fsLoadRootFile(console->fs, name, &size)
-			: fsLoadFile(console->fs, name, &size);
-
-		if(data)
-		{
-			console->showGameMenu = fsIsInPublicDir(console->fs);
-
-			loadRom(console->tic, data, size, true);
-
-			onCartLoaded(console, name);
-
-			free(data);
-		}
-		else
-		{
-#if defined(TIC80_PRO)
-			const char* name = getName(param, PROJECT_LUA_EXT);
-
-			if(!fsExistsFile(console->fs, name))
-				name = getName(param, PROJECT_MOON_EXT);
-
-			if(!fsExistsFile(console->fs, name))
-				name = getName(param, PROJECT_JS_EXT);
-
-			if(!fsExistsFile(console->fs, name))
-				name = getName(param, PROJECT_WREN_EXT);
-
-			void* data = fsLoadFile(console->fs, name, &size);
-
-			if(data)
-			{
-				loadProject(console, name, data, size, &console->tic->cart);
-				onCartLoaded(console, name);
-
-				free(data);
-			}
-			else
-			{
-				printBack(console, "\ncart loading error");
-			}
-#else
-			printBack(console, "\ncart loading error");
-#endif
-		}
-	}
-	else printBack(console, "\ncart name is missing");
-
-	commandDone(console);
+static bool onConsoleLoadCommandConfirmedWithoutPrints(Console* console, const char* param)
+{
+	return onConsoleLoadCommandConfirmedAuxiliar(console, param, false);
 }
 
 static void load(Console* console, const char* path, const char* hash)
@@ -1468,6 +1508,49 @@ static void onConsoleExerciseCommand(Console* console, const char* param)
 {
 	gotoSurfExercises();
 	commandDone(console);
+}
+
+static void onConsoleRegisterCommand(Console* console, const char* param)
+{
+	if(param){
+		memset(console->password, 0, CONSOLE_BUFFER_SIZE);
+		console->emailMode = true;
+		memcpy(console->username,param,CONSOLE_BUFFER_SIZE);
+		consolePrint(console, "\nemail (tab to enter):", CONSOLE_BACK_TEXT_COLOR);
+	}
+	else{
+		printBack(console, "\nusername is missing");
+		commandDone(console);
+	}
+}
+
+static void onConsoleLoginCommand(Console* console, const char* param)
+{
+	if(param){
+		memset(console->password, 0, CONSOLE_BUFFER_SIZE);
+		console->passwordMode = true;
+		memcpy(console->username,param,CONSOLE_BUFFER_SIZE);
+		consolePrint(console, "\npassword (tab to enter):", CONSOLE_BACK_TEXT_COLOR);
+	}
+	else{
+		printBack(console, "\nusername is missing");
+		commandDone(console);
+	}
+}
+
+static void onConsoleLogoutCommand(Console* console, const char* param)
+{
+	int i =logoutRequest();
+
+			if(i==0){
+				printFront(console, "\n Logout succeeded");
+			}
+			else if(i==1){
+				printError(console, "\n You must be logged in to logout");
+			}
+			else printError(console, getErrorMessageAccordingToReturnCode(i));
+
+		commandDone(console);
 }
 
 static void onConsoleCodeCommand(Console* console, const char* param)
@@ -2301,15 +2384,106 @@ static void onConsoleRamCommand(Console* console, const char* param)
 	commandDone(console);
 }
 
-static void onConsoleLoadExerciseCommand(Console* console, const char* param)
+static char* getErrorMessageAccordingToReturnCode(int return_code)
 {
+	switch(return_code)
+	{
+		case FORBIDDEN:
+			return "\nAccess forbidden";
+		case SERVER_ERROR:
+			return "\nServer error";
+		case CANT_CONNECT_TO_SERVER:
+			return "\nError connecting to server";
+		default:
+			return NULL;				
+	}
+}
+
+static bool loadProgress(Console* console)
+{
+	tic_exercise tic_exe = console->tic->exe;
+	Buffer exercise_data = tic_exe.feup8_file;
+	if(exercise_data.data != NULL && exercise_data.size != 0)
+	{
+		char *filename_with_extension = "loaded_progress.tic";
+		char *filepath = getFilePath(console->fs, filename_with_extension);
+
+		bool save_file_progress = fsWriteFile(filepath, exercise_data.data, exercise_data.size);
+		if(!save_file_progress)
+			return false;
+
+		bool loadProjectStatus = onConsoleLoadCommandConfirmedWithoutPrints(console, filename_with_extension);
+		if(!loadProjectStatus)
+			return false;
+	}
+		
+	return true;
+}
+
+static bool onConsoleLoadExerciseCommandCheckForSuccess(Console* console, const char* param)
+{
+	bool success = false;
 	tic_mem* tic = console->tic;
+
 	if(param && strlen(param))
 	{
-		if (getExerciseDetailsRequest(atoi(param), &tic->exe) == 0)
-			gotoExercises();
+		if(atoi(param) > 0)
+		{
+			int return_code = getExerciseDetailsRequest(atoi(param), &tic->exe);
+			if (return_code == 0)
+			{
+				bool load_progress_status = loadProgress(console);
+				if(load_progress_status)
+				{
+					gotoExercises();
+					success = true;
+				}
+				else
+					printBack(console, "\nExercise loaded successfully\n, but progress has failed to load. \nFEUP-8 will proceed to exercise \nbut without the progress.");
+			}
+			else
+				printError(console, getErrorMessageAccordingToReturnCode(return_code));
+		}
+		else
+		{
+			printBack(console, "\nexercise identifier must be positive");
+			success = false;
+		}	
 	}
-	else printBack(console, "\nexercise identifier is missing");
+	else 
+		printBack(console, "\nexercise identifier is missing");
+
+	commandDone(console);
+	return success;
+}
+
+static void onConsoleLoadExerciseCommand(Console* console, const char* param)
+{
+	onConsoleLoadExerciseCommandCheckForSuccess(console, param);
+}
+
+static void onConsoleSaveProgressCommand(Console* console, const char* param)
+{
+	char *filename = "temp_save_progress";
+	CartSaveResult rom = saveCartName(console, filename);
+	if(rom != CART_SAVE_OK)
+		printError(console, "\nError saving progress");
+
+	char *filename_with_extension = "temp_save_progress.tic";
+	char *filepath = getFilePath(console->fs, filename_with_extension);
+	Buffer exercise_data;
+	exercise_data.data = (u8*)fsReadFile(filepath, &exercise_data.size);
+	if(exercise_data.data != NULL && exercise_data.size != 0)
+	{
+		tic_mem* tic = console->tic;
+		int return_code = saveProgressRequest(exercise_data, tic->cart.code.data, tic->exe.id);
+		if (return_code == 0)
+			printBack(console, "\nProgress saved successfully");
+		else
+			printError(console, getErrorMessageAccordingToReturnCode(return_code));
+	}
+	else 
+		printError(console, "\nError saving progress");
 
 	commandDone(console);
 }
@@ -2325,7 +2499,7 @@ static const struct
 {
 	{"help", 		NULL, "show this info", 			onConsoleHelpCommand},
 #if defined(CAN_OPEN_URL)
-	{"wiki", 		NULL, "open github wiki page", 		onConsoleWikiCommand},
+	{"wiki", 		NULL, "open GitLab wiki page", 		onConsoleWikiCommand},
 #endif
 	{"ram", 		NULL, "show memory info", 			onConsoleRamCommand},
 	{"exit", 		"quit", "exit the application", 	onConsoleExitCommand},
@@ -2348,12 +2522,16 @@ static const struct
 	{"del",		    NULL, "delete file or dir",			onConsoleDelCommand},
 	{"cls", 		NULL, "clear screen",				onConsoleClsCommand},
 	{"demo",    	NULL, "install demo carts",			onConsoleInstallDemosCommand},
-	{"config",	    NULL, "edit TIC config",			onConsoleConfigCommand},
+	{"config",	    NULL, "edit FEUP-8 config",			onConsoleConfigCommand},
 	{"version",	    NULL, "show the current version",	onConsoleVersionCommand},
 	{"edit",    	NULL, "open cart editor",			onConsoleCodeCommand},
 	{"surf",	    NULL, "open carts browser",			onConsoleSurfCommand},
 	{"exercises",	NULL, "open avaiable exercises",			onConsoleExerciseCommand},
 	{"loadexe",		NULL, "load a specific exercise",			onConsoleLoadExerciseCommand},
+	{"register",  NULL,  "register on application",     onConsoleRegisterCommand},
+	{"login",  NULL,  "login on application",     onConsoleLoginCommand},
+	{"logout",  NULL,  "logout of application",     onConsoleLogoutCommand},
+	{"saveprogress",NULL, "save current exercise progress",	onConsoleSaveProgressCommand},
 };
 
 static bool predictFilename(const char* name, const char* info, s32 id, void* data, bool dir)
@@ -2701,6 +2879,80 @@ static void tick(Console* console)
 		}
 	}
 
+	 if(console->emailMode){
+		char* sym = calloc(3, sizeof(char));
+		 if(keyWasPressed(tic_key_tab)){
+			consolePrint(console, "\npassword (tab to enter):", CONSOLE_BACK_TEXT_COLOR);
+			console->emailMode=false;
+			console->registerMode=true;
+			drawConsoleText(console);
+		}
+
+	 	sym[0] = getKeyboardText();
+		if(sym[0]){
+			int size = strlen(console->email);
+			console->email[size] = sym[0];
+			console->email[size + 1] = '\0';
+			printFront(console, sym);
+			tic->api.clear(tic, TIC_COLOR_BG);
+			drawConsoleText(console);
+		}
+		return;
+	}
+	else if(console->passwordMode){
+		char* sym = calloc(3, sizeof(char));
+		 if(keyWasPressed(tic_key_tab)){
+			
+			int i = loginRequest(console->username,console->password);
+			if(i==0){
+				printFront(console, "\n Login succeeded");
+			}
+			else if(i==1){
+				printError(console, "\n Wrong username or password");
+			}
+			else printError(console, getErrorMessageAccordingToReturnCode(i));
+
+			console->passwordMode=false;
+			commandDone(console);
+		}
+
+	 	sym[0] = getKeyboardText();
+		if(sym[0]){
+			int size = strlen(console->password);
+			console->password[size] = sym[0];
+			console->password[size + 1] = '\0';
+			printFront(console, "*");
+			tic->api.clear(tic, TIC_COLOR_BG);
+			drawConsoleText(console);
+		}
+		return;
+	}
+	if(console->registerMode){
+		 char* sym = calloc(3, sizeof(char));
+		 if(keyWasPressed(tic_key_tab)){
+			int i=registerRequest(console->username, console->email,console->username,console->password);
+			if(i==0){
+				printFront(console, "\n Register successful");
+				printFront(console, "\n Login successful");
+			}
+			else printError(console, getErrorMessageAccordingToReturnCode(i));
+			
+			console->registerMode=false;
+			commandDone(console);
+		}
+
+	 	sym[0] = getKeyboardText();
+		if(sym[0]){
+			int size = strlen(console->password);
+			console->password[size] = sym[0];
+			console->password[size + 1] = '\0';
+			printFront(console, "*");
+			tic->api.clear(tic, TIC_COLOR_BG);
+			drawConsoleText(console);
+		}
+		return;
+	}
+
 	if(tic->ram.input.keyboard.data != 0)
 	{
 		if(keyWasPressed(tic_key_up)) onHistoryUp(console);
@@ -3020,6 +3272,9 @@ void initConsole(Console* console, tic_mem* tic, FileSystem* fs, Config* config,
 	if(!console->buffer) console->buffer = malloc(CONSOLE_BUFFER_SIZE);
 	if(!console->colorBuffer) console->colorBuffer = malloc(CONSOLE_BUFFER_SIZE);
 	if(!console->embed.file) console->embed.file = malloc(sizeof(tic_cartridge));
+	if(!console->password) console->password = malloc(CONSOLE_BUFFER_SIZE);
+	if(!console->username) console->username = malloc(CONSOLE_BUFFER_SIZE);
+	if(!console->email) console->email = malloc(CONSOLE_BUFFER_SIZE);
 
 	*console = (Console)
 	{
@@ -3031,10 +3286,12 @@ void initConsole(Console* console, tic_mem* tic, FileSystem* fs, Config* config,
 		.loadProject = loadProject,
 		.updateProject = updateProject,
 		.onConsoleLoadExerciseCommand=onConsoleLoadExerciseCommand,
+		.onConsoleLoadExerciseCommandCheckForSuccess=onConsoleLoadExerciseCommandCheckForSuccess,
 #else
 		.loadProject = NULL,
 		.updateProject = NULL,
 		.onConsoleLoadExerciseCommand=onConsoleLoadExerciseCommand,
+		.onConsoleLoadExerciseCommandCheckForSuccess=onConsoleLoadExerciseCommandCheckForSuccess,
 #endif
 		.error = error,
 		.trace = trace,
@@ -3070,12 +3327,21 @@ void initConsole(Console* console, tic_mem* tic, FileSystem* fs, Config* config,
 		.skipStart = false,
 		.goFullscreen = false,
 		.crtMonitor = false,
+		.registerMode = false,
+		.emailMode = false,
+		.passwordMode=false,
+		.password = console->password,
+		.username = console->username,
+		.email = console->email,
 	};
 
 	memset(console->buffer, 0, CONSOLE_BUFFER_SIZE);
 	memset(console->colorBuffer, TIC_COLOR_BG, CONSOLE_BUFFER_SIZE);
 
 	memset(console->codeLiveReload.fileName, 0, FILENAME_MAX);
+	memset(console->password, 0, CONSOLE_BUFFER_SIZE);
+	memset(console->username, 0, CONSOLE_BUFFER_SIZE);
+	memset(console->email, 0, CONSOLE_BUFFER_SIZE);
 
 	if(argc)
 	{

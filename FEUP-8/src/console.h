@@ -91,6 +91,10 @@ struct Console
 	HistoryItem* history;
 	HistoryItem* historyHead;
 
+	char * password;
+	char * username;
+	char * email;
+
 	u32 tickCounter;
 
 	struct
@@ -101,6 +105,9 @@ struct Console
 		bool skipStart;
 		bool goFullscreen;
 		bool crtMonitor;
+		bool registerMode;
+		bool emailMode;
+		bool passwordMode;
 	};
 
 	void(*load)(Console*, const char* path, const char* hash);
@@ -110,7 +117,9 @@ struct Console
 	void(*trace)(Console*, const char*, u8 color);
 	void(*tick)(Console*);
 	void(*onConsoleLoadExerciseCommand)(Console* console, const char* param);
+	bool(*onConsoleLoadExerciseCommandCheckForSuccess)(Console* console, const char* param);
 	CartSaveResult(*save)(Console*);
 };
 
 void initConsole(Console*, tic_mem*, struct FileSystem* fs, struct Config* config, s32 argc, char **argv);
+static char* getErrorMessageAccordingToReturnCode(int return_code);

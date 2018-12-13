@@ -152,6 +152,13 @@ A code coverage report will be generated on ```/report```.
 sh lint.sh
 ```
 
+## Web API Documentation 
+
+The documentation  of the API that allows communication between the FEUP-8 app and the server can be found here:
+
+**https://app.swaggerhub.com/apis-docs/dinisvale/LDSO/1.0.0**
+
+
 ## Related Projects
 
 Please refer to our Wiki page on [market analysis](https://gitlab.com/ldso18-19/t5g2/wikis/Market-analysis) to know more about other projects similar to FEUP-8.

@@ -1,11 +1,13 @@
 stages:
     - build
     - test
+    - coverage
+    - update
     - deploy
 
 
 build:website:
-    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-staging
     stage: build
     artifacts:
         untracked: true
@@ -21,29 +23,39 @@ build:feup-8:
         paths:
             - ./FEUP-8/tic80_coverage
             - ./FEUP-8/bin/tic80
+            - ./FEUP-8/release
     script:
         - apt-get install lcov -y
+        - apt-get install zip -y
         - cd FEUP-8
         - cmake .
         - make tic80_coverage
         - make -j4
+        - sh package.sh
 
 
 test:website:
-    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
+    services:
+    -   name: postgres:11.1-alpine
+        alias: postgres-db
+    variables:
+        POSTGRES_DB: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: $POSTGRES_PASS
+
+
+    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-staging
     stage: test
     dependencies:
         - build:website
+
     script:
         - cd Website
-        - sed -i 's?DB_DATABASE=.*$?DB_DATABASE='`pwd`'/database/database_tests.sqlite?' .env.testing
-        - touch database/database_tests.sqlite
-        - APP_ENV=testing php artisan migrate:refresh
-        - APP_ENV=testing php artisan passport:install
-        - cd database
-        - sqlite3 database_tests.sqlite < database_tests_data.sql
-        - cd ..
-        - APP_ENV=testing ./vendor/bin/phpunit --testdox
+        - php artisan migrate:refresh --env=testing
+        - php artisan db:seed --class=TestsSeeder --env=testing
+        - php artisan passport:install --env=testing
+        - ./vendor/bin/phpunit --testdox
+        - rm -f ./storage/framework/views/*
         - wget https://cs.sensiolabs.org/download/php-cs-fixer-v2.phar -O php-cs-fixer
         - php php-cs-fixer fix -v --dry-run --using-cache=no
         - find . -name "*.php" -not -path "./vendor/*" | xargs --max-args=1 php -l
@@ -64,8 +76,8 @@ test:feup-8:
         - ./tic80 -test
 
 
-deploy:pages:
-  stage: deploy
+coverage:pages:
+  stage: coverage
   dependencies:
     - test:website
     - build:feup-8
@@ -87,9 +99,9 @@ deploy:pages:
     - development
 
 
-deploy:update-images-development:
+update:update-images-development:
     image: docker:stable
-    stage: deploy
+    stage: update
     services:
         - docker:dind
     script:
@@ -98,11 +110,11 @@ deploy:update-images-development:
         - docker push registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-staging
     only:
         - development
-        
 
-deploy:update-images-master:
+
+update:update-images-master:
     image: docker:stable
-    stage: deploy
+    stage: update
     services:
         - docker:dind
     script:
@@ -114,11 +126,14 @@ deploy:update-images-master:
         - docker push registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
     only:
         - master
-        
+
 
 deploy:website-prod:
     image: alpine:latest
     stage: deploy
+    dependencies:
+    - update:update-images-master
+
     before_script:
         - 'which ssh-agent || ( apk update && apk add openssh-client )'
         - eval $(ssh-agent -s)
@@ -128,7 +143,7 @@ deploy:website-prod:
         - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
         - chmod 644 ~/.ssh/known_hosts
     script:
-       - ssh root@prod.feup8.tk "/updateServer.sh prod"
+       - ssh root@prod.feup8.tk "/updateServer.sh prod $APP_KEY $DB_PASSWORD"
     environment:
         name: production
         url: http://prod.feup8.tk
@@ -139,6 +154,9 @@ deploy:website-prod:
 deploy:website-staging:
     image: alpine:latest
     stage: deploy
+    dependencies:
+    - update:update-images-development
+
     before_script:
         - 'which ssh-agent || ( apk update && apk add openssh-client )'
         - eval $(ssh-agent -s)
@@ -148,7 +166,7 @@ deploy:website-staging:
         - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
         - chmod 644 ~/.ssh/known_hosts
     script:
-       - ssh root@prod.feup8.tk "/updateServer.sh staging"
+       - ssh root@prod.feup8.tk "/updateServer.sh staging $APP_KEY $DB_PASSWORD"
     environment:
         name: staging
         url: http://staging.feup8.tk:2375

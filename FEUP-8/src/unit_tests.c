@@ -31,6 +31,8 @@ void testNet()
 }
 
 extern char *auth_token;
+extern char *server_address;
+extern int server_port;
 #include "web_comunication_api.h"
 /* web_comunication_api tests */
 void testLoginRequest()
@@ -152,7 +154,7 @@ void testGetExercisesListRequest()
     auth_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjY0MjA4NmVlY2QxNDEwODk1MDU0MzliNWZjNzM3NTFhZTU1ZTdkNzg0Y2Q0OTdkMTNiOWJjNDcwN2Q1NmNlMDVkYTRkNzI0M2ZmYWFiNDcwIn0.eyJhdWQiOiIxIiwianRpIjoiNjQyMDg2ZWVjZDE0MTA4OTUwNTQzOWI1ZmM3Mzc1MWFlNTVlN2Q3ODRjZDQ5N2QxM2I5YmM0NzA3ZDU2Y2UwNWRhNGQ3MjQzZmZhYWI0NzAiLCJpYXQiOjE1NDA3NDQwMDAsIm5iZiI6MTU0MDc0NDAwMCwiZXhwIjoxNTcyMjgwMDAwLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Uto9ype4cBVvbdztPT5pO_GsMouBgPH8MN-AX5O9AxlxjQ9H6xjstrOJMxMhsd1d6ni6aUcZAMtCiX2VjopxaRncEIcSTeLLduNjXedarkNa7_7xmzFPr8dfj20w9-4bRJ5fxzRkJj8qFFpaV21YYZghCyKJs8b0Wbhs77X1xAh7oVv2VWH5h_7o7dzc49ueRpXFPLcZukgCxpMBeTKnH7oN-v7GckGcvJiTJmdLt6moKAUCxjgpqGml8Tkyzc7PaKCYwA7PQ0UVBWFtBJQz85vRnpLmm7froF95Ra0eQulbrgeLvARaJ76U37Ht_mUz3trlmRsWBHoAlexx5QlWCdjWtYMw5Y1i-BtYWZdnHwSOGDkprQKU-ZB-hNlVFCrNIbSnhuaPqifzo82PjfKrYNffl5l2-DoquNTvga7Vr62WWKwQAEMuVW_YyfPslBb_FBowIXcYwwv-HYDz9xq6MWtbePH8-ju-pDO-T4TAdvPGf0d-mG9DdpQVZhGGZl7yh0riB4tCbYLm_VAtcuEfqgDgI1eZeoVyDWosJ34wXfIFTXn4ptEYMwQLhXmEIoFGcgc_S1pp1VtEMxk42BfTlgRUnqVmjtBYLQxgv8FQAd92jug-R5_FKFulAX9AaRt_sZcJULr2DnCHQmm_AoTJVb0xSBZYW_3WKPYDSMXSw_A";
     //correct login
     char *mock_response_data = 
-    "{    \"response_code\": 0,    \"exercises\": [        {            \"id\": \"1\",            \"title\": \"sit amet metus.\",            \"progress\": \"0\"        },        {            \"id\": \"2\",            \"title\": \"ac mattis semper,\",            \"progress\": \"10\"        },        {            \"id\": \"3\",            \"title\": \"magnis dis parturient\",            \"progress\": \"44\"        }    ]    }";
+    "{    \"response_code\": 0,    \"exercises\": [        {            \"id\": 1,            \"title\": \"sit amet metus.\",            \"progress\": \"0\"        },        {            \"id\": 2,            \"title\": \"ac mattis semper,\",            \"progress\": 10        },        {            \"id\": 3,            \"title\": \"magnis dis parturient\",            \"progress\": 44        }    ]    }";
     char *mock_response_data_ = malloc(strlen(mock_response_data) + 1);
     memcpy(mock_response_data_, mock_response_data, strlen(mock_response_data) + 1);
     ExerciseSimplified *exercises_list;
@@ -209,11 +211,10 @@ void testGetExercisesListRequest()
     ASSERT_STRING_EQUALS(auth_token, "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjY0MjA4NmVlY2QxNDEwODk1MDU0MzliNWZjNzM3NTFhZTU1ZTdkNzg0Y2Q0OTdkMTNiOWJjNDcwN2Q1NmNlMDVkYTRkNzI0M2ZmYWFiNDcwIn0.eyJhdWQiOiIxIiwianRpIjoiNjQyMDg2ZWVjZDE0MTA4OTUwNTQzOWI1ZmM3Mzc1MWFlNTVlN2Q3ODRjZDQ5N2QxM2I5YmM0NzA3ZDU2Y2UwNWRhNGQ3MjQzZmZhYWI0NzAiLCJpYXQiOjE1NDA3NDQwMDAsIm5iZiI6MTU0MDc0NDAwMCwiZXhwIjoxNTcyMjgwMDAwLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Uto9ype4cBVvbdztPT5pO_GsMouBgPH8MN-AX5O9AxlxjQ9H6xjstrOJMxMhsd1d6ni6aUcZAMtCiX2VjopxaRncEIcSTeLLduNjXedarkNa7_7xmzFPr8dfj20w9-4bRJ5fxzRkJj8qFFpaV21YYZghCyKJs8b0Wbhs77X1xAh7oVv2VWH5h_7o7dzc49ueRpXFPLcZukgCxpMBeTKnH7oN-v7GckGcvJiTJmdLt6moKAUCxjgpqGml8Tkyzc7PaKCYwA7PQ0UVBWFtBJQz85vRnpLmm7froF95Ra0eQulbrgeLvARaJ76U37Ht_mUz3trlmRsWBHoAlexx5QlWCdjWtYMw5Y1i-BtYWZdnHwSOGDkprQKU-ZB-hNlVFCrNIbSnhuaPqifzo82PjfKrYNffl5l2-DoquNTvga7Vr62WWKwQAEMuVW_YyfPslBb_FBowIXcYwwv-HYDz9xq6MWtbePH8-ju-pDO-T4TAdvPGf0d-mG9DdpQVZhGGZl7yh0riB4tCbYLm_VAtcuEfqgDgI1eZeoVyDWosJ34wXfIFTXn4ptEYMwQLhXmEIoFGcgc_S1pp1VtEMxk42BfTlgRUnqVmjtBYLQxgv8FQAd92jug-R5_FKFulAX9AaRt_sZcJULr2DnCHQmm_AoTJVb0xSBZYW_3WKPYDSMXSw_A");
     ASSERT_EQUALS(ret, FORBIDDEN);
 
-
     //response array without some id's
     auth_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjY0MjA4NmVlY2QxNDEwODk1MDU0MzliNWZjNzM3NTFhZTU1ZTdkNzg0Y2Q0OTdkMTNiOWJjNDcwN2Q1NmNlMDVkYTRkNzI0M2ZmYWFiNDcwIn0.eyJhdWQiOiIxIiwianRpIjoiNjQyMDg2ZWVjZDE0MTA4OTUwNTQzOWI1ZmM3Mzc1MWFlNTVlN2Q3ODRjZDQ5N2QxM2I5YmM0NzA3ZDU2Y2UwNWRhNGQ3MjQzZmZhYWI0NzAiLCJpYXQiOjE1NDA3NDQwMDAsIm5iZiI6MTU0MDc0NDAwMCwiZXhwIjoxNTcyMjgwMDAwLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Uto9ype4cBVvbdztPT5pO_GsMouBgPH8MN-AX5O9AxlxjQ9H6xjstrOJMxMhsd1d6ni6aUcZAMtCiX2VjopxaRncEIcSTeLLduNjXedarkNa7_7xmzFPr8dfj20w9-4bRJ5fxzRkJj8qFFpaV21YYZghCyKJs8b0Wbhs77X1xAh7oVv2VWH5h_7o7dzc49ueRpXFPLcZukgCxpMBeTKnH7oN-v7GckGcvJiTJmdLt6moKAUCxjgpqGml8Tkyzc7PaKCYwA7PQ0UVBWFtBJQz85vRnpLmm7froF95Ra0eQulbrgeLvARaJ76U37Ht_mUz3trlmRsWBHoAlexx5QlWCdjWtYMw5Y1i-BtYWZdnHwSOGDkprQKU-ZB-hNlVFCrNIbSnhuaPqifzo82PjfKrYNffl5l2-DoquNTvga7Vr62WWKwQAEMuVW_YyfPslBb_FBowIXcYwwv-HYDz9xq6MWtbePH8-ju-pDO-T4TAdvPGf0d-mG9DdpQVZhGGZl7yh0riB4tCbYLm_VAtcuEfqgDgI1eZeoVyDWosJ34wXfIFTXn4ptEYMwQLhXmEIoFGcgc_S1pp1VtEMxk42BfTlgRUnqVmjtBYLQxgv8FQAd92jug-R5_FKFulAX9AaRt_sZcJULr2DnCHQmm_AoTJVb0xSBZYW_3WKPYDSMXSw_A";
     mock_response_data = 
-        "{    \"response_code\": 0,    \"exercises\": [        {            \"id\":true,            \"title\": \"sit amet metus.\",            \"progress\": \"0\"        },        {            \"id\": \"2\",            \"title\": \"ac mattis semper,\",            \"progress\": \"10\"        },        {            \"id\": \"3\",            \"title\": \"magnis dis parturient\",            \"progress\": \"44\"        }    ]    }";
+        "{    \"response_code\": 0,    \"exercises\": [        {          \"title\": \"sit amet metus.\",            \"progress\": 0        },        {            \"id\": 2,            \"title\": \"ac mattis semper,\",            \"progress\": 10        },        {            \"id\": 3,            \"title\": \"magnis dis parturient\",            \"progress\": 44        }    ]    }";
     memcpy(mock_response_data_, mock_response_data, strlen(mock_response_data) + 1);
     ret = getExercisesListRequestSend(&exercises_list, &number_of_exercises, true, mock_response_data_);
     data_sent_to_server = mock_response_data_;
@@ -225,7 +226,7 @@ void testGetExercisesListRequest()
     //response array with some id's equal to 0
     auth_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjY0MjA4NmVlY2QxNDEwODk1MDU0MzliNWZjNzM3NTFhZTU1ZTdkNzg0Y2Q0OTdkMTNiOWJjNDcwN2Q1NmNlMDVkYTRkNzI0M2ZmYWFiNDcwIn0.eyJhdWQiOiIxIiwianRpIjoiNjQyMDg2ZWVjZDE0MTA4OTUwNTQzOWI1ZmM3Mzc1MWFlNTVlN2Q3ODRjZDQ5N2QxM2I5YmM0NzA3ZDU2Y2UwNWRhNGQ3MjQzZmZhYWI0NzAiLCJpYXQiOjE1NDA3NDQwMDAsIm5iZiI6MTU0MDc0NDAwMCwiZXhwIjoxNTcyMjgwMDAwLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Uto9ype4cBVvbdztPT5pO_GsMouBgPH8MN-AX5O9AxlxjQ9H6xjstrOJMxMhsd1d6ni6aUcZAMtCiX2VjopxaRncEIcSTeLLduNjXedarkNa7_7xmzFPr8dfj20w9-4bRJ5fxzRkJj8qFFpaV21YYZghCyKJs8b0Wbhs77X1xAh7oVv2VWH5h_7o7dzc49ueRpXFPLcZukgCxpMBeTKnH7oN-v7GckGcvJiTJmdLt6moKAUCxjgpqGml8Tkyzc7PaKCYwA7PQ0UVBWFtBJQz85vRnpLmm7froF95Ra0eQulbrgeLvARaJ76U37Ht_mUz3trlmRsWBHoAlexx5QlWCdjWtYMw5Y1i-BtYWZdnHwSOGDkprQKU-ZB-hNlVFCrNIbSnhuaPqifzo82PjfKrYNffl5l2-DoquNTvga7Vr62WWKwQAEMuVW_YyfPslBb_FBowIXcYwwv-HYDz9xq6MWtbePH8-ju-pDO-T4TAdvPGf0d-mG9DdpQVZhGGZl7yh0riB4tCbYLm_VAtcuEfqgDgI1eZeoVyDWosJ34wXfIFTXn4ptEYMwQLhXmEIoFGcgc_S1pp1VtEMxk42BfTlgRUnqVmjtBYLQxgv8FQAd92jug-R5_FKFulAX9AaRt_sZcJULr2DnCHQmm_AoTJVb0xSBZYW_3WKPYDSMXSw_A";
     mock_response_data = 
-        "{    \"response_code\": 0,    \"exercises\": [        {            \"id\": \"0\",            \"title\": \"sit amet metus.\",            \"progress\": \"0\"        },        {            \"id\": \"2\",            \"title\": \"ac mattis semper,\",            \"progress\": \"10\"        },        {            \"id\": \"3\",            \"title\": \"magnis dis parturient\",            \"progress\": \"44\"        }    ]    }";
+        "{    \"response_code\": 0,    \"exercises\": [        {            \"id\": 0,            \"title\": \"sit amet metus.\",            \"progress\": 0        },        {            \"id\": 2,            \"title\": \"ac mattis semper,\",            \"progress\": 10        },        {            \"id\": 3,            \"title\": \"magnis dis parturient\",            \"progress\": 44        }    ]    }";
     memcpy(mock_response_data_, mock_response_data, strlen(mock_response_data) + 1);
     ret = getExercisesListRequestSend(&exercises_list, &number_of_exercises, true, mock_response_data_);
     data_sent_to_server = mock_response_data_;
@@ -255,7 +256,7 @@ void testGetExerciseDetailsRequest()
     //correct login
     int exercise_id = 26;
     char *mock_response_data = 
-    "{    \"response_code\": 0,    \"exercise\": [        {            \"title\": \"ac mattis semper,\",            \"description\": \"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sed tortor. Integer aliquam adipiscing lacus. Ut nec urna et arcu imperdiet ullamcorper. Duis at lacus. Quisque purus sapien, gravida non, sollicitudin a, malesuada id, erat. Etiam\",            \"image_base64\": \"2.png\",            \"creator_name\": \"Utilizador Um\",            \"progress\": \"10\",            \"feup8_file\": \"c2R0aCB0c2h0c2VyeTR3dGFiMzQ2cTUzNHkgNjR1cyA1NnNyNHU=\"        }    ],    \"tests\": [        {            \"id\": \"2\",            \"title\": \"consequat purus. Maecenas\",            \"test_code\": \"c2RmIHpkZiBnZGZnIGZzZGd2c3RmZHZzZXJ0dnNkdGZ2dmR0ZiBzZXJ0dnNlcnR2NnczdjU0\",            \"hint\": \"at lacus. Quisque purus sapien,\"        }    ]    };    ";
+    "{    \"response_code\": 0,    \"exercise\": [        {            \"title\": \"ac mattis semper,\",            \"description\": \"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sed tortor. Integer aliquam adipiscing lacus. Ut nec urna et arcu imperdiet ullamcorper. Duis at lacus. Quisque purus sapien, gravida non, sollicitudin a, malesuada id, erat. Etiam\",            \"image_base64\": \"2.png\",            \"creator_name\": \"Utilizador Um\",            \"progress\": 10,            \"feup8_file\": \"736A666C6B736A646C6B666A73646C6B666A73646C6B666A736B6C646A666C6B73646A666C6B73646A666C736B646A\"        }    ],    \"tests\": [        {            \"id\": 2,            \"title\": \"consequat purus. Maecenas\",            \"test_code\": \"c2RmIHpkZiBnZGZnIGZzZGd2c3RmZHZzZXJ0dnNkdGZ2dmR0ZiBzZXJ0dnNlcnR2NnczdjU0\",            \"hint\": \"at lacus. Quisque purus sapien,\"        }    ]    };    ";
     char *mock_response_data_ = malloc(5000);
     memcpy(mock_response_data_, mock_response_data, strlen(mock_response_data) + 1);
     tic_exercise exercise;
@@ -275,8 +276,8 @@ void testGetExerciseDetailsRequest()
     exercise_correct.description = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Curabitur sed tortor. Integer aliquam adipiscing lacus. Ut nec urna et arcu imperdiet ullamcorper. Duis at lacus. Quisque purus sapien, gravida non, sollicitudin a, malesuada id, erat. Etiam";
     //exercise_correct.img_base64 = "2.png";
     exercise_correct.progress = 10;
-    exercise_correct.feup8_file.data = "sdth tshtsery4wtab346q534y 64us 56sr4u";
-    exercise_correct.feup8_file.size = 38;
+    exercise_correct.feup8_file.data = "sjflksjdlkfjsdlkfjsdlkfjskldjflksdjflksdjflskdj";
+    exercise_correct.feup8_file.size = 47;
     
     
     //fill in test details
@@ -332,7 +333,7 @@ void testSaveProgressRequest()
     
     //assert that data sent to server is correct
     char *headers_sent_to_server = "Accept: application/json\r\nAuthorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjY0MjA4NmVlY2QxNDEwODk1MDU0MzliNWZjNzM3NTFhZTU1ZTdkNzg0Y2Q0OTdkMTNiOWJjNDcwN2Q1NmNlMDVkYTRkNzI0M2ZmYWFiNDcwIn0.eyJhdWQiOiIxIiwianRpIjoiNjQyMDg2ZWVjZDE0MTA4OTUwNTQzOWI1ZmM3Mzc1MWFlNTVlN2Q3ODRjZDQ5N2QxM2I5YmM0NzA3ZDU2Y2UwNWRhNGQ3MjQzZmZhYWI0NzAiLCJpYXQiOjE1NDA3NDQwMDAsIm5iZiI6MTU0MDc0NDAwMCwiZXhwIjoxNTcyMjgwMDAwLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.Uto9ype4cBVvbdztPT5pO_GsMouBgPH8MN-AX5O9AxlxjQ9H6xjstrOJMxMhsd1d6ni6aUcZAMtCiX2VjopxaRncEIcSTeLLduNjXedarkNa7_7xmzFPr8dfj20w9-4bRJ5fxzRkJj8qFFpaV21YYZghCyKJs8b0Wbhs77X1xAh7oVv2VWH5h_7o7dzc49ueRpXFPLcZukgCxpMBeTKnH7oN-v7GckGcvJiTJmdLt6moKAUCxjgpqGml8Tkyzc7PaKCYwA7PQ0UVBWFtBJQz85vRnpLmm7froF95Ra0eQulbrgeLvARaJ76U37Ht_mUz3trlmRsWBHoAlexx5QlWCdjWtYMw5Y1i-BtYWZdnHwSOGDkprQKU-ZB-hNlVFCrNIbSnhuaPqifzo82PjfKrYNffl5l2-DoquNTvga7Vr62WWKwQAEMuVW_YyfPslBb_FBowIXcYwwv-HYDz9xq6MWtbePH8-ju-pDO-T4TAdvPGf0d-mG9DdpQVZhGGZl7yh0riB4tCbYLm_VAtcuEfqgDgI1eZeoVyDWosJ34wXfIFTXn4ptEYMwQLhXmEIoFGcgc_S1pp1VtEMxk42BfTlgRUnqVmjtBYLQxgv8FQAd92jug-R5_FKFulAX9AaRt_sZcJULr2DnCHQmm_AoTJVb0xSBZYW_3WKPYDSMXSw_A\r\n";
-    char *exercise_data_and_code_sent_to_server_correct = "exercise_data=YXNkZmRiIGRmZyBkZiBzZ2UzcnQgMzQgcnQ0d2VydHkgZXdydHkgMzU0cXR5IDNyNSB0NGVyZyBlcmZnIA==&code=aWYgKHN0dWZmKSB0aGVuIGE7IGVsc2UgYjs=";
+    char *exercise_data_and_code_sent_to_server_correct = "exercise_data=61736466646220646667206466207367653372742033342072743477657274792065777274792033353471747920337235207434657267206572666720&code=aWYgKHN0dWZmKSB0aGVuIGE7IGVsc2UgYjs=";
     
     char *data_sent_to_server_correct = malloc(5000);
     memcpy(data_sent_to_server_correct, headers_sent_to_server, strlen(headers_sent_to_server) + 1);
@@ -589,6 +590,99 @@ void testParseExerciseTestsReceived()
     printf("testParseExerciseTestsReceived: OK\n");
 }
 
+/**
+* This function if tests if the function getStringAfterEqualSymbol performs correctly, i.e. it return the string after the '=' character
+*/
+void testGetStringAfterEqualSymbol()
+{
+    //string of which substring will be extracted
+    char *string_value = "key=value";
+    char *string = malloc(sizeof(char) * (strlen(string_value) + 1));
+    sprintf(string, "%s", string_value);
+    
+    getStringAfterEqualSymbol(&string);
+    ASSERT_STRING_EQUALS(string, "value");
+
+    printf("testGetStringAfterEqualSymbol: OK\n");
+}
+
+/**
+* This function if tests if the function loadServerConfigsFromFile performs correctly, i.e. reading both server address and port from file.
+*/
+void testLoadServerConfigsFromFile()
+{
+    //path to file with configs to be read. Two paths can be applied according to if just are being runned tests, or also coverage. 
+    //This happens beacuse coverage uses as root the root of project and just run_tests uses as rro the /bin folder
+    char *conf_file_path_run_tests = "../conf_test.ini";
+    char *conf_file_path_for_coverage = "conf_test.ini";
+    char *conf_file_path_run_tests_empty = "../conf_test_empty.ini";
+    char *conf_file_path_for_coverage_empty = "conf_test_empty.ini";
+    char *conf_file_path_run_tests_just_one_line = "../conf_test_just_one_line.ini";
+    char *conf_file_path_for_coverage_just_one_line = "conf_test_just_one_line.ini";
+
+
+    //file not exists
+    int ret = loadServerConfigsFromFile("fileNotExistentPath");
+    ASSERT_EQUALS(ret, -2); //fail
+
+    //empty file
+    ret = loadServerConfigsFromFile(conf_file_path_run_tests_empty);
+    if(ret != -1)
+        ret = loadServerConfigsFromFile(conf_file_path_for_coverage_empty);
+    ASSERT_EQUALS(ret, -1); //fail
+
+    //file with just one line
+    ret = loadServerConfigsFromFile(conf_file_path_run_tests_just_one_line);
+    if(ret != -1)
+        ret = loadServerConfigsFromFile(conf_file_path_for_coverage_just_one_line);
+    ASSERT_EQUALS(ret, -1); //fail
+
+    //correct file
+    ret = loadServerConfigsFromFile(conf_file_path_run_tests);
+    if(ret != 0)
+        ret = loadServerConfigsFromFile(conf_file_path_for_coverage);
+    ASSERT_EQUALS(ret, 0); //success
+
+    //assert configs are read and set correctly
+    ASSERT_STRING_EQUALS(server_address, "127.0.0.1");
+    ASSERT_EQUALS(server_port, 8000);
+
+    printf("testLoadServerConfigsFromFile: OK\n");
+}
+
+/**
+* This function if tests if the function setNullTerminatorAtFirstCarriageReturnOrLineFeed performs correctly, i.e. placing the string until the first \r or \n.
+*/
+void testSetNullTerminatorAtFirstCarriageReturnOrLineFeed()
+{
+    char *stringWithLineFeedOnStack = "string\n";
+    char *stringWithCarrigeReturnOnStack = "string\r";
+    char *stringWithLineFeedCarrigeReturnOnStack = "string\n\r";
+    char *stringWithCarrigeReturnLineFeedOnStack = "string\r\n";
+
+    char *stringWithLineFeed = malloc(strlen(stringWithLineFeedOnStack) + 1);
+    memcpy(stringWithLineFeed, stringWithLineFeedOnStack, strlen(stringWithLineFeedOnStack) + 1);
+    char *stringWithCarrigeReturn = malloc(strlen(stringWithCarrigeReturnOnStack) + 1);
+    memcpy(stringWithCarrigeReturn, stringWithCarrigeReturnOnStack, strlen(stringWithCarrigeReturnOnStack) + 1);
+    char *stringWithLineFeedCarrigeReturn = malloc(strlen(stringWithLineFeedCarrigeReturnOnStack) + 1);
+    memcpy(stringWithLineFeedCarrigeReturn, stringWithLineFeedCarrigeReturnOnStack, strlen(stringWithLineFeedCarrigeReturnOnStack) + 1);
+    char *stringWithCarrigeReturnLineFeed = malloc(strlen(stringWithCarrigeReturnLineFeedOnStack) + 1);
+    memcpy(stringWithCarrigeReturnLineFeed, stringWithCarrigeReturnLineFeedOnStack, strlen(stringWithCarrigeReturnLineFeedOnStack) + 1);
+    
+    setNullTerminatorAtFirstCarriageReturnOrLineFeed(stringWithLineFeed);
+    setNullTerminatorAtFirstCarriageReturnOrLineFeed(stringWithCarrigeReturn);
+    setNullTerminatorAtFirstCarriageReturnOrLineFeed(stringWithLineFeedCarrigeReturn);
+    setNullTerminatorAtFirstCarriageReturnOrLineFeed(stringWithCarrigeReturnLineFeed);
+
+    //assert expected string is "string" for all
+    ASSERT_STRING_EQUALS(stringWithLineFeed, "string");
+    ASSERT_STRING_EQUALS(stringWithCarrigeReturn, "string");
+    ASSERT_STRING_EQUALS(stringWithLineFeedCarrigeReturn, "string");
+    ASSERT_STRING_EQUALS(stringWithCarrigeReturnLineFeed, "string");
+
+    printf("testSetNullTerminatorAtFirstCarriageReturnOrLineFeed: OK\n");
+}
+
 
 /*End of test functions*/
 
@@ -606,5 +700,9 @@ int run_test_suite()
     RUN(testSendCodeToServerAndGetTestsResultsRequestSend);
     RUN(testSetAllTestsAsValue);
     RUN(testParseExerciseTestsReceived);
+    RUN(testGetStringAfterEqualSymbol);
+    RUN(testLoadServerConfigsFromFile);
+    RUN(testSetNullTerminatorAtFirstCarriageReturnOrLineFeed);
+    
     return TEST_REPORT();
 }

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Exec=bash -c 'cd $(dirname %k) && ./libfeup8.so'
+Name=FEUP-8
+GenericName=FEUP-8
+Comment=Starts FEUP-8
+Terminal=false
+Type=Application

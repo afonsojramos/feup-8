@@ -1,30 +1,180 @@
+html,
+body {
+    background-color: #efefef;
+    color: #636b6f;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 200;
+    height: 100vh;
+    margin: 0;
+}
+
+.navbar-brand {
+    font-family: 'early_gameboyregular';
+    font-size: 2rem;
+    color: #8c2d19 !important;
+}
+
+@font-face {
+    font-family: 'early_gameboyregular';
+    src: url('/fonts/earlygameboy-webfont.woff2') format('woff2'),
+         url('/fonts/earlygameboy-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
 .rounded {
     border-radius: 1rem !important;
+}
+
+.card {
+    border-radius: 1rem;
+}
+
+.card-header {
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+    text-align: center;
+    font-size: 1.5rem;
 }
 
 div.list-group.container.exercises-listing {
     padding: 1rem;
 }
 
+.dropdown-menu {
+    border-radius: 1rem;
+}
+
+.list-group-item.list-group-item-action.rounded.mb-2.pt-3.pl-4:hover {
+    background-color: #e6e6e6;
+    color: #222222;
+    transition: 0.5s;
+}
+
+.btn-danger {
+    color: #8c2d19;
+    background-color: white;
+    border: none;
+    border-width: 0.2rem;
+    margin-left: 0.5rem;
+}
+
+.btn-danger:hover, .btn-danger:focus, .btn-danger:active, .btn-danger.active, .open>.dropdown-toggle.btn-danger {
+    background-color: white;
+    border: none;
+    color: #8c2d19;
+}
+
+.btn-secondary {
+    color: #6c757d;
+    background-color: white;
+    border: none;
+    border-width: 0.2rem;
+}
+
+.btn-secondary:hover {
+    background-color: white;
+    border-color: #6c757d;
+    color: #6c757d;
+    border: none;
+    border-width: 0.2rem;
+}
+
+.btn-primary {
+    background-color: #8c2d19;
+    border-color: #8c2d19;
+    color: white;
+    font-weight: 600;
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open>.dropdown-toggle.btn-primary {
+    background-color: #8c2d19 !important;
+    border-color: #8c2d19 !important;
+    color: white !important;
+    font-weight: 600 !important;
+    outline: none !important;
+    cursor: pointer;
+}
+
 #edit-buttons {
     position: absolute;
-    top: 5%;
-    right: 1%;
-    z-index: 100;
-    font-weight: bold;
+    top: 1rem;
+    right: 1rem;
+    border-radius: 10rem;
     display: inline-flex;
-    opacity: 0;
 }
 
-#edit-description-button {
-    opacity: 0;
+#edit-exercise-buttons {
+    display: inline-flex;
 }
 
-#edit-buttons:hover,
-#edit-description-button:hover {
-    opacity: 100;
+#edit-exercise-buttons div.btn.btn-secondary  {
+    max-height: 2.3rem;
 }
 
-.pagination {
-    margin-left: 2.5%;
+input[type][disabled] {
+    background-color: #f9f9f9;
+    color: #ddd;
+    cursor: default;
+}
+
+input[type][disabled]+label {
+    color: #999;
+    cursor: default;
+}
+
+.form-check-input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: inline-block;
+    position: relative;
+    background-color: #f1f1f1;
+    color: white;
+    top: 10px;
+    height: 30px;
+    width: 30px;
+    border: 0;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-right: 7px;
+    outline: none;
+}
+
+.form-check-input:checked::before {
+    position: absolute;
+    font: 13px/1 'Open Sans', sans-serif;
+    left: 11px;
+    top: 7px;
+    content: '\02143';
+    transform: rotate(40deg);
+}
+
+.form-check-input:hover {
+    background-color: #636b6f;
+}
+
+.form-check-input:checked {
+    background-color: #636b6f;
+}
+
+.form-control {
+    border-radius: 1rem;
+}
+
+label {
+    color: #666;
+    cursor: pointer;
+}
+
+.form-control input[type="text"]:focus+label,
+.form-control input[type="password"]:focus+label {
+    color: #000;
+}
+
+input[type="text"].form-control:focus,
+input[type="password"].form-control:focus {
+    border-bottom: 1px solid #000;
+    box-shadow: 0 1px 0 0 #000;
 }

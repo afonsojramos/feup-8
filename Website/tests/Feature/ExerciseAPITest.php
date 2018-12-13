@@ -31,6 +31,7 @@ class ExerciseTest extends TestCase
         $response = $this->get('/api/exercises/all', $headers);
         $response->assertStatus(200);
         $response_array = $response->decodeResponseJson();
+
         $this->assertEquals($response_array['response_code'], $expected_response_code);
         $this->assertTrue(array_key_exists('exercises', $response_array));
         $this->assertEquals(count($response_array['exercises']), $number_exercises_received);
@@ -46,8 +47,8 @@ class ExerciseTest extends TestCase
         $expected_response_code = 0;
         $number_exercises_received = 2;
         $excepted_array_exercises_received = array(
-            array('id' => '1', 'title' => 'Exercise1Title', 'progress' => '0'),
-            array('id' => '2', 'title' => 'Exercise2Title', 'progress' => '0'),
+            array('id' => '1', 'title' => 'Exercise1Title', 'progress' => 0),
+            array('id' => '2', 'title' => 'Exercise2Title', 'progress' => 0),
         );
         $this->genericTestGetAllExercises(
             $headers,
@@ -68,9 +69,10 @@ class ExerciseTest extends TestCase
         $expected_response_code = 0;
         $number_exercises_received = 2;
         $excepted_array_exercises_received = array(
-            array('id' => '1', 'title' => 'Exercise1Title', 'progress' => '0'),
-            array('id' => '2', 'title' => 'Exercise2Title', 'progress' => '0'),
+            array('id' => '1', 'title' => 'Exercise1Title', 'progress' => 0),
+            array('id' => '2', 'title' => 'Exercise2Title', 'progress' => 0),
         );
+
         $this->genericTestGetAllExercises(
             $headers,
             $expected_response_code,
@@ -90,10 +92,11 @@ class ExerciseTest extends TestCase
         $expected_response_code = 0;
         $number_exercises_received = 3;
         $excepted_array_exercises_received = array(
-        array('id' => '1', 'title' => 'Exercise1Title', 'progress' => '50'),
-        array('id' => '2', 'title' => 'Exercise2Title', 'progress' => '0'),
-        array('id' => '3', 'title' => 'Exercise3Title', 'progress' => '0'),
+        array('id' => '1', 'title' => 'Exercise1Title', 'progress' => 50),
+        array('id' => '2', 'title' => 'Exercise2Title', 'progress' => 0),
+        array('id' => '3', 'title' => 'Exercise3Title', 'progress' => 0),
         );
+
         $this->genericTestGetAllExercises(
             $headers,
             $expected_response_code,
@@ -114,6 +117,7 @@ class ExerciseTest extends TestCase
         $response = $this->call('GET', '/api/exercises/'.$exercise_id);
         $response->assertStatus(200);
         $response_array = $response->decodeResponseJson();
+
         $this->assertEquals(count($response_array), $number_elements_received);
         $this->assertEquals($response_array['response_code'], $expected_response_code);
     }
@@ -171,12 +175,13 @@ class ExerciseTest extends TestCase
             'title' => 'Exercise3Title',
             'image_base64' => 'Exercise3ImageBase64',
             'description' => 'Exercise3Description',
-            'progress' => '0',
-            'feup8_file' => '', ));
+            'progress' => 0,
+            'feup8_file' => '',
+            ));
         $this->assertEquals($excepted_array_exercise_details_received, $response_array['exercise']);
         $excepted_array_exercise_tests_received = array(
-            array('id' => '5', 'title' => 'test_sum_correct', 'hint' => 'Test1HintExercise3', 'test_code' => 'ZnVuY3Rpb24gdGVzdF9zdW1fY29ycmVjdCgpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSgzLDQpICwgNykKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDQsMykgLCA3KQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMywtNCkgLCAtMSkKZW5k'),
-            array('id' => '6', 'title' => 'test_sum_correct2', 'hint' => 'Test2HintExercise3', 'test_code' => 'ZnVuY3Rpb24gdGVzdF9zdW1fY29ycmVjdDIoKQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMyw0KSAsIDcpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSg0LDMpICwgNykKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDMsLTQpICwgLTEpCmVuZA=='), );
+            array('id' => 5, 'title' => 'test_sum_correct', 'hint' => 'Test1HintExercise3', 'test_code' => 'ZnVuY3Rpb24gdGVzdF9zdW1fY29ycmVjdCgpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSgzLCA0KSwgNykKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDQsIDMpLCA3KQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMywgLTQpLCAtMSkKZW5k'),
+            array('id' => 6, 'title' => 'test_sum_correct2', 'hint' => 'Test2HintExercise3', 'test_code' => 'ZnVuY3Rpb24gdGVzdF9zdW1fY29ycmVjdDIoKQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMywgNCksIDcpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSg0LCAzKSwgNykKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDMsIC00KSwgLTEpCmVuZA=='), );
         $this->assertEquals($excepted_array_exercise_tests_received, $response_array['tests']);
     }
 
@@ -197,13 +202,13 @@ class ExerciseTest extends TestCase
             'title' => 'Exercise2Title',
             'image_base64' => 'Exercise2ImageBase64',
             'description' => 'Exercise2Description',
-            'progress' => '0',
+            'progress' => 0,
             'feup8_file' => '',
         ));
         $this->assertEquals($excepted_array_exercise_details_received, $response_array['exercise']);
         $excepted_array_exercise_tests_received = array(
-            array('id' => '3', 'title' => 'test_sum_failing', 'hint' => 'Test1HintExercise2', 'test_code' => 'ZnVuY3Rpb24gdGVzdF9zdW1fZmFpbGluZygpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSgzLDQpICwgOCkKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDQsMykgLCA5KQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMywtNCkgLCAtNykKZW5k'),
-            array('id' => '4', 'title' => 'test_sum_failing2', 'hint' => 'Test2HintExercise2', 'test_code' => 'ZnVuY3Rpb24gdGVzdF9zdW1fZmFpbGluZzIoKQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMyw0KSAsIDgpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSg0LDMpICwgOSkKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDMsLTQpICwgLTcpCmVuZA=='), );
+            array('id' => 3, 'title' => 'test_sum_failing', 'hint' => 'Test1HintExercise2', 'test_code' => 'ZnVuY3Rpb24gdGVzdF9zdW1fZmFpbGluZygpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSgzLCA0KSwgOCkKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDQsIDMpLCA5KQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMywgLTQpLCAtNykKZW5k'),
+            array('id' => 4, 'title' => 'test_sum_failing2', 'hint' => 'Test2HintExercise2', 'test_code' => 'ZnVuY3Rpb24gdGVzdF9zdW1fZmFpbGluZzIoKQpsdWF1bml0LmFzc2VydEVxdWFscyhzdW0oMywgNCksIDgpCmx1YXVuaXQuYXNzZXJ0RXF1YWxzKHN1bSg0LCAzKSwgOSkKbHVhdW5pdC5hc3NlcnRFcXVhbHMoc3VtKDMsIC00KSwgLTcpCmVuZA=='), );
         $this->assertEquals($excepted_array_exercise_tests_received, $response_array['tests']);
     }
 

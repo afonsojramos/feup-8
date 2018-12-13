@@ -2,7 +2,9 @@
 
 @section('content')
 
+@if(Auth::check() && $exercise->creator_id == Auth::user()->id)
 <button data-toggle="collapse" data-target={{ "test" . $testID }}>Add/edit hint</button>
+@endif
 
 <div id={{ "test" . $testID }} class="collapse">
     <div class="container">

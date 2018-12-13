@@ -12,6 +12,85 @@
 char *auth_token = NULL;
 
 /**
+* Global variable for the file that contains the server address. Is filled when application starts with config in file with path CONFIGS_FILE_PATH.
+*/
+char *server_address = NULL;
+
+/**
+* Global variable for the file that contains the server port. Is filled when application starts with config in file with path CONFIGS_FILE_PATH.
+*/
+int server_port;
+
+/**
+* Loads the config file with server port and server address.
+* @return An int identifying the result of the request. Int returned and respective meaning:
+* 0 - success.
+* -1 - file not exists.
+* -2 - error parsing file.
+*/
+int loadServerConfigsFromFile(char *conf_file_path)
+{
+    FILE *file;
+    file = fopen(conf_file_path, "r");
+    if (!file)
+        return -2; 
+
+    int size_server_address = 0;
+    if((size_server_address = getline(&server_address, &size_server_address, file)) == EOF)
+    {
+        free(server_address);
+        return -1;
+    }
+    setNullTerminatorAtFirstCarriageReturnOrLineFeed(server_address);
+    getStringAfterEqualSymbol(&server_address);
+        
+    char *server_port_string = NULL;
+    int size_server_port = 0;
+    if(getline(&server_port_string, &size_server_port, file) == EOF)
+    {
+        free(server_port_string);
+        return -1;
+    }
+    getStringAfterEqualSymbol(&server_port_string);
+    server_port = strtol(server_port_string, (char **)NULL, 10);
+
+    fclose(file);
+    return 0;
+}
+
+/**
+* Changes the pointer to the data after '=' character, in order to get only the data, placed after the double '='.
+* @param buf The char pointer that contains the data received, of which the pointer will be changed.
+*/
+void getStringAfterEqualSymbol(char **string)
+{
+	char *ocurrence = strstr(*string, "=");
+	ocurrence += sizeof(char) * strlen("=");
+	size_t new_size = sizeof(char) * (strlen(ocurrence) + 1);
+	char *new_data = malloc(new_size);
+	memcpy(new_data, ocurrence, new_size);
+	new_data[new_size - 1] = '\0';
+	free(*string);
+	*string = new_data;
+}
+
+/**
+* Changes the string value by setting the null terminator ate the first '\r' or '\n' character.
+* @param buf The char pointer that contains the string received, of which null terminator will be set.
+*/
+void setNullTerminatorAtFirstCarriageReturnOrLineFeed(char *string)
+{
+    for(int i = 0;; i++)
+    {
+        if(string[i] == '\r' || string[i] == '\n')
+        {
+            string[i] = '\0';
+            return;
+        }
+    }
+}
+
+/**
 * Creates a string with the additional header parameters where auth_token is placed according to laravel.
 * @return A string, additional header string. 
 */
@@ -72,7 +151,7 @@ int loginRequestSend(const char *username, const char *password, bool testing, c
     sprintf(dataToSend.data, "username=%s&password=%s", username, password);
     Buffer response;
     if (!testing)
-        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGIN_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
+        response = sendHttpPostRequest(server_address, server_port, LOGIN_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
     else
     {
         response.data = getStringCopy(mock_response_data);
@@ -144,7 +223,7 @@ int registerRequestSend(const char *name, const char *email, const char *usernam
             name, email, username, password);
     Buffer response;
     if (!testing)
-        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, REGISTER_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
+        response = sendHttpPostRequest(server_address, server_port, REGISTER_PATH, &dataToSend, NULL, CONNECTION_TIMEOUT_MS);
     else
     {
         response.data = getStringCopy(mock_response_data);
@@ -205,7 +284,7 @@ int logoutRequestSend(bool testing, char *mock_response_data)
     char *additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
     Buffer response;
     if (!testing)
-        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, LOGOUT_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+        response = sendHttpPostRequest(server_address, server_port, LOGOUT_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     else
     {
         response.data = getStringCopy(mock_response_data);
@@ -262,7 +341,7 @@ int getExercisesListRequestSend(ExerciseSimplified *exercises_list[], size_t *nu
 
     Buffer response;
     if (!testing)
-        response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, GET_EXERCISES_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+        response = sendHttpGetRequest(server_address, server_port, GET_EXERCISES_PATH, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     else
     {
         response.data = getStringCopy(mock_response_data);
@@ -300,20 +379,7 @@ int getExercisesListRequestSend(ExerciseSimplified *exercises_list[], size_t *nu
             if(title_obj == NULL)
                 return SERVER_ERROR;
             cJSON *progress_obj = cJSON_GetObjectItemCaseSensitive(exercise, "progress"); //progress can be NULL in case user not logged in
-            if (!cJSON_IsString(id_obj))            
-            {
-                free(response.data);
-                cJSON_free(monitor_json);
-                cJSON_free(ret_code_obj);
-                free(*exercises_list);
-                cJSON_free(exercises);
-                cJSON_free(exercise);
-                cJSON_free(id_obj);
-                cJSON_free(title_obj);
-                cJSON_free(progress_obj);
-                return SERVER_ERROR;
-            }
-            int id = atoi(id_obj->valuestring);
+            int id = id_obj->valueint;
             if (id == 0)
             {
                 free(response.data);
@@ -329,13 +395,13 @@ int getExercisesListRequestSend(ExerciseSimplified *exercises_list[], size_t *nu
             char *title_str = title_obj->valuestring;
             (*exercises_list)[i].id = id;
             (*exercises_list)[i].title = getStringCopy(title_str);
-            if(progress_obj == NULL || progress_obj->valuestring == NULL)
+            if(progress_obj == NULL)
             {
                 (*exercises_list)[i].progress = 0;
             }
             else
             {
-                int progress = atoi(progress_obj->valuestring);
+                int progress = progress_obj->valueint;
                 (*exercises_list)[i].progress = progress;
             }
     
@@ -381,7 +447,7 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
     sprintf(request_address, "%s/%d", GET_EXERCISE_DETAILS_PATH, exercise_id);
     Buffer response;
     if (!testing)
-        response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+        response = sendHttpGetRequest(server_address, server_port, request_address, NULL, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     else
     {
         response.data = getStringCopy(mock_response_data);
@@ -436,21 +502,24 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
             cJSON *feup8_file_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "feup8_file");
             if(feup8_file_obj == NULL)
                 return SERVER_ERROR;
-            size_t feup8_file_size = b64_decoded_size(feup8_file_obj->valuestring);
-            char *feup8_file = malloc(sizeof(char) * feup8_file_size);
-            if (b64_decode(feup8_file_obj->valuestring, feup8_file, feup8_file_size) != 1)
+        
+            size_t decode_size = 0;
+            if(strlen(feup8_file_obj->valuestring) != 0)
             {
-                free(feup8_file);
-                return SERVER_ERROR;
+                decode_size = hexs2bin(feup8_file_obj->valuestring, &exercise->feup8_file.data);
+                if(decode_size == -1)
+                {
+                    free(exercise->feup8_file.data);
+                    return SERVER_ERROR;
+                }
             }
-            exercise->feup8_file.data = feup8_file;
-            exercise->feup8_file.size = feup8_file_size;
-         
+          
+            exercise->feup8_file.size = decode_size;
             cJSON *progress_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "progress");
-            if(progress_obj == NULL || progress_obj->valuestring == NULL)
+            if(progress_obj == NULL)
                 exercise->progress = 0;
             else
-                exercise->progress = atoi(progress_obj->valuestring);
+                exercise->progress = progress_obj->valueint;
 
             if (parseExerciseTestsReceived(monitor_json, exercise) == 2)
                 return SERVER_ERROR;
@@ -460,10 +529,8 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
             cJSON_free(description_obj);
             cJSON_free(img_base64_obj);
             cJSON_free(progress_obj);
-            cJSON_free(exercise_obj);
-        
+            cJSON_free(exercise_obj);    
         }
-
     }
     free(response.data);
     cJSON_free(monitor_json);
@@ -504,12 +571,12 @@ int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercis
         cJSON *hint_obj = cJSON_GetObjectItemCaseSensitive(test, "hint");
         cJSON *test_code_obj = cJSON_GetObjectItemCaseSensitive(test, "test_code");
 
-        if(id_obj == NULL || id_obj->valuestring == NULL)
+        if(id_obj == NULL)
         {
             ret_code = SERVER_ERROR;
             goto deallocate_parseExerciseTestsReceived;
         }
-        int id = atoi(id_obj->valuestring);
+        int id = id_obj->valueint;
         if(id == 0)
         {
             ret_code = SERVER_ERROR;
@@ -537,7 +604,7 @@ int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercis
             goto deallocate_parseExerciseTestsReceived;
         }
         size_t code_decoded_size = b64_decoded_size(test_code_obj->valuestring);
-	    char *code_decoded = malloc(sizeof(char) * code_decoded_size);
+	    char *code_decoded = calloc(code_decoded_size, sizeof(char));
 	    if (b64_decode(test_code_obj->valuestring, code_decoded, code_decoded_size) != 1)
 		{
             free(code_decoded);
@@ -559,7 +626,6 @@ deallocate_parseExerciseTestsReceived:
 
 deallocate_parseExerciseTestsReceivedAndReturn:
     cJSON_free(tests_obj);
-    cJSON_free(test);
  
     return ret_code;
 }
@@ -588,7 +654,7 @@ int saveProgressRequestSend(Buffer exercise_data, char *code, int exercise_id, b
         
     Buffer dataToSend;
     int FIXED_SAVE_PROGRESS_MESSAGE_SIZE = 20;
-    char *exercise_data_encoded = b64_encode(exercise_data.data, exercise_data.size);
+    char *exercise_data_encoded = bin2hex(exercise_data.data, exercise_data.size);
     char *code_encoded = b64_encode(code, strlen(code) * sizeof(char));
     dataToSend.size = strlen(exercise_data_encoded) + strlen(code_encoded) + FIXED_SAVE_PROGRESS_MESSAGE_SIZE;
     dataToSend.data = malloc(sizeof(u8) * (dataToSend.size + 1));
@@ -598,7 +664,7 @@ int saveProgressRequestSend(Buffer exercise_data, char *code, int exercise_id, b
 
     Buffer response;
     if (!testing)
-        response = sendHttpPostRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+        response = sendHttpPostRequest(server_address, server_port, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     else
     {
         response.data = getStringCopy(mock_response_data);
@@ -650,6 +716,10 @@ int sendCodeToServerAndGetTestsResults(int exerciseId, char *code, tic_exercise 
 
 int sendCodeToServerAndGetTestsResultsRequestSend(int exerciseId, char *code, tic_exercise *ticExercise, bool testing, char *mock_response_data)
 {
+	//assert that only is tested code that has at least one test
+    if(ticExercise->number_of_exercise_tests <= 0)
+        return INVALID_ARGUMENTS;
+
     char *additionalHeaderString = NULL;
     if(auth_token != NULL) //if logged in, the web server will receive the auth token in order to sava the most recent progress of the user based on the code tested.
         additionalHeaderString = getAdditionalHeaderStringWithAuthToken();
@@ -666,7 +736,7 @@ int sendCodeToServerAndGetTestsResultsRequestSend(int exerciseId, char *code, ti
 
     Buffer response;
     if (!testing)
-        response = sendHttpGetRequest(WEB_SERVER_ADDRESS, WEB_SERVER_PORT, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
+        response = sendHttpGetRequest(server_address, server_port, request_address, &dataToSend, additionalHeaderString, CONNECTION_TIMEOUT_MS);
     else
     {
         response.data = getStringCopy(mock_response_data);

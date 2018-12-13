@@ -84,3 +84,41 @@ However, we have also finished the development of the functionalities that allow
 ### Increment description
 This sprint was dedicated to the website, allowing a teacher to add exercises that can later be used in the FEUP-8. A teacher can now, using the website, login, create an exercise and respective tests, as well as edit them. The teacher can also list all the exercises available in the platform, as well as his own exercises (i.e. the exercises developed by him).
 The continuous deployment, started in the last sprint, was also finished.
+
+
+## [1.0.0] - 12-12-2018 - Sprint 5
+### Closed PBI's
+- Add right permissions to Actions on Website #94
+- Improve interoperability between the two components #95
+- Login as a Student on FEUP-8 #11
+- Register on Website as a Visitor #20
+- Logout as a Student #12
+- Register on the FEUP-8 application as a Visitor #21
+- Change Database Management System #90
+- Delete an exercise as a Teacher #26
+- Open a saved exercise as a Student #15
+- Website Tuning #23
+- Save an exercise progress as a Student #14
+- Convert TIC-80 into FEUP-8 #47
+
+### Increment description
+This sprint focused on finishing the implementation of important features such as support for saving and loading progress feature on client-side (on server side it was already implemented). Using the FEUP-8 app, a student can now login, logout and register.
+
+On the Website, it is now possible to delete an exercise when logged in as a Teacher. The Website aesthetics and navbar were also improved.
+
+As final fixes, we improved the client and server interoperability for final release:
+* fixed FEUP-8 client not working with production server
+* the FEUP-8 app is now more configurable as the server Domain/IP address can be changed by editing a config file (conf.ini)
+* FEUP-8 error messages related to communication between the client and the server were improved
+
+#### Bug Fixes:
+	FEUP-8:
+		* Segmentation fault on trying to load an exercise with id non positive
+		* Segmentation fault on load tests from an exercise that has none
+		* Segmentation fault on sending student code to be tested in the server from an exercise that has no tests
+		* Duplicated registering when registering on FEUP-8. Register already does the user authentication automatically
+		* String errors caused by wrong or missing null terminators on see test description from an exercise
+		* Segmentation fault caused by aliasing in server responses. This caused fro example to seg fault when list exercises after showing an exercise(because of the higher number of bytes of the second)
+	Website:
+		* When a exercise has no tests, the progress calculation must return 0, which caused the save progress feature (that calculates current progress) to fail for permission denied.
+		* The creator of an exercise (i.e. a teacher) not having permissions to see his own exercise on FEUP-8
