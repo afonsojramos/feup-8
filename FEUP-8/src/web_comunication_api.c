@@ -497,7 +497,7 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
             cJSON *img_base64_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "image_base64");
             if(img_base64_obj == NULL)
                 return SERVER_ERROR;
-            exercise->img_base64 = getStringCopy(img_base64_obj->valuestring);
+            //exercise->img_base64 = getStringCopy(img_base64_obj->valuestring);
             
             cJSON *feup8_file_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "feup8_file");
             if(feup8_file_obj == NULL)
@@ -593,8 +593,7 @@ int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercis
         
         if(hint_obj == NULL|| hint_obj->valuestring == NULL)
         {
-            ret_code = SERVER_ERROR;
-            goto deallocate_parseExerciseTestsReceived;
+           hint_obj->valuestring="";
         }
         (*exerciseTestArray)[i].hint = hint_obj->valuestring;
 
