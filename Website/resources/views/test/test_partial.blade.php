@@ -6,11 +6,9 @@
         <h5 class="mb-1 w-100"><br><pre>{{ $test->test_code }}</pre></h5>
         @if(Auth::check() && $exercise->creator_id == Auth::user()->id)
         <div id="edit-buttons">
-            <form>
-                <button id="edit-button" class="btn btn-secondary btn-xs rounded" style="margin-right: 2%" data-toggle="modal" data-target=".edit-test-modal_{{ $test->id }}">
-                    <i class="fas fa-pen"></i>
-                </button>
-            </form>
+            <button id="edit-button" class="btn btn-secondary btn-xs rounded" style="margin-right: 2%" data-toggle="modal" data-target=".edit-test-modal_{{ $test->id }}">
+                <i class="fas fa-pen"></i>
+            </button>
             <form method="POST" action="{{ action('Web\TestController@removeTest', ['id' => $exercise->id,'test_id' => $test->id]) }}">
             {{ csrf_field() }}
                 <button type="submit" id="remove-button" class="btn btn-danger btn-xs rounded">
