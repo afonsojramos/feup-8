@@ -416,7 +416,7 @@ int getExercisesListRequestSend(ExerciseSimplified *exercises_list[], size_t *nu
         cJSON_free(exercise);
         
     }
-    free(response.data);
+
     cJSON_free(monitor_json);
     cJSON_free(ret_code_obj);
     return ret_code; //can display a message saying what hapenned and return acordingly
@@ -493,11 +493,6 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
             if(description_obj == NULL)
                 return SERVER_ERROR;
             exercise->description = getStringCopy(description_obj->valuestring);
-
-            cJSON *img_base64_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "image_base64");
-            if(img_base64_obj == NULL)
-                return SERVER_ERROR;
-            //exercise->img_base64 = getStringCopy(img_base64_obj->valuestring);
             
             cJSON *feup8_file_obj = cJSON_GetObjectItemCaseSensitive(exercise_element, "feup8_file");
             if(feup8_file_obj == NULL)
@@ -527,7 +522,6 @@ int getExerciseDetailsRequestSend(int exercise_id, tic_exercise *exercise, bool 
             cJSON_free(title_obj);
             cJSON_free(creator_name_obj);
             cJSON_free(description_obj);
-            cJSON_free(img_base64_obj);
             cJSON_free(progress_obj);
             cJSON_free(exercise_obj);    
         }
@@ -591,13 +585,12 @@ int parseExerciseTestsReceived(cJSON *exercise_element, tic_exercise *ticExercis
         }
         (*exerciseTestArray)[i].title = title_obj->valuestring;
         
-        if(hint_obj == NULL|| hint_obj->valuestring == NULL)
-        {
-           hint_obj->valuestring="";
-        }
-        (*exerciseTestArray)[i].hint = hint_obj->valuestring;
+        if(hint_obj == NULL || hint_obj->valuestring == NULL)
+           (*exerciseTestArray)[i].hint = "";
+        else
+            (*exerciseTestArray)[i].hint = hint_obj->valuestring;
 
-        if(test_code_obj == NULL|| test_code_obj->valuestring == NULL)
+        if(test_code_obj == NULL || test_code_obj->valuestring == NULL)
         {
             ret_code = SERVER_ERROR;
             goto deallocate_parseExerciseTestsReceived;
