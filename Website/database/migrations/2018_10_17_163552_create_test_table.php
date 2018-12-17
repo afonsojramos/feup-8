@@ -17,7 +17,7 @@ class CreateTestTable extends Migration
             $table->string('title');
             $table->integer('exercise_id');
             $table->foreign('exercise_id')->references('id')->on('Exercise')->onDelete('cascade');
-            $table->string('test_code');
+            $table->string('test_code', 9999);
             $table->string('hint')->nullable();
             $table->timestamps();
         });
