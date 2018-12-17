@@ -9,6 +9,7 @@
             <button id="edit-button" class="btn btn-secondary btn-xs rounded" style="margin-right: 2%" data-toggle="modal" data-target=".edit-test-modal_{{ $test->id }}">
                 <i class="fas fa-pen"></i>
             </button>
+
             <form method="POST" action="{{ action('Web\TestController@removeTest', ['id' => $exercise->id,'test_id' => $test->id]) }}">
             {{ csrf_field() }}
                 <button type="submit" id="remove-button" class="btn btn-danger btn-xs rounded">
@@ -19,13 +20,13 @@
         @endif
         <div class="d-flex w-100 justify-content-between">
             <h6 class="mb-1 w-75" style="font-style: italic; color: cadetblue;">{{ $test->hint }}</h6>
-            @if(Auth::check() && $exercise->creator_id == Auth::user()->id) 
+            @if(Auth::check() && $exercise->creator_id == Auth::user()->id)
             <button id="hint-button" class="btn btn-secondary btn-xs rounded" data-toggle="collapse" data-target=".test_{{ $test->id }}">
                 @if ($test->hint!=null)
                     <i class="fa fa-pen"></i> Edit hint
-                @else 
+                @else
                     Add Hint
-                @endif   
+                @endif
             </button>
             @endif
         </div>
