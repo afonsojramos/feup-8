@@ -152,6 +152,18 @@ A code coverage report will be generated on ```/report```.
 sh lint.sh
 ```
 
+## Run instructions
+
+Using the generated release or the most recent stable version of [FEUP-8](https://gitlab.com/feup-tbs/ldso18-19/t5g2/uploads/718e827dc1a1ccfe8669afba9b5b37ac/feup8_release.zip) you can extract it
+
+The following files should be generated:
+
+* **libfeup8.so** - the application binary file
+* **readme.txt** - some FEUP-8 important information
+* **conf.ini** - since there are two main components to our project (client and server) the server address (ip or domain) and port must be specified in the client's configuration file. By default this is filled with the production server's values and needs to be altered to use another server. The protocol used is HTTP over TCP. 
+* **FEUP-8.desktop** - FEUP-8 executable
+
+
 ## Web API Documentation 
 
 The documentation  of the API that allows communication between the FEUP-8 app and the server can be found here:
