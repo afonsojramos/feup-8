@@ -101,47 +101,63 @@ On Ubuntu, this can be installed using ```sudo apt-get install clang-format```, 
 
 Regardless of the OS, make sure that you are on the ```Website``` subfolder of the project during **every stage** of the following instructions.
 
-#### To run the website locally:
+#### To run the website locally using Docker:
 
-Install the following dependencies using your distro's package manager. The following list has been validated using apt-get on Ubuntu 18.04.1 LTS, and it may differ slightly on other distros or OS. Install them one by one on this exact order to ensure maximal compatibility:
+Install the following dependencies using your distro's package manager. The following commands have been validated using apt-get on Ubuntu 18.04.1 LTS, and it may differ slightly on other distros or OS.
 
-- php7.2
-- php-xdebug
-- composer
-- php7.2-sqlite
-- php7.2-mbstring
-- php7.2-xml
-- lua50
-- luajit
-- luarocks
+```sudo apt-get update
+sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt-get update
+sudo apt-get install docker-ce
+docker run hello-world # make sure that the installation worked
 
-Then, run the initial build:
+sudo curl -L https://github.com/docker/compose/releases/download/1.18.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version # verify that you have Docker Compose installed
 
 ```
-git clone --recursive https://gitlab.com/ldso18-19/t5g2.git
+Add the current user to the `docker` user group, this will fix any permission issue using docker
+```
+sudo usermod -a -G docker $USER
+```
+
+Then, clone the repository and build and run the containers:
+
+```
+git clone --recursive https://gitlab.com/feup-tbs/ldso18-19/t5g2.git
 cd t5g2/Website
-sudo composer install   # use sudo only if you get permission errors, and only after you verify if you can't solve them with chmod
-luarocks install luaunit
+docker-compose up postgres-db web pgadmin
+```
+If and errors occurs related to the absence of the `vendor` folder run inside `Website` folder:
+```
+#install composer if missing using apt-get
+composer install
 ```
 
-Now, you need to change the ```DB_DATABASE``` path in the ```.env``` file to the one on your local machine. Once that is done, run the following:
+After the former first time setup, simply run  the `docker-compose up` command inside the project's root folder:
 
 ```
-sudo sh setup.sh    # use sudo only if you get permission errors, and only after you verify if you can't solve them with chmod
-php artisan serve
+docker-compose up postgres-db web pgadmin
 ```
+ 
 
-After the former first time setup, simply run:
-
+To get an interactive bash inside the website's container run:
 ```
-php artisan serve
+docker-compose exec web bash
+```
+## Run the following commands inside the `web` container
+
+Seed the database (run inside the container)
+```
+./setup_tests.sh
 ```
 
 #### To run the unit tests and generate the coverage report:
 
 ```
-sudo sh setup_tests.sh
-vendor/bin/phpunit
+./vendor/bin/phpunit
 ```
 
 A code coverage report will be generated on ```/report```.
@@ -151,6 +167,17 @@ A code coverage report will be generated on ```/report```.
 ```
 sh lint.sh
 ```
+
+## Continuous Deployment
+
+If you want to be able to use the continuous deployment jobs in gitlab-ci.
+You must define the following repository *Environment Variables* at `Settings->CI/CD->Environment variables `
+
+* **APP_KEY** - used by Laravel has a cryptographic seed
+* **DB_PASSWORD** - PostgreSQL database password
+* **SSH_KNOWN_HOSTS** - Known hosts to know you're connecting to the right server
+* **SSH_PRIVATE_KEY** - The private key to access the server
+
 
 ## Run instructions
 
