@@ -7,7 +7,7 @@ stages:
 
 
 build:website:
-    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-staging
+    image: registry.gitlab.com/afonsojramos/feup-8:website-staging
     stage: build
     artifacts:
         untracked: true
@@ -17,7 +17,7 @@ build:website:
 
 
 build:feup-8:
-    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:feup-8
+    image: registry.gitlab.com/afonsojramos/feup-8:feup-8
     stage: build
     artifacts:
         paths:
@@ -45,7 +45,7 @@ test:website:
         POSTGRES_PASSWORD: $POSTGRES_PASS
 
 
-    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-staging
+    image: registry.gitlab.com/afonsojramos/feup-8:website-staging
     stage: test
     dependencies:
         - build:website
@@ -66,7 +66,7 @@ test:website:
 
 
 test:feup-8:
-    image: registry.gitlab.com/feup-tbs/ldso18-19/t5g2:feup-8
+    image: registry.gitlab.com/afonsojramos/feup-8:feup-8
     stage: test
     artifacts:
         untracked: true
@@ -107,8 +107,8 @@ update:update-images-development:
         - docker:dind
     script:
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-        - docker build ./Website/. -t registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-staging
-        - docker push registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-staging
+        - docker build ./Website/. -t registry.gitlab.com/afonsojramos/feup-8:website-staging
+        - docker push registry.gitlab.com/afonsojramos/feup-8:website-staging
     only:
         - development
 
@@ -120,11 +120,11 @@ update:update-images-master:
         - docker:dind
     script:
         - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-        - docker build ./FEUP-8/. -t registry.gitlab.com/feup-tbs/ldso18-19/t5g2:feup-8
-        - docker push registry.gitlab.com/feup-tbs/ldso18-19/t5g2:feup-8
+        - docker build ./FEUP-8/. -t registry.gitlab.com/afonsojramos/feup-8:feup-8
+        - docker push registry.gitlab.com/afonsojramos/feup-8:feup-8
 
-        - docker build ./Website/. -t registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
-        - docker push registry.gitlab.com/feup-tbs/ldso18-19/t5g2:website-prod
+        - docker build ./Website/. -t registry.gitlab.com/afonsojramos/feup-8:website-prod
+        - docker push registry.gitlab.com/afonsojramos/feup-8:website-prod
     only:
         - master
 
