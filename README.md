@@ -17,17 +17,8 @@ In a most deep way our product will provide features beyond the TIC-80 education
 
 ## Feedback
 
-* Request a new feature on GitLab
-* File a bug in [GitLab Issues](https://gitlab.com/ldso18-19/t5g2/issues).
-
-## Development Team
-
-This is being developed by the following team, feel free to contact any of us at any time.
-
-| <img src="https://assets.gitlab-static.net/uploads/-/system/user/avatar/2846743/avatar.png" height="75px" width="75px"/>  | [`@afonsojramos`](https://github.com/afonsojramos)|        
-<img src="https://assets.gitlab-static.net/uploads/-/system/user/avatar/2846741/avatar.png" height="75px" width="75px"/> | [`@NadiaCarvalho`](https://gitlab.com/NadiaCarvalho) | <img src="https://secure.gravatar.com/avatar/40f5ded910f5f5a744db1ad56887a46a?s=180&d=identicon" height="75px" width="75px"/>  | [`@up201503995`](https://gitlab.com/up201503995)| <img src="https://secure.gravatar.com/avatar/147062fb337b447edbe58d1a6c16f458?s=180&d=identicon"      height="75px" width="75px"/> | [`@tiagolascasas`](https://gitlab.com/tiagolascasas)
---|--|--|--|--|--|--|--|
-| <img src="https://secure.gravatar.com/avatar/f492e5707cbf0fca0f3225e0fcdbf52b?s=180&d=identicon" height="75px" width="75px"/>  | [`@Lantaros`](https://gitlab.com/Lantaros)| <img src="https://secure.gravatar.com/avatar/8dacc894429b1c487a94acfbe447c078?s=180&d=identicon"      height="75px" width="75px"/> | [`@TrocaTudo95`](https://gitlab.com/TrocaTudo95) | <img src="https://secure.gravatar.com/avatar/b9f320d003766e6ab9e859c6364d7744?s=180&d=identicon" height="75px" width="75px"/>  | [`@up201504196`](https://gitlab.com/up201504196)| <img src="http://4sqday.com/wp-content/uploads/2012/07/Pointing_Finger.jpg"   height="75px" width="75px"/> | YOU
+* Request a new feature on GitHub
+* File a bug in [GitHub Issues](https://github.com/afonsojramos/feup-8/issues).
 
 ## Build instructions
 
