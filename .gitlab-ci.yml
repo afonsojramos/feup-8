@@ -25,6 +25,7 @@ build:feup-8:
             - ./FEUP-8/bin/tic80
             - ./FEUP-8/release
     script:
+        - apt-get update
         - apt-get install lcov -y
         - apt-get install zip -y
         - cd FEUP-8
