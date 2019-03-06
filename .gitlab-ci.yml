@@ -150,6 +150,7 @@ deploy:website-prod:
         url: http://prod.feup8.tk
     only:
         - master
+    when: manual
 
 
 deploy:website-staging:
@@ -173,3 +174,4 @@ deploy:website-staging:
         url: http://staging.feup8.tk:2375
     only:
         - development
+    when: manual
