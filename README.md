@@ -39,7 +39,7 @@ sudo sh cmake-3.12.0-Linux-x86_64.sh --skip-license --prefix=/usr
 Then, run the following commands in the terminal
 ```
 sudo apt-get install git cmake libgtk-3-dev libglvnd-dev:i386 libglvnd-dev libglu-dev lcov -y
-git clone --recursive https://gitlab.com/ldso18-19/t5g2 && cd t5g2/FEUP-8
+cd t5g2/FEUP-8
 cmake . && make -j4
 ```
 
@@ -56,7 +56,6 @@ Firstly, install `Command Line Tools for Xcode` and `brew` package manager
 Then, run the following commands in the Terminal
 ```
 brew install git cmake
-git clone --recursive https://gitlab.com/ldso18-19/t5g2
 cd t5g2/FEUP-8
 cmake . && make -j4
 ```
